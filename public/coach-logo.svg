@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="108" fill="#121212"/>
+  <circle cx="256" cy="256" r="178" fill="url(#g)" opacity=".98"/>
+  <path d="M170 310c44-82 128-82 172 0" stroke="#121212" stroke-width="34" stroke-linecap="round"/>
+  <circle cx="256" cy="205" r="58" fill="#121212"/>
+  <path d="M145 168h222" stroke="#fff" stroke-width="22" stroke-linecap="round" opacity=".95"/>
+  <path d="M256 118v276" stroke="#fff" stroke-width="18" stroke-linecap="round" opacity=".95"/>
+  <circle cx="156" cy="168" r="22" fill="#fff"/><circle cx="356" cy="168" r="22" fill="#fff"/>
+  <path d="M146 388h220" stroke="#fff" stroke-width="24" stroke-linecap="round"/>
+  <text x="256" y="446" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="900" fill="#99CC00">COACH</text>
+  <defs><linearGradient id="g" x1="80" y1="80" x2="430" y2="430" gradientUnits="userSpaceOnUse"><stop stop-color="#99CC00"/><stop offset="1" stop-color="#1296D4"/></linearGradient></defs>
+</svg>
