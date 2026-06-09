@@ -1,15 +1,14 @@
 {
-  "name": "cav-assistant-coach",
-  "version": "2.0.0",
+  "name": "cav-assistant-coach-online-ai",
+  "version": "7.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview",
-    "android:add": "npx cap add android",
-    "android:sync": "npm run build && npx cap sync android",
-    "android:open": "npx cap open android"
+    "preview": "vite preview --host 0.0.0.0",
+    "sync:android": "npx cap sync android",
+    "add:android": "npx cap add android"
   },
   "dependencies": {
     "@capacitor/android": "^7.2.0",
@@ -20,8 +19,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "lucide-react": "^0.468.0",
-    "jspdf": "^2.5.2",
-    "html2canvas": "^1.4.1"
+    "jspdf": "^2.5.2"
   },
   "devDependencies": {}
 }

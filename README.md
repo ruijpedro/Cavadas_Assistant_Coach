@@ -1,42 +1,50 @@
-# Cav Assistant Coach v3 — Intelligence Engine
+# Cav Assistant Coach v7 Online AI
 
-App React/Vite + Capacitor Android para apoio inteligente ao treinador de futebol/futsal.
+App de competição para futebol/futsal com Coach AI online.
 
-## Novidades v3
+## Inclui
+- React + Vite
+- Capacitor Android
+- Coach AI via backend `/api/coach-ai`
+- Google Sheets via Apps Script
+- Relatórios PDF
+- Workflows GitHub para Web e Android
 
-- Team DNA automático
-- Tactical Pattern Engine
-- Perfil IA por atleta
-- Training Generator AI
-- Coach AI Intelligence com perguntas rápidas
-- PDF Intelligence com leitura IA, padrões e plano de treino
-- Scout Match com eventos e zonas de campo
-- Identidade visual Cav/2YOU: azul, verde, preto e branco
-
-## Filosofia
-
-A IA apoia a decisão. Nunca substitui o treinador.
-
-## Instalação
-
+## Instalação local
 ```bash
 npm install
+npm run dev
+```
+
+## Build Web
+```bash
 npm run build
 ```
 
-## Android
+## OpenAI
+A chave **não deve ficar no React**. Configura no backend/Vercel/GitHub Secrets:
 
+```env
+OPENAI_API_KEY=sk-proj-...
+```
+
+## Google Sheets
+1. Cria uma Google Sheet.
+2. Abre Extensões > Apps Script.
+3. Cola o conteúdo de `scripts/google-apps-script.js`.
+4. Corre `setup` uma vez.
+5. Publica como Aplicação Web.
+6. Cola o URL no separador Google da app ou em `.env`:
+
+```env
+VITE_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/.../exec
+```
+
+## Android
 ```bash
+npm run build
 npx cap add android
 npx cap sync android
 ```
 
-## Dados
-
-Nesta versão os dados ficam em `localStorage`. A próxima fase deve ligar:
-
-- Google Login
-- Google Sheets
-- Google Drive
-- Google Calendar
-- API IA real para Coach AI
+Depois usa o workflow `Build Android APK` no GitHub.
