@@ -225,3 +225,10 @@ main{max-width:1920px;padding:14px 16px}
  .coachTools{display:grid;grid-template-columns:1fr 1fr}.coachTools button{width:100%}
  .playSteps{justify-content:center}.coachHint{font-size:13px}.simpleHead{align-items:flex-start}
 }
+
+/* V17 Tactical Library */
+.boardTitleInput{display:block;border:0;background:transparent;font-size:24px;font-weight:900;padding:2px 0;max-width:620px;width:100%}
+.boardTitleInput:focus{outline:none;border-bottom:2px solid #123f9c}
+.boardSub{font-size:13px;color:#64748b;margin-top:3px}
+.exerciseListItem small{line-height:1.25}
+@media(max-width:700px){.boardTitleInput{font-size:19px}.boardSub{font-size:12px}}

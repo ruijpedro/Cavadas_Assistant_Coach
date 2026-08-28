@@ -33,6 +33,105 @@ async function exportNode(id,kind,filename){
 }
 
 
+
+// V17 — Biblioteca tática base. Conteúdos adaptados à mecânica da app a partir
+// da estrutura de treino do PPT do treinador: sistemas, bolas de saída, cantos,
+// livres/foras e saídas de pressão. A biblioteca é deliberadamente curta.
+const tp=(id,title,category,objective,description,steps,duration=10)=>({
+ id,title,author:'RJP / Cavadas Manager',category,phase:'Aquisição de competências',
+ duration,objective,description,notes:'Biblioteca Base V17 · repetir e consolidar antes de introduzir variantes.',
+ playersCount:steps[0]?.players?.length||0,field:'futsal',
+ board:{players:steps[0]?.players||[],ball:steps[0]?.ball||{x:50,y:50},steps},
+ source:'PPT Treino / adaptação Cavadas Manager',libraryBase:true
+})
+const P=(id,team,x,y,label)=>({id,team,x,y,label:String(label)})
+const S=(name,players,ball,paths=[])=>({id:name,name,players,ball,paths})
+const A=(x,y,n)=>P('a'+n,'a',x,y,n), D=(x,y,n)=>P('d'+n,'d',x,y,n)
+const TACTICAL_LIBRARY=[
+ tp('lib-3x1','3x1 · Conservar e sair','Jogo reduzido','Criar linhas de passe e decidir com vantagem numérica.','3 atacantes contra 1 defensor. Máximo 2 toques; após 6 passes procurar saída/finalização.',[
+  S('Passo 1',[A(24,25,1),A(24,58,2),A(48,42,3),D(38,42,1)],{x:24,y:25}),
+  S('Passo 2',[A(24,25,1),A(30,64,2),A(54,34,3),D(40,46,1)],{x:54,y:34}),
+  S('Passo 3',[A(28,22,1),A(35,64,2),A(68,42,3),D(49,45,1)],{x:68,y:42})
+ ],8),
+ tp('lib-3x2','3x2 · Progressão e finalização','Jogo reduzido','Atacar rapidamente uma superioridade 3x2.','Três atacantes progridem contra dois defensores. Fixar, soltar no momento certo e atacar segundo poste.',[
+  S('Passo 1',[A(25,25,1),A(25,58,2),A(42,42,3),D(59,30,1),D(59,55,2)],{x:42,y:42}),
+  S('Passo 2',[A(38,20,1),A(38,64,2),A(56,42,3),D(64,28,1),D(64,54,2)],{x:38,y:20}),
+  S('Passo 3',[A(58,24,1),A(73,62,2),A(68,40,3),D(73,31,1),D(72,49,2)],{x:73,y:62})
+ ],10),
+ tp('lib-gr1x2','1 + GR x 2 · Saída curta','Tática ofensiva','Usar o guarda-redes para criar superioridade na primeira linha.','Progressão simples do PPT: GR + 1 jogador contra 2 opositores.',[
+  S('Passo 1',[A(10,42,'GR'),A(28,42,1),D(42,28,1),D(42,56,2)],{x:10,y:42}),
+  S('Passo 2',[A(10,42,'GR'),A(34,25,1),D(38,31,1),D(45,53,2)],{x:34,y:25}),
+  S('Passo 3',[A(13,42,'GR'),A(55,30,1),D(46,34,1),D(48,55,2)],{x:55,y:30})
+ ],8),
+ tp('lib-gr2x3','2 + GR x 3 · Construção','Tática ofensiva','Dar continuidade à saída sob pressão com apoio e largura.','Progressão do PPT: GR + 2 jogadores contra 3 opositores.',[
+  S('Passo 1',[A(9,42,'GR'),A(26,23,1),A(26,61,2),D(42,21,1),D(45,42,2),D(42,63,3)],{x:9,y:42}),
+  S('Passo 2',[A(10,42,'GR'),A(34,18,1),A(31,66,2),D(43,24,1),D(46,42,2),D(42,59,3)],{x:34,y:18}),
+  S('Passo 3',[A(13,42,'GR'),A(55,25,1),A(39,65,2),D(48,27,1),D(51,43,2),D(45,58,3)],{x:55,y:25})
+ ],10),
+ tp('lib-gr4x5','4 + GR x 5 · Saída coletiva','Tática ofensiva','Reconhecer apoios, coberturas ofensivas e homem livre.','Progressão do PPT para contexto próximo do jogo: GR + 4 contra 5.',[
+  S('Passo 1',[A(8,42,'GR'),A(24,18,1),A(24,66,2),A(38,30,3),A(38,54,4),D(48,18,1),D(50,32,2),D(53,46,3),D(49,62,4),D(65,42,5)],{x:8,y:42}),
+  S('Passo 2',[A(9,42,'GR'),A(31,16,1),A(28,68,2),A(45,26,3),A(43,57,4),D(50,20,1),D(53,34,2),D(56,46,3),D(51,61,4),D(68,43,5)],{x:31,y:16}),
+  S('Passo 3',[A(12,42,'GR'),A(50,18,1),A(36,68,2),A(58,31,3),A(49,57,4),D(55,22,1),D(60,36,2),D(62,48,3),D(56,61,4),D(72,43,5)],{x:58,y:31})
+ ],12),
+ tp('lib-def-lines','Defensivo · Linhas e coberturas','Tática defensiva','Manter linhas compactas, cobertura e equilíbrio.','Modelo defensivo base: deslocamento conjunto da primeira e segunda linhas em função da bola.',[
+  S('Passo 1',[A(55,20,1),A(55,63,2),A(68,31,3),A(68,53,4),D(34,22,1),D(34,62,2),D(43,42,3)],{x:34,y:22}),
+  S('Passo 2',[A(51,18,1),A(58,59,2),A(64,30,3),A(70,51,4),D(40,18,1),D(34,58,2),D(46,39,3)],{x:40,y:18}),
+  S('Passo 3',[A(56,27,1),A(60,64,2),A(68,38,3),A(72,56,4),D(43,27,1),D(39,65,2),D(51,46,3)],{x:43,y:27})
+ ],10),
+ tp('lib-def-trocas','Defensivo · Trocas','Tática defensiva','Realizar trocas defensivas sem perder cobertura central.','Dois defensores coordenam troca perante cruzamento dos atacantes; restantes fecham profundidade.',[
+  S('Passo 1',[A(54,25,1),A(54,58,2),A(69,34,3),A(69,52,4),D(39,25,1),D(39,58,2),D(48,41,3)],{x:39,y:25}),
+  S('Passo 2',[A(58,39,1),A(56,45,2),A(70,29,3),A(70,57,4),D(47,55,1),D(47,29,2),D(52,42,3)],{x:47,y:55}),
+  S('Passo 3',[A(56,57,1),A(58,25,2),A(69,31,3),A(69,54,4),D(50,59,1),D(50,24,2),D(57,42,3)],{x:50,y:59})
+ ],10),
+ tp('lib-off31','Modelo Ofensivo 3:1','Tática ofensiva','Fixar profundidade com pivô e criar linhas de passe em triângulo.','Estrutura 3:1: fixo + alas + pivô. Circular sem destruir distâncias úteis.',[
+  S('Passo 1',[A(27,42,1),A(43,20,2),A(43,64,3),A(73,42,4),D(57,25,1),D(57,58,2),D(66,42,3)],{x:27,y:42}),
+  S('Passo 2',[A(36,33,1),A(50,16,2),A(47,64,3),A(76,48,4),D(59,27,1),D(58,57,2),D(68,43,3)],{x:50,y:16}),
+  S('Passo 3',[A(45,38,1),A(63,22,2),A(54,66,3),A(78,46,4),D(65,29,1),D(62,57,2),D(71,43,3)],{x:78,y:46})
+ ],12),
+ tp('lib-off40','Modelo Ofensivo 4:0','Tática ofensiva','Criar mobilidade e espaço através de rotações coordenadas.','Estrutura 4:0: quatro jogadores em duas alturas, com troca e ataque ao espaço libertado.',[
+  S('Passo 1',[A(31,22,1),A(31,62,2),A(54,25,3),A(54,59,4),D(65,23,1),D(65,61,2),D(74,35,3),D(74,50,4)],{x:31,y:22}),
+  S('Passo 2',[A(43,31,1),A(43,53,2),A(61,17,3),A(61,67,4),D(67,25,1),D(67,59,2),D(75,36,3),D(75,49,4)],{x:43,y:31}),
+  S('Passo 3',[A(57,48,1),A(57,36,2),A(76,20,3),A(76,64,4),D(69,27,1),D(69,57,2),D(77,37,3),D(77,48,4)],{x:76,y:20})
+ ],12),
+ tp('lib-kickoff1','Bola de saída 1 · Abertura lateral','Bola parada','Sair da bola de saída com largura e apoio atrás.','Primeiro passe lateral, apoio central e progressão pelo corredor contrário.',[
+  S('Passo 1',[A(48,42,1),A(52,42,2),A(38,20,3),A(38,64,4),D(63,27,1),D(63,57,2)],{x:50,y:42}),
+  S('Passo 2',[A(45,42,1),A(57,42,2),A(48,18,3),A(35,64,4),D(65,28,1),D(65,56,2)],{x:48,y:18}),
+  S('Passo 3',[A(49,45,1),A(65,35,2),A(63,20,3),A(48,66,4),D(68,29,1),D(68,55,2)],{x:65,y:35})
+ ],6),
+ tp('lib-kickoff2','Bola de saída 2 · Diagonal','Bola parada','Atacar rapidamente o espaço contrário à primeira aproximação.','Movimento de engano junto à bola e diagonal do ala para receber em progressão.',[
+  S('Passo 1',[A(48,42,1),A(52,42,2),A(36,22,3),A(36,62,4),D(63,26,1),D(63,58,2)],{x:50,y:42}),
+  S('Passo 2',[A(43,42,1),A(57,36,2),A(50,28,3),A(46,63,4),D(65,27,1),D(66,56,2)],{x:57,y:36}),
+  S('Passo 3',[A(48,48,1),A(72,24,2),A(61,33,3),A(56,65,4),D(69,29,1),D(69,54,2)],{x:72,y:24})
+ ],6),
+]
+
+const addCorner=(n,variant)=>TACTICAL_LIBRARY.push(tp('lib-corner'+n,'Canto '+n+' · '+variant,'Bola parada','Criar finalização organizada a partir do canto.','Canto adaptado à biblioteca base do PPT. Ensaiar primeiro sem oposição e depois com defesa ativa.',[
+ S('Passo 1',[A(90,77,1),A(75,64,2),A(70,35,3),A(56,51,4),D(84,55,1),D(79,39,2),D(67,49,3)],{x:94,y:76}),
+ S('Passo 2',[A(90,77,1),A(79-n,55,2),A(76,29+n*2,3),A(62+n,47,4),D(84,53,1),D(78,40,2),D(70,49,3)],{x:79-n,y:55}),
+ S('Passo 3',[A(84,67,1),A(85-n,48,2),A(82,25+n*2,3),A(72+n,42,4),D(86,51,1),D(80,39,2),D(74,47,3)],{x:82,y:25+n*2})
+],7))
+addCorner(1,'Curto / 1.º poste'); addCorner(2,'Bloqueio central'); addCorner(3,'2.º poste'); addCorner(4,'Remate frontal'); addCorner(5,'Troca e finalização')
+
+const addPress=(n,side)=>TACTICAL_LIBRARY.push(tp('lib-press'+n,'Saída de pressão '+n,'Saída de pressão','Sair da pressão mantendo apoios e ocupação racional do espaço.','Uma das cinco soluções-base de saída de pressão do PPT, adaptada à animação por passos.',[
+ S('Passo 1',[A(9,42,'GR'),A(24,18,1),A(24,66,2),A(42,31,3),A(42,54,4),D(35,20,1),D(37,38,2),D(37,60,3),D(54,43,4)],{x:9,y:42}),
+ S('Passo 2',[A(10,42,'GR'),A(31,15+n,1),A(28,68-n,2),A(49,27+n,3),A(47,57-n,4),D(39,22,1),D(42,39,2),D(40,59,3),D(57,44,4)],{x:side==='top'?31:28,y:side==='top'?15+n:68-n}),
+ S('Passo 3',[A(12,42,'GR'),A(52,18+n,1),A(42,66-n,2),A(63,28+n,3),A(57,56-n,4),D(45,23,1),D(48,39,2),D(46,58,3),D(64,44,4)],{x:side==='top'?63:57,y:side==='top'?28+n:56-n})
+],9))
+addPress(1,'top');addPress(2,'bottom');addPress(3,'top');addPress(4,'bottom');addPress(5,'top')
+
+TACTICAL_LIBRARY.push(
+ tp('lib-kickin1','Fora/Livre lateral 1 · Apoio curto','Bola parada','Dar linha curta e criar continuação interior.','Reposição lateral com apoio frontal, devolução e entrada no espaço.',[
+  S('Passo 1',[A(58,7,1),A(49,24,2),A(67,31,3),A(77,55,4),D(61,23,1),D(70,38,2),D(75,54,3)],{x:58,y:7}),
+  S('Passo 2',[A(58,7,1),A(55,22,2),A(71,25,3),A(79,57,4),D(63,23,1),D(71,39,2),D(76,53,3)],{x:55,y:22}),
+  S('Passo 3',[A(65,18,1),A(63,37,2),A(79,26,3),A(84,59,4),D(68,25,1),D(74,40,2),D(79,52,3)],{x:79,y:26})
+ ],7),
+ tp('lib-kickin2','Fora/Livre lateral 2 · 2.º poste','Bola parada','Criar finalização no segundo poste.','Reposição lateral com movimento de arrastamento e ataque ao poste contrário.',[
+  S('Passo 1',[A(62,7,1),A(56,28,2),A(72,35,3),A(78,61,4),D(65,25,1),D(73,39,2),D(80,54,3)],{x:62,y:7}),
+  S('Passo 2',[A(62,7,1),A(65,24,2),A(78,32,3),A(86,61,4),D(67,26,1),D(76,39,2),D(82,53,3)],{x:65,y:24}),
+  S('Passo 3',[A(69,18,1),A(76,35,2),A(85,29,3),A(91,58,4),D(72,27,1),D(80,40,2),D(85,51,3)],{x:91,y:58})
+ ],7)
+)
+
 const initialAthletes=[
  {id:'a7',name:'Denys Zamula',dob:'1984-12-20',height:181,currentWeight:80,idealWeight:71,position:'Universal / Pivô Móvel',defensive:'Misto',offensive:['2-2'],speed:{m5:'',m10:'',m20:'',m30:'',max:''},notes:'Posição preferida: Universal / Pivô Móvel'}, 
  {id:'a1',name:'Bruno Ricardo Faria Costa',dob:'1999-05-26',height:175,currentWeight:69,idealWeight:71,position:'Ala',defensive:'Zona',offensive:['3-1','4-0'],captain:false,speed:{m5:'',m10:'',m20:'',m30:'',max:''},notes:''},
@@ -59,6 +158,14 @@ function App(){
  useEffect(()=>{const k='gw_roster_migrated_v11_4';if(localStorage.getItem(k))return;const ids=new Set(athletes.map(a=>a.id));const missing=initialAthletes.filter(a=>!ids.has(a.id));if(missing.length)setAthletes([...athletes,...missing]);localStorage.setItem(k,'1')},[])
  const [callups,setCallups]=useStore('gw_callups_v12',[])
  const [exercises,setExercises]=useStore('gw_exercises',[])
+ useEffect(()=>{
+  const k='gw_tactical_library_v17'
+  if(localStorage.getItem(k))return
+  const have=new Set((exercises||[]).map(x=>x.id))
+  const missing=TACTICAL_LIBRARY.filter(x=>!have.has(x.id))
+  if(missing.length)setExercises([...(exercises||[]),...missing])
+  localStorage.setItem(k,'1')
+ },[])
  const [sessions,setSessions]=useStore('gw_training_sessions_v12',[])
  const [games,setGames]=useStore('gw_games_v12',[])
  const [week,setWeek]=useStore('gw_week_plan_v12',[])
@@ -207,25 +314,32 @@ function PostMatch({games=[]}){
 }
 
 function Board({tr,exercises,setExercises}){
- const basePlayers=[
+ const editId=localStorage.getItem('gw_board_edit_exercise')
+ const editEx=(exercises||[]).find(x=>x.id===editId)
+ const storedSteps=editEx?.board?.steps
+ const fallbackPlayers=[
   {id:'a1',team:'a',x:22,y:42,label:'1'},{id:'a2',team:'a',x:35,y:25,label:'2'},
   {id:'a3',team:'a',x:35,y:59,label:'3'},{id:'a4',team:'a',x:48,y:42,label:'4'},
   {id:'d1',team:'d',x:68,y:28,label:'1'},{id:'d2',team:'d',x:68,y:56,label:'2'},
   {id:'d3',team:'d',x:79,y:42,label:'3'}
  ]
- const [sport,setSport]=useState('futsal')
- const [players,setPlayers]=useState(basePlayers)
- const [ball,setBall]=useState({x:52,y:42})
+ const initialSteps=storedSteps?.length?storedSteps:[{id:Date.now(),name:'Passo 1',players:fallbackPlayers.map(p=>({...p})),ball:{x:52,y:42},paths:[]}]
+ const [title,setTitle]=useState(editEx?.title||'Nova jogada')
+ const [sport,setSport]=useState(editEx?.field||'futsal')
+ const [steps,setSteps]=useState(initialSteps)
+ const [step,setStep]=useState(0)
+ const [players,setPlayers]=useState((initialSteps[0].players||fallbackPlayers).map(p=>({...p})))
+ const [ball,setBall]=useState({...initialSteps[0].ball||{x:52,y:42}})
+ const [paths,setPaths]=useState((initialSteps[0].paths||[]).map(p=>({...p})))
  const [tool,setTool]=useState('select')
  const [drag,setDrag]=useState(null)
  const [pathStart,setPathStart]=useState(null)
- const [paths,setPaths]=useState([])
- const [steps,setSteps]=useState([{id:Date.now(),name:'Passo 1',players:basePlayers.map(p=>({...p})),ball:{x:52,y:42},paths:[]}])
- const [step,setStep]=useState(0)
  const [playing,setPlaying]=useState(false)
+ const stopRef=useRef(false)
 
  const snap=()=>({players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p}))})
- const saveStep=()=>setSteps(v=>v.map((x,i)=>i===step?{...x,...snap()}:x))
+ const commitSteps=()=>steps.map((x,i)=>i===step?{...x,...snap()}:x)
+ const saveStep=()=>setSteps(commitSteps())
  const loadStep=i=>{
    const x=steps[i]; if(!x)return
    setPlayers((x.players||[]).map(p=>({...p}))); setBall({...x.ball}); setPaths((x.paths||[]).map(p=>({...p}))); setStep(i)
@@ -234,11 +348,7 @@ function Board({tr,exercises,setExercises}){
    const r=e.currentTarget.getBoundingClientRect()
    return {x:Math.max(2,Math.min(98,(e.clientX-r.left)/r.width*100)),y:Math.max(3,Math.min(97,(e.clientY-r.top)/r.height*100))}
  }
- const down=e=>{
-   if(playing)return
-   const p=point(e)
-   if(tool==='move'||tool==='pass')setPathStart(p)
- }
+ const down=e=>{if(playing)return;const p=point(e);if(tool==='move'||tool==='pass')setPathStart(p)}
  const move=e=>{
    if(!drag||playing)return
    const p=point(e)
@@ -247,11 +357,7 @@ function Board({tr,exercises,setExercises}){
  }
  const up=e=>{
    if(playing)return
-   if(pathStart){
-     const p=point(e)
-     setPaths(v=>[...v,{id:Date.now()+Math.random(),type:tool,x1:pathStart.x,y1:pathStart.y,x2:p.x,y2:p.y}])
-     setPathStart(null)
-   }
+   if(pathStart){const p=point(e);setPaths(v=>[...v,{id:Date.now()+Math.random(),type:tool,x1:pathStart.x,y1:pathStart.y,x2:p.x,y2:p.y}]);setPathStart(null)}
    setDrag(null)
  }
  const addPlayer=team=>{
@@ -259,84 +365,72 @@ function Board({tr,exercises,setExercises}){
    setPlayers(v=>[...v,{id:team+Date.now(),team,x:team==='a'?30:70,y:50,label:String(n)}])
  }
  const nextStep=()=>{
-   saveStep()
-   const n={id:Date.now(),name:`Passo ${steps.length+1}`,...snap(),paths:[]}
-   setSteps(v=>[...v,n]); setPaths([]); setStep(steps.length)
+   const now=commitSteps(); const last={...snap(),paths:[]}
+   const n={id:Date.now(),name:`Passo ${now.length+1}`,...last}
+   setSteps([...now,n]);setPaths([]);setStep(now.length)
+ }
+ const duplicate=()=>{
+   const now=commitSteps(), n={...now[step],id:Date.now(),name:`Passo ${now.length+1}`,players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p}))}
+   setSteps([...now,n]);setStep(now.length)
  }
  const lerp=(a,b,t)=>a+(b-a)*t
  const animate=(a,b)=>new Promise(resolve=>{
-   const t0=performance.now(), duration=1100
+   const t0=performance.now(),duration=1000
    const frame=now=>{
-     const q=Math.min(1,(now-t0)/duration), t=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2
-     setPlayers((b.players||[]).map(bp=>{
-       const ap=(a.players||[]).find(x=>x.id===bp.id)||bp
-       return {...bp,x:lerp(ap.x,bp.x,t),y:lerp(ap.y,bp.y,t)}
-     }))
-     const ab=a.ball||b.ball, bb=b.ball||ab
-     setBall({x:lerp(ab.x,bb.x,t),y:lerp(ab.y,bb.y,t)})
-     if(q<1)requestAnimationFrame(frame); else resolve()
-   }
-   requestAnimationFrame(frame)
+     if(stopRef.current){resolve();return}
+     const q=Math.min(1,(now-t0)/duration),t=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2
+     setPlayers((b.players||[]).map(bp=>{const ap=(a.players||[]).find(x=>x.id===bp.id)||bp;return {...bp,x:lerp(ap.x,bp.x,t),y:lerp(ap.y,bp.y,t)}}))
+     const ab=a.ball||b.ball,bb=b.ball||ab;setBall({x:lerp(ab.x,bb.x,t),y:lerp(ab.y,bb.y,t)})
+     if(q<1)requestAnimationFrame(frame);else resolve()
+   };requestAnimationFrame(frame)
  })
  const play=async()=>{
-   saveStep()
-   const seq=steps.map((x,i)=>i===step?{...x,...snap()}:x)
-   if(seq.length<2){alert('Cria o Passo 2 e move os jogadores ou a bola.');return}
-   setPlaying(true); setPaths([])
-   setPlayers(seq[0].players.map(p=>({...p})));setBall({...seq[0].ball});setStep(0)
-   for(let i=0;i<seq.length-1;i++){await animate(seq[i],seq[i+1]);setStep(i+1)}
+   const seq=commitSteps(); if(seq.length<2)return alert('A jogada precisa de pelo menos 2 passos.')
+   stopRef.current=false;setPlaying(true);setPaths([]);setPlayers(seq[0].players.map(p=>({...p})));setBall({...seq[0].ball});setStep(0)
+   for(let i=0;i<seq.length-1&&!stopRef.current;i++){await animate(seq[i],seq[i+1]);setStep(i+1)}
    setPlaying(false)
  }
+ const stop=()=>{stopRef.current=true;setPlaying(false)}
  const saveExercise=()=>{
-   saveStep()
-   const item={id:Date.now(),name:`Jogada ${new Date().toLocaleDateString()}`,category:'Tática',sport,board:{players,ball,steps},createdAt:new Date().toISOString()}
-   setExercises([...(exercises||[]),item]);alert('Jogada guardada')
+   const finalSteps=commitSteps()
+   const existing=(exercises||[]).find(x=>x.id===editId)
+   if(existing){
+    setExercises(exercises.map(x=>x.id===editId?{...x,title,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps}}:x))
+    alert('Jogada atualizada na biblioteca.')
+   }else{
+    const item={id:'play'+Date.now(),title,author:'Cavadas Manager',category:'Jogada',phase:'Aplicação em jogo',duration:10,objective:'',description:'',field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()}
+    setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);alert('Jogada guardada na biblioteca.')
+   }
  }
- const erase=()=>setPaths(v=>v.slice(0,-1))
+ const saveVariant=()=>{
+   const finalSteps=commitSteps(), item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()}
+   setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')
+ }
  return <div className="simpleBoard">
   <div className="card simpleHead">
-   <div><h2>Quadro Tático</h2><small>Cria a jogada diretamente no campo</small></div>
+   <div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · PPT':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Abre → PLAY → altera se quiseres → guarda variante → adiciona ao treino</div></div>
    <select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select>
   </div>
-
   <div className="card coachTools">
    <button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button>
-   <button onClick={()=>addPlayer('a')}>＋ Nossa equipa</button>
-   <button onClick={()=>addPlayer('d')}>＋ Adversário</button>
+   <button onClick={()=>addPlayer('a')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('d')}>＋ Adversário</button>
    <button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button>
    <button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button>
-   <button onClick={erase}>↶ Apagar seta</button>
+   <button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button>
   </div>
-
-  <div className="card pitchCard">
-   <div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
-    <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/>
-    <div className="pitchArea left"/><div className="pitchArea right"/>
-    <div className="pitchGoal left"/><div className="pitchGoal right"/>
-    <svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none">
-     <defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>
-     {paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={p.type} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}
-    </svg>
-    {players.map(p=><div key={p.id} className={`coachPiece ${p.team}`} style={{left:`${p.x}%`,top:`${p.y}%`}}
-      onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
-    <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>
-   </div>
-  </div>
-
+  <div className="card pitchCard"><div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
+   <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/><div className="pitchArea left"/><div className="pitchArea right"/><div className="pitchGoal left"/><div className="pitchGoal right"/>
+   <svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={p.type} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>
+   {players.map(p=><div key={p.id} className={`coachPiece ${p.team}`} style={{left:`${p.x}%`,top:`${p.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
+   <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>
+  </div></div>
   <div className="card playSteps">
-   <div className="steps">
-    {steps.map((x,i)=><button key={x.id} className={i===step?'active':''} onClick={()=>{saveStep();loadStep(i)}}>{i+1}</button>)}
-    <button className="addStep" onClick={nextStep}>＋ Passo</button>
-   </div>
-   <div className="playButtons">
-    <button className="bigPlay" onClick={play} disabled={playing}>{playing?'A reproduzir…':'▶ PLAY'}</button>
-    <button onClick={saveExercise}><Save/> Guardar</button>
-   </div>
-   <div className="coachHint"><b>Como usar:</b> posiciona → <b>+ Passo</b> → move jogadores/bola → <b>PLAY</b>.</div>
+   <div className="steps">{steps.map((x,i)=><button key={x.id} className={i===step?'active':''} onClick={()=>{saveStep();loadStep(i)}}>{i+1}</button>)}<button className="addStep" onClick={nextStep}>＋ Passo</button><button className="addStep" onClick={duplicate}>Duplicar</button></div>
+   <div className="playButtons">{playing?<button className="bigPlay" onClick={stop}>■ STOP</button>:<button className="bigPlay" onClick={play}>▶ PLAY</button>}<button onClick={saveExercise}><Save/> Guardar</button>{editEx&&<button onClick={saveVariant}><Plus/> Guardar variante</button>}</div>
+   <div className="coachHint"><b>Uso simples:</b> abre uma jogada da Biblioteca e carrega em <b>PLAY</b>. Para adaptar: escolhe um passo, move as peças e guarda uma variante.</div>
   </div>
  </div>
 }
-
 
 function Counter({label,v,set}){return <div className="counter"><span>{label}</span><div><button onClick={()=>set(Math.max(0,v-1))}><Minus/></button><b>{v}</b><button onClick={()=>set(v+1)}><Plus/></button></div></div>}
 function mkPlayers(a,d,gr){const out=[];for(let i=0;i<a;i++)out.push({id:'a'+i,n:i+1,team:'blue',x:25+(i%3)*15,y:25+Math.floor(i/3)*20});for(let i=0;i<d;i++)out.push({id:'d'+i,n:'X',team:'red',x:65+(i%2)*12,y:28+Math.floor(i/2)*18});for(let i=0;i<gr;i++)out.push({id:'g'+i,n:'GR',team:'yellow',x:i?92:8,y:50});return out}
@@ -356,11 +450,11 @@ function ExerciseLibrary({tr,exercises,setExercises,setPage}){
  return <div className="exerciseWorkspace">
   <aside className="exerciseLibrary card"><div className="paneTitle"><div><h2>{tr.exercises}</h2><small>{items.length} exercícios</small></div><button className="primary" onClick={add}><Plus/> {tr.add}</button></div>
    <input placeholder="Pesquisar exercício" value={q} onChange={e=>setQ(e.target.value)}/>
-   <div className="exerciseList">{list.map(x=><button key={x.id} className={'exerciseListItem '+(x.id===sel?'selected':'')} onClick={()=>setSel(x.id)}><div className="exerciseThumb">{x.image?<img src={x.image}/>:<Activity/>}</div><div><b>{x.title||x.name||'Novo exercício'}</b><small>{x.category||'Sem categoria'} · {x.playersCount??x.players?.length??0} jogadores</small></div></button>)}</div>
+   <div className="exerciseList">{list.map(x=><button key={x.id} className={'exerciseListItem '+(x.id===sel?'selected':'')} onClick={()=>setSel(x.id)}><div className="exerciseThumb">{x.image?<img src={x.image}/>:<Activity/>}</div><div><b>{x.title||x.name||'Novo exercício'}</b><small>{x.libraryBase?'★ Biblioteca Base · ':''}{x.category||'Sem categoria'} · {x.playersCount??x.players?.length??0} jogadores</small></div></button>)}</div>
   </aside>
   <section className="exerciseDetail card">{cur?<>
-   <div className="exerciseHeader"><div className="exerciseTitleFields"><input className="exerciseTitle" placeholder="Nome do exercício" value={cur.title||cur.name||''} onChange={e=>upd('title',e.target.value)}/><input className="exerciseAuthor" placeholder="Autor" value={cur.author||''} onChange={e=>upd('author',e.target.value)}/></div><div className="exerciseActions"><button className="secondary" onClick={editBoard}><Pencil/> Editar desenho</button><button className="danger" onClick={del}><Trash2/> {tr.delete}</button></div></div>
-   <label className="exerciseImage">{cur.image?<img src={cur.image}/>:<div className="imagePlaceholder"><Activity size={54}/><b>Imagem opcional do exercício</b><span>O desenho tático é editado diretamente no Quadro</span></div>}<input type="file" accept="image/*" onChange={photo}/><span className="imageEdit">Alterar imagem</span></label>
+   <div className="exerciseHeader"><div className="exerciseTitleFields"><input className="exerciseTitle" placeholder="Nome do exercício" value={cur.title||cur.name||''} onChange={e=>upd('title',e.target.value)}/><input className="exerciseAuthor" placeholder="Autor" value={cur.author||''} onChange={e=>upd('author',e.target.value)}/></div><div className="exerciseActions"><button className="primary" onClick={editBoard}><Activity/> ▶ Abrir animação</button><button className="danger" onClick={del}><Trash2/> {tr.delete}</button></div></div>
+   <label className="exerciseImage">{cur.image?<img src={cur.image}/>:<div className="imagePlaceholder"><Activity size={54}/><b>Imagem opcional do exercício</b><span>{cur.libraryBase?'Jogada pronta para abrir, reproduzir e adaptar':'O desenho tático é editado diretamente no Quadro'}</span></div>}<input type="file" accept="image/*" onChange={photo}/><span className="imageEdit">Alterar imagem</span></label>
    <div className="exerciseMetrics"><div><strong>{pcount}</strong><span>Número de jogadores</span></div><div><span>Duração</span><b>{cur.duration||0} min</b></div></div>
    <div className="exerciseForm">
     <Field label="Número de jogadores"><input type="number" min="1" value={pcount} onChange={e=>upd('playersCount',Number(e.target.value))}/></Field>
