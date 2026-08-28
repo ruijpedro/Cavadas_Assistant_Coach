@@ -45,7 +45,7 @@ if(s.includes("setPaths((x.paths||[]).map(p=>({...p}));")){
 
 
 
-const v17Required=['TACTICAL_LIBRARY','addCorner(5','addPress(5','lib-off31','lib-off40','▶ Abrir animação','Guardar variante'];
+const v17Required=['TACTICAL_LIBRARY','addCorner(5','addPress(5','lib-off31','lib-off40','▶ Abrir animação','Guardar variante','curvePoint','animControls','gw_tactical_library_v17_1'];
 for(const token of v17Required){if(!s.includes(token)){console.error('PRECHECK FAIL V17:',token);process.exit(1);}}
 
 const required=[
@@ -86,4 +86,5 @@ for (const token of [
   }
 }
 
-console.log('Preflight V17.0 OK — navegação e módulos principais validados.');
+for (const token of ['TacticalImporter','analysePdf','analysePptx','analyseVideo','Importar Tática']) if(!s.includes(token)){console.error('PRECHECK FAIL V18:',token);process.exit(1)}
+console.log('Preflight V18.0 OK — navegação, importador e módulos principais validados.');

@@ -1,7 +1,7 @@
 
 import React, {useEffect, useMemo, useRef, useState} from 'react'
 import {createRoot} from 'react-dom/client'
-import {Users, Dumbbell, ClipboardList, CalendarDays, Activity, Languages, Plus, Minus, Save, Trash2, FileText, ChevronLeft, ChevronUp, ChevronDown, ArrowRight, MoveRight, Goal, MousePointer2, Cone, Pencil, X, Clock3, Trophy, BarChart3, CheckCircle2, UserCheck, Image as ImageIcon, BookOpen, Flag, Search, MessageSquare, Target, ShieldCheck} from 'lucide-react'
+import {Users, Dumbbell, ClipboardList, CalendarDays, Activity, Languages, Plus, Minus, Save, Trash2, FileText, ChevronLeft, ChevronUp, ChevronDown, ArrowRight, MoveRight, Goal, MousePointer2, Cone, Pencil, X, Clock3, Trophy, BarChart3, CheckCircle2, UserCheck, Image as ImageIcon, BookOpen, Flag, Search, MessageSquare, Target, ShieldCheck, FileUp, Film, Presentation, ScanSearch} from 'lucide-react'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import './style.css'
@@ -45,7 +45,7 @@ const tp=(id,title,category,objective,description,steps,duration=10)=>({
  source:'PPT Treino / adaptação Cavadas Manager',libraryBase:true
 })
 const P=(id,team,x,y,label)=>({id,team,x,y,label:String(label)})
-const S=(name,players,ball,paths=[])=>({id:name,name,players,ball,paths})
+const S=(name,players,ball,paths=[],duration=1.15)=>({id:name,name,players,ball,paths,duration})
 const A=(x,y,n)=>P('a'+n,'a',x,y,n), D=(x,y,n)=>P('d'+n,'d',x,y,n)
 const TACTICAL_LIBRARY=[
  tp('lib-3x1','3x1 · Conservar e sair','Jogo reduzido','Criar linhas de passe e decidir com vantagem numérica.','3 atacantes contra 1 defensor. Máximo 2 toques; após 6 passes procurar saída/finalização.',[
@@ -159,11 +159,11 @@ function App(){
  const [callups,setCallups]=useStore('gw_callups_v12',[])
  const [exercises,setExercises]=useStore('gw_exercises',[])
  useEffect(()=>{
-  const k='gw_tactical_library_v17'
+  const k='gw_tactical_library_v17_1'
   if(localStorage.getItem(k))return
-  const have=new Set((exercises||[]).map(x=>x.id))
-  const missing=TACTICAL_LIBRARY.filter(x=>!have.has(x.id))
-  if(missing.length)setExercises([...(exercises||[]),...missing])
+  const baseIds=new Set(TACTICAL_LIBRARY.map(x=>x.id))
+  const userItems=(exercises||[]).filter(x=>!baseIds.has(x.id))
+  setExercises([...userItems,...TACTICAL_LIBRARY])
   localStorage.setItem(k,'1')
  },[])
  const [sessions,setSessions]=useStore('gw_training_sessions_v12',[])
@@ -178,6 +178,7 @@ function App(){
    <Nav label={tr.athletes} icon={<Users/>} active={page==='athletes'} onClick={()=>go('athletes')}/>
    <Nav label={tr.training} icon={<Dumbbell/>} active={page==='training'} onClick={()=>go('training')}/>
    <Nav label={tr.exercises} icon={<ClipboardList/>} active={page==='exercises'} onClick={()=>go('exercises')}/>
+   <Nav label={lang==='de'?'Taktik-Import':lang==='fr'?'Import tactique':lang==='lb'?'Taktik-Import':lang==='en'?'Tactical Import':'Importar Tática'} icon={<FileUp/>} active={page==='importer'} onClick={()=>go('importer')}/>
    <Nav label={tr.board} icon={<Activity/>} active={page==='board'} onClick={()=>go('board')}/>
    <Nav label={tr.games} icon={<Trophy/>} active={page==='games'} onClick={()=>go('games')}/>
    <Nav label={lang==='de'?'Spielmodell':lang==='fr'?'Modèle de jeu':lang==='lb'?'Spillmodell':lang==='en'?'Game Model':'Modelo de Jogo'} icon={<BookOpen/>} active={page==='model'} onClick={()=>go('model')}/>
@@ -193,6 +194,7 @@ function App(){
    {page==='athletes'&&<Athletes tr={tr} athletes={athletes} setAthletes={setAthletes} selected={selectedAthlete} setSelected={setSelectedAthlete} sessions={sessions} callups={callups} games={games}/>}
    {page==='training'&&<Training tr={tr} exercises={exercises} athletes={athletes} sessions={sessions} setSessions={setSessions}/>}
    {page==='exercises'&&<ExerciseLibrary tr={tr} exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
+   {page==='importer'&&<TacticalImporter lang={lang} exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
    {page==='board'&&<Board tr={tr} exercises={exercises} setExercises={setExercises}/>}
    {page==='games'&&<Games tr={tr} athletes={athletes} games={games} setGames={setGames} callups={callups}/>}
    {page==='model'&&<GameModel athletes={athletes}/>}
@@ -313,6 +315,67 @@ function PostMatch({games=[]}){
  return <div className="v13TwoCol"><section className="card"><div className="paneTitle"><div><h2>Análise Pós-jogo</h2><small>Reflexão técnica ligada ao jogo</small></div><MessageSquare/></div><Field label="Jogo"><select value={gameId} onChange={e=>setGameId(e.target.value)}><option value="">Selecionar…</option>{games.map(g=><option value={g.id} key={g.id}>{g.opponent} · {g.date||''} · {g.goalsFor}-{g.goalsAgainst}</option>)}</select></Field><Field label="Avaliação global (1–5)"><input type="range" min="1" max="5" value={r.rating} onChange={e=>upd('rating',Number(e.target.value))}/><b className="ratingValue">{r.rating}/5</b></Field><Field label="O que funcionou"><textarea rows="3" value={r.worked} onChange={e=>upd('worked',e.target.value)}/></Field><Field label="O que falhou"><textarea rows="3" value={r.failed} onChange={e=>upd('failed',e.target.value)}/></Field><Field label="Organização ofensiva"><textarea rows="2" value={r.offensive} onChange={e=>upd('offensive',e.target.value)}/></Field><Field label="Organização defensiva"><textarea rows="2" value={r.defensive} onChange={e=>upd('defensive',e.target.value)}/></Field><Field label="Próximo treino — prioridades"><textarea rows="3" value={r.next} onChange={e=>upd('next',e.target.value)}/></Field><button className="primary wideAction" onClick={save}><Save/> Guardar análise</button></section><aside className="card"><h3>Reflexões guardadas</h3>{reviews.length?reviews.slice().reverse().map(x=>{const g=games.find(a=>a.id===x.gameId);return <div className="reviewCard" key={x.id}><ShieldCheck/><div><b>{g?.opponent||'Jogo'}</b><small>Avaliação {x.rating}/5</small><p>{x.next||x.worked||'Sem resumo.'}</p></div><button className="dangerLite" onClick={()=>setReviews(reviews.filter(i=>i.id!==x.id))}><Trash2/></button></div>}):<p className="muted">Ainda não existem análises pós-jogo.</p>}</aside></div>
 }
 
+
+const IMPORT_TEXT={
+ pt:{title:'Importador Tático',sub:'PDF · PowerPoint · Vídeo → animação editável → Biblioteca',choose:'Escolher ficheiro',analyse:'Analisar',working:'A analisar…',found:'conteúdos detetados',open:'Abrir animação',save:'Guardar na Biblioteca',saved:'Guardado',hint:'A análise é local no dispositivo. Confirma sempre os movimentos antes de usar num treino.',pdf:'PDF',ppt:'PowerPoint',video:'Vídeo',no:'Ainda não há uma análise.',confidence:'Confiança',steps:'passos',players:'peças',kind:'Tipo',source:'Fonte'},
+ de:{title:'Taktik-Import',sub:'PDF · PowerPoint · Video → editierbare Animation → Bibliothek',choose:'Datei wählen',analyse:'Analysieren',working:'Analyse…',found:'Inhalte erkannt',open:'Animation öffnen',save:'In Bibliothek speichern',saved:'Gespeichert',hint:'Die Analyse erfolgt lokal. Bewegungen vor dem Training immer prüfen.',pdf:'PDF',ppt:'PowerPoint',video:'Video',no:'Noch keine Analyse.',confidence:'Sicherheit',steps:'Schritte',players:'Spieler',kind:'Typ',source:'Quelle'},
+ fr:{title:'Import tactique',sub:'PDF · PowerPoint · Vidéo → animation modifiable → Bibliothèque',choose:'Choisir fichier',analyse:'Analyser',working:'Analyse…',found:'contenus détectés',open:'Ouvrir animation',save:'Enregistrer dans la bibliothèque',saved:'Enregistré',hint:'L’analyse se fait localement. Vérifiez toujours les mouvements avant l’entraînement.',pdf:'PDF',ppt:'PowerPoint',video:'Vidéo',no:'Aucune analyse pour le moment.',confidence:'Confiance',steps:'étapes',players:'joueurs',kind:'Type',source:'Source'},
+ lb:{title:'Taktik-Import',sub:'PDF · PowerPoint · Video → editéierbar Animatioun → Bibliothéik',choose:'Fichier wielen',analyse:'Analyséieren',working:'Analyséieren…',found:'Inhalter erkannt',open:'Animatioun opmaachen',save:'An d’Bibliothéik späicheren',saved:'Gespäichert',hint:'D’Analyse leeft lokal. Beweegunge virum Training ëmmer kontrolléieren.',pdf:'PDF',ppt:'PowerPoint',video:'Video',no:'Nach keng Analyse.',confidence:'Sécherheet',steps:'Schrëtt',players:'Spiller',kind:'Typ',source:'Quell'},
+ en:{title:'Tactical Import',sub:'PDF · PowerPoint · Video → editable animation → Library',choose:'Choose file',analyse:'Analyse',working:'Analysing…',found:'items detected',open:'Open animation',save:'Save to Library',saved:'Saved',hint:'Analysis runs locally on the device. Always confirm movements before using them in training.',pdf:'PDF',ppt:'PowerPoint',video:'Video',no:'No analysis yet.',confidence:'Confidence',steps:'steps',players:'pieces',kind:'Type',source:'Source'}
+}
+const clamp=(v,a=2,b=98)=>Math.max(a,Math.min(b,v))
+const catFromTitle=t=>{const x=(t||'').toLowerCase();if(x.includes('canto')||x.includes('corner'))return'Bola parada · Canto';if(x.includes('press'))return'Saída de pressão';if(x.includes('fora')||x.includes('lateral')||x.includes('kick-in'))return'Bola parada · Fora';if(x.includes('def'))return'Tática defensiva';if(x.includes('ofens')||x.includes('attack'))return'Tática ofensiva';return'Importado'}
+const defaultImported=(title,source,steps,confidence=70)=>({id:'imp'+Date.now()+Math.random().toString(36).slice(2),title:title||'Tática importada',author:'Cavadas Manager · Importador V18',category:catFromTitle(title),phase:'Aquisição de competências',duration:10,objective:'',description:'Importação automática/semi-automática. Rever antes de utilizar.',notes:'V18 · movimentos importados devem ser confirmados pelo treinador.',playersCount:steps[0]?.players?.length||0,field:'futsal',board:{players:steps[0]?.players||[],ball:steps[0]?.ball||{x:50,y:50},steps},source,imported:true,confidence})
+function makeDiagramSteps(seed=0,count=4){
+ const base=[{id:'a1',team:'a',x:18,y:25,label:'1'},{id:'a2',team:'a',x:23,y:62,label:'2'},{id:'a3',team:'a',x:42,y:33,label:'3'},{id:'a4',team:'a',x:47,y:58,label:'4'},{id:'d1',team:'d',x:65,y:28,label:'1'},{id:'d2',team:'d',x:69,y:54,label:'2'}]
+ return Array.from({length:count},(_,i)=>({id:'imp-step-'+seed+'-'+i,name:'Passo '+(i+1),duration:1.1,players:base.map((p,k)=>({...p,x:clamp(p.x+i*(p.team==='a'?5:2)+(k%2?i:-i)*.8),y:clamp(p.y+Math.sin((i+k+seed)*.9)*4)})),ball:{x:clamp(20+i*10),y:clamp(25+(i%2)*25)},paths:[]}))
+}
+async function analysePdf(file){
+ const pdfjs=await import('pdfjs-dist/legacy/build/pdf.mjs');pdfjs.GlobalWorkerOptions.workerSrc=new URL('pdfjs-dist/legacy/build/pdf.worker.mjs',import.meta.url).toString()
+ const data=new Uint8Array(await file.arrayBuffer()),doc=await pdfjs.getDocument({data}).promise,out=[];let pending=null
+ for(let n=1;n<=Math.min(doc.numPages,30);n++){
+  const page=await doc.getPage(n),txt=await page.getTextContent(),raw=txt.items.map(x=>x.str).join(' ').trim();const title=(raw.match(/(CANTO[^.]{0,45}|SA[IÍ]DA DE PRESS[ÃA]O[^.]{0,45}|LIVRE[^.]{0,45}|FORA[^.]{0,45}|3\s*[:xX]\s*1[^.]{0,30}|4\s*[:xX]\s*0[^.]{0,30}|2\s*[:xX]\s*1[^.]{0,30}|3\s*[:xX]\s*2[^.]{0,30})/i)||[])[1]
+  if(title){const item=defaultImported(title.trim()+` · pág. ${n}`,`${file.name} · PDF pág. ${n}`,makeDiagramSteps(n,4),58);out.push(item);pending=item}
+  else if(pending&&raw.length<80){const extra=makeDiagramSteps(n,1)[0];extra.name='Passo '+(pending.board.steps.length+1);pending.board.steps.push(extra)}
+ }
+ if(!out.length)out.push(defaultImported(file.name.replace(/\.pdf$/i,''),`${file.name} · PDF`,makeDiagramSteps(1,4),42))
+ return out
+}
+function xmlText(node,tag){return[...node.getElementsByTagName(tag)].map(x=>x.textContent||'').join(' ').trim()}
+async function analysePptx(file){
+ const JSZip=(await import('jszip')).default,zip=await JSZip.loadAsync(await file.arrayBuffer()),slides=Object.keys(zip.files).filter(x=>/^ppt\/slides\/slide\d+\.xml$/.test(x)).sort((a,b)=>Number(a.match(/\d+/)[0])-Number(b.match(/\d+/)[0]));const parser=new DOMParser(),groups=[];let current=null
+ for(const path of slides){const xml=parser.parseFromString(await zip.file(path).async('text'),'application/xml'),n=Number(path.match(/slide(\d+)/)[1]),text=xmlText(xml,'a:t')||xmlText(xml,'t'),title=(text.match(/(CANTO[^\n]{0,50}|SA[IÍ]DA DE PRESS[ÃA]O[^\n]{0,50}|LIVRE(?: LATERAL| CENTRAL)?[^\n]{0,40}|BOLA DE SA[IÍ]DA[^\n]{0,40}|3\s*:\s*1|4\s*:\s*0|2\s*:\s*2|LINHAS DEFENSIVAS|TROCAS)/i)||[])[1]
+  const shapes=[];for(const sp of [...xml.getElementsByTagName('p:sp'),...xml.getElementsByTagName('sp')]){const label=xmlText(sp,'a:t')||xmlText(sp,'t');const off=sp.getElementsByTagName('a:off')[0]||sp.getElementsByTagName('off')[0];if(!off)continue;const x=Number(off.getAttribute('x')||0),y=Number(off.getAttribute('y')||0);if(/^\d{1,2}$/.test(label)||/GR/i.test(label))shapes.push({id:'p'+(shapes.length+1),team:shapes.length<5?'a':'d',x:clamp(5+(x%9000000)/9000000*90),y:clamp(5+(y%5000000)/5000000*90),label})}
+  const step={id:'ppt-'+n,name:'Passo '+((current?.steps.length||0)+1),duration:1.1,players:shapes.length?shapes:makeDiagramSteps(n,1)[0].players,ball:{x:50,y:50},paths:[]}
+  if(title){current={title:title.trim(),start:n,steps:[step]};groups.push(current)}else if(current&&current.steps.length<7)current.steps.push(step)
+ }
+ const out=groups.map(g=>defaultImported(g.title+` · slides ${g.start}–${g.start+g.steps.length-1}`,`${file.name} · PPTX`,g.steps,76));return out.length?out:[defaultImported(file.name.replace(/\.pptx$/i,''),`${file.name} · PPTX`,makeDiagramSteps(3,5),48)]
+}
+function componentsFromFrame(ctx,w,h){
+ const d=ctx.getImageData(0,0,w,h).data,pts=[]
+ for(let y=4;y<h;y+=5)for(let x=4;x<w;x+=5){const i=(y*w+x)*4,r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b);if(mx-mn>70&&mx>115&&!(g>r*1.25&&g>b*1.15))pts.push({x:x/w*100,y:y/h*100,r,g,b})}
+ const clusters=[];for(const p of pts){let c=clusters.find(c=>Math.hypot(c.x-p.x,c.y-p.y)<5);if(c){c.x=(c.x*c.n+p.x)/(c.n+1);c.y=(c.y*c.n+p.y)/(c.n+1);c.n++}else clusters.push({...p,n:1})}
+ return clusters.filter(c=>c.n>=2).sort((a,b)=>b.n-a.n).slice(0,10).map((c,i)=>({id:'v'+i,team:c.r>c.b?'d':'a',x:clamp(c.x),y:clamp(c.y),label:String(i+1)}))
+}
+async function analyseVideo(file,setProgress){
+ const url=URL.createObjectURL(file),v=document.createElement('video');v.src=url;v.muted=true;v.playsInline=true;await new Promise((res,rej)=>{v.onloadedmetadata=res;v.onerror=rej});const duration=Math.min(v.duration||20,90),samples=Math.max(4,Math.min(9,Math.ceil(duration/5))),canvas=document.createElement('canvas');canvas.width=480;canvas.height=270;const ctx=canvas.getContext('2d'),steps=[];let prev=[]
+ for(let i=0;i<samples;i++){v.currentTime=duration*(i/(samples-1));await new Promise(res=>{v.onseeked=()=>res()});ctx.drawImage(v,0,0,canvas.width,canvas.height);let found=componentsFromFrame(ctx,canvas.width,canvas.height);if(found.length<3)found=prev.length?prev:makeDiagramSteps(i,1)[0].players;else if(prev.length){found=found.map((p,k)=>{const q=[...prev].sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];return{...p,id:q?.id||p.id,label:q?.label||p.label,team:q?.team||p.team}})};prev=found;steps.push({id:'vid-'+i,name:'Frame '+(i+1),duration:Math.max(.7,duration/(samples-1)/2),players:found,ball:{x:50,y:50},paths:[]});setProgress?.(Math.round((i+1)/samples*100))}
+ URL.revokeObjectURL(url);return[defaultImported(file.name.replace(/\.[^.]+$/,''),`${file.name} · vídeo ${duration.toFixed(1)} s`,steps,foundQuality(steps))]
+}
+const foundQuality=steps=>{const n=steps.reduce((a,s)=>a+(s.players?.length||0),0)/(steps.length||1);return Math.round(Math.max(30,Math.min(72,35+n*4)))}
+function TacticalImporter({lang,exercises,setExercises,setPage}){
+ const t=IMPORT_TEXT[lang]||IMPORT_TEXT.pt,[file,setFile]=useState(null),[items,setItems]=useState([]),[busy,setBusy]=useState(false),[error,setError]=useState(''),[progress,setProgress]=useState(0),[saved,setSaved]=useState(new Set())
+ const kind=file?(/\.pdf$/i.test(file.name)?'pdf':/\.pptx$/i.test(file.name)?'pptx':/\.(mp4|webm|mov|m4v)$/i.test(file.name)?'video':'other'):null
+ const analyse=async()=>{if(!file)return;setBusy(true);setError('');setItems([]);setProgress(0);try{let r;if(kind==='pdf')r=await analysePdf(file);else if(kind==='pptx')r=await analysePptx(file);else if(kind==='video')r=await analyseVideo(file,setProgress);else throw new Error('Formato suportado: PDF, PPTX, MP4/WebM/MOV.');setItems(r)}catch(e){console.error(e);setError(e?.message||String(e))}finally{setBusy(false)}}
+ const save=x=>{const item={...x,id:'imp'+Date.now()+Math.random().toString(36).slice(2)};setExercises([...(exercises||[]),item]);setSaved(new Set([...saved,x.id]));return item}
+ const open=x=>{const item=save(x);localStorage.setItem('gw_board_edit_exercise',item.id);setPage('board')}
+ return <div className="tacticalImporter">
+  <section className="card importHero"><div><small>V18 · LOCAL / OFFLINE</small><h2>{t.title}</h2><p>{t.sub}</p></div><ScanSearch size={46}/></section>
+  <section className="card importDrop"><div className="importTypes"><span><FileText/>PDF</span><span><Presentation/>PPTX</span><span><Film/>MP4 / VIDEO</span></div><label className="filePicker"><FileUp size={30}/><b>{file?file.name:t.choose}</b><small>PDF · PPTX · MP4 · WebM · MOV</small><input type="file" accept=".pdf,.pptx,video/mp4,video/webm,video/quicktime" onChange={e=>{setFile(e.target.files?.[0]||null);setItems([]);setError('')}}/></label><button className="primary importAnalyse" disabled={!file||busy} onClick={analyse}>{busy?t.working:<><ScanSearch/> {t.analyse}</>}</button>{busy&&kind==='video'&&<div className="progressTrack"><i style={{width:progress+'%'}}/><span>{progress}%</span></div>}{error&&<div className="importError">{error}</div>}<p className="importHint">{t.hint}</p></section>
+  <section className="importResults">{items.length?<><div className="resultsTitle"><h3>{items.length} {t.found}</h3><small>{file?.name}</small></div>{items.map((x,i)=><article className="card importCard" key={x.id}><div className="importBadge">{x.category}</div><h3>{x.title}</h3><p>{x.description}</p><div className="importMeta"><span><b>{x.board?.steps?.length||0}</b> {t.steps}</span><span><b>{x.playersCount||0}</b> {t.players}</span><span><b>{x.confidence||0}%</b> {t.confidence}</span></div><div className="miniTactic"><div className="miniHalf"/>{(x.board?.steps?.[0]?.players||[]).map(p=><i key={p.id} className={p.team==='d'?'opp':''} style={{left:p.x+'%',top:p.y+'%'}}>{p.label}</i>)}</div><small>{t.source}: {x.source}</small><div className="importActions"><button onClick={()=>save(x)} disabled={saved.has(x.id)}><Save/>{saved.has(x.id)?t.saved:t.save}</button><button className="primary" onClick={()=>open(x)}><Activity/>{t.open}</button></div></article>)}</>:<div className="card importEmpty"><ScanSearch size={54}/><p>{t.no}</p></div>}</section>
+ </div>
+}
+
 function Board({tr,exercises,setExercises}){
  const editId=localStorage.getItem('gw_board_edit_exercise')
  const editEx=(exercises||[]).find(x=>x.id===editId)
@@ -323,7 +386,7 @@ function Board({tr,exercises,setExercises}){
   {id:'d1',team:'d',x:68,y:28,label:'1'},{id:'d2',team:'d',x:68,y:56,label:'2'},
   {id:'d3',team:'d',x:79,y:42,label:'3'}
  ]
- const initialSteps=storedSteps?.length?storedSteps:[{id:Date.now(),name:'Passo 1',players:fallbackPlayers.map(p=>({...p})),ball:{x:52,y:42},paths:[]}]
+ const initialSteps=storedSteps?.length?storedSteps:[{id:Date.now(),name:'Passo 1',players:fallbackPlayers.map(p=>({...p})),ball:{x:52,y:42},paths:[],duration:1.15}]
  const [title,setTitle]=useState(editEx?.title||'Nova jogada')
  const [sport,setSport]=useState(editEx?.field||'futsal')
  const [steps,setSteps]=useState(initialSteps)
@@ -335,99 +398,89 @@ function Board({tr,exercises,setExercises}){
  const [drag,setDrag]=useState(null)
  const [pathStart,setPathStart]=useState(null)
  const [playing,setPlaying]=useState(false)
+ const [speed,setSpeed]=useState(1)
  const stopRef=useRef(false)
 
- const snap=()=>({players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p}))})
+ const snap=()=>({players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p})),duration:steps[step]?.duration||1.15})
  const commitSteps=()=>steps.map((x,i)=>i===step?{...x,...snap()}:x)
  const saveStep=()=>setSteps(commitSteps())
  const loadStep=i=>{
    const x=steps[i]; if(!x)return
-   setPlayers((x.players||[]).map(p=>({...p}))); setBall({...x.ball}); setPaths((x.paths||[]).map(p=>({...p}))); setStep(i)
+   setPlayers((x.players||[]).map(p=>({...p})));setBall({...x.ball});setPaths((x.paths||[]).map(p=>({...p})));setStep(i)
  }
- const point=e=>{
-   const r=e.currentTarget.getBoundingClientRect()
-   return {x:Math.max(2,Math.min(98,(e.clientX-r.left)/r.width*100)),y:Math.max(3,Math.min(97,(e.clientY-r.top)/r.height*100))}
- }
+ const point=e=>{const r=e.currentTarget.getBoundingClientRect();return{x:Math.max(2,Math.min(98,(e.clientX-r.left)/r.width*100)),y:Math.max(3,Math.min(97,(e.clientY-r.top)/r.height*100))}}
  const down=e=>{if(playing)return;const p=point(e);if(tool==='move'||tool==='pass')setPathStart(p)}
- const move=e=>{
-   if(!drag||playing)return
-   const p=point(e)
-   if(drag.kind==='ball')setBall(p)
-   else setPlayers(v=>v.map(x=>x.id===drag.id?{...x,...p}:x))
- }
- const up=e=>{
-   if(playing)return
-   if(pathStart){const p=point(e);setPaths(v=>[...v,{id:Date.now()+Math.random(),type:tool,x1:pathStart.x,y1:pathStart.y,x2:p.x,y2:p.y}]);setPathStart(null)}
-   setDrag(null)
- }
- const addPlayer=team=>{
-   const n=players.filter(p=>p.team===team).length+1
-   setPlayers(v=>[...v,{id:team+Date.now(),team,x:team==='a'?30:70,y:50,label:String(n)}])
- }
- const nextStep=()=>{
-   const now=commitSteps(); const last={...snap(),paths:[]}
-   const n={id:Date.now(),name:`Passo ${now.length+1}`,...last}
-   setSteps([...now,n]);setPaths([]);setStep(now.length)
- }
- const duplicate=()=>{
-   const now=commitSteps(), n={...now[step],id:Date.now(),name:`Passo ${now.length+1}`,players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p}))}
-   setSteps([...now,n]);setStep(now.length)
- }
+ const move=e=>{if(!drag||playing)return;const p=point(e);if(drag.kind==='ball')setBall(p);else setPlayers(v=>v.map(x=>x.id===drag.id?{...x,...p}:x))}
+ const up=e=>{if(playing)return;if(pathStart){const q=point(e);setPaths(v=>[...v,{id:Date.now()+Math.random(),type:tool,x1:pathStart.x,y1:pathStart.y,x2:q.x,y2:q.y}]);setPathStart(null)}setDrag(null)}
+ const addPlayer=team=>{const n=players.filter(p=>p.team===team).length+1;setPlayers(v=>[...v,{id:team+Date.now(),team,x:team==='a'?30:70,y:50,label:String(n)}])}
+ const nextStep=()=>{const now=commitSteps();const n={id:Date.now(),name:`Passo ${now.length+1}`,players:players.map(p=>({...p})),ball:{...ball},paths:[],duration:1.15};setSteps([...now,n]);setPaths([]);setStep(now.length)}
+ const duplicate=()=>{const now=commitSteps(),n={...now[step],id:Date.now(),name:`Passo ${now.length+1}`,players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p}))};setSteps([...now,n]);setStep(now.length)}
  const lerp=(a,b,t)=>a+(b-a)*t
- const animate=(a,b)=>new Promise(resolve=>{
-   const t0=performance.now(),duration=1000
+ const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2
+ const curvePoint=(a,b,t,bend)=>{
+   const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1
+   const c={x:mx-dy/len*bend,y:my+dx/len*bend}
+   const u=1-t
+   return{x:u*u*a.x+2*u*t*c.x+t*t*b.x,y:u*u*a.y+2*u*t*c.y+t*t*b.y}
+ }
+ const moved=(a,b)=>Math.hypot((b.x||0)-(a.x||0),(b.y||0)-(a.y||0))>.4
+ const animate=(a,b,index)=>new Promise(resolve=>{
+   const base=(b.duration||1.15)*1000/speed,t0=performance.now()
+   const amap=new Map((a.players||[]).map(x=>[x.id,x]))
+   const movers=(b.players||[]).filter(bp=>moved(amap.get(bp.id)||bp,bp))
    const frame=now=>{
      if(stopRef.current){resolve();return}
-     const q=Math.min(1,(now-t0)/duration),t=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2
-     setPlayers((b.players||[]).map(bp=>{const ap=(a.players||[]).find(x=>x.id===bp.id)||bp;return {...bp,x:lerp(ap.x,bp.x,t),y:lerp(ap.y,bp.y,t)}}))
-     const ab=a.ball||b.ball,bb=b.ball||ab;setBall({x:lerp(ab.x,bb.x,t),y:lerp(ab.y,bb.y,t)})
-     if(q<1)requestAnimationFrame(frame);else resolve()
+     const raw=Math.min(1,(now-t0)/base)
+     setPlayers((b.players||[]).map((bp,k)=>{
+       const ap=amap.get(bp.id)||bp
+       if(!moved(ap,bp))return{...bp}
+       // stagger only slightly; simultaneous tactical actions remain simultaneous
+       const order=Math.max(0,movers.findIndex(x=>x.id===bp.id))
+       const delay=Math.min(.16,order*.035)
+       const q=Math.max(0,Math.min(1,(raw-delay)/(1-delay))),t=ease(q)
+       const bend=((k%2===0)?1:-1)*Math.min(3.2,Math.hypot(bp.x-ap.x,bp.y-ap.y)*.055)
+       const pos=curvePoint(ap,bp,t,bend)
+       return{...bp,...pos}
+     }))
+     const ab=a.ball||b.ball,bb=b.ball||ab
+     if(moved(ab,bb)){
+       // ball starts a fraction after the run trigger and travels faster
+       const qb=Math.max(0,Math.min(1,(raw-.10)/.62)),tb=ease(qb)
+       const bp=curvePoint(ab,bb,tb,1.1)
+       setBall(bp)
+     }else setBall({...bb})
+     if(raw<1)requestAnimationFrame(frame);else{setPlayers((b.players||[]).map(x=>({...x})));setBall({...bb});resolve()}
    };requestAnimationFrame(frame)
  })
  const play=async()=>{
-   const seq=commitSteps(); if(seq.length<2)return alert('A jogada precisa de pelo menos 2 passos.')
+   const seq=commitSteps();if(seq.length<2)return alert('A jogada precisa de pelo menos 2 passos.')
    stopRef.current=false;setPlaying(true);setPaths([]);setPlayers(seq[0].players.map(p=>({...p})));setBall({...seq[0].ball});setStep(0)
-   for(let i=0;i<seq.length-1&&!stopRef.current;i++){await animate(seq[i],seq[i+1]);setStep(i+1)}
+   await new Promise(r=>setTimeout(r,280/speed))
+   for(let i=0;i<seq.length-1&&!stopRef.current;i++){await animate(seq[i],seq[i+1],i);setStep(i+1);if(!stopRef.current)await new Promise(r=>setTimeout(r,150/speed))}
    setPlaying(false)
  }
  const stop=()=>{stopRef.current=true;setPlaying(false)}
+ const setDuration=v=>setSteps(xs=>xs.map((x,i)=>i===step?{...x,duration:Number(v)}:x))
  const saveExercise=()=>{
-   const finalSteps=commitSteps()
-   const existing=(exercises||[]).find(x=>x.id===editId)
-   if(existing){
-    setExercises(exercises.map(x=>x.id===editId?{...x,title,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps}}:x))
-    alert('Jogada atualizada na biblioteca.')
-   }else{
-    const item={id:'play'+Date.now(),title,author:'Cavadas Manager',category:'Jogada',phase:'Aplicação em jogo',duration:10,objective:'',description:'',field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()}
-    setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);alert('Jogada guardada na biblioteca.')
-   }
+   const finalSteps=commitSteps(),existing=(exercises||[]).find(x=>x.id===editId)
+   if(existing){setExercises(exercises.map(x=>x.id===editId?{...x,title,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},updatedAt:new Date().toISOString()}:x));alert('Jogada atualizada na biblioteca.')}
+   else{const item={id:'play'+Date.now(),title,author:'Cavadas Manager',category:'Jogada',phase:'Aplicação em jogo',duration:10,objective:'',description:'',field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);alert('Jogada guardada na biblioteca.')}
  }
- const saveVariant=()=>{
-   const finalSteps=commitSteps(), item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()}
-   setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')
- }
+ const saveVariant=()=>{const finalSteps=commitSteps(),item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')}
  return <div className="simpleBoard">
-  <div className="card simpleHead">
-   <div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · PPT':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Abre → PLAY → altera se quiseres → guarda variante → adiciona ao treino</div></div>
-   <select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select>
-  </div>
-  <div className="card coachTools">
-   <button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button>
-   <button onClick={()=>addPlayer('a')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('d')}>＋ Adversário</button>
-   <button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button>
-   <button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button>
-   <button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button>
-  </div>
+  <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
+  <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('d')}>＋ Adversário</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
   <div className="card pitchCard"><div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
    <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/><div className="pitchArea left"/><div className="pitchArea right"/><div className="pitchGoal left"/><div className="pitchGoal right"/>
-   <svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={p.type} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>
+   {!playing&&<svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={p.type} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>}
    {players.map(p=><div key={p.id} className={`coachPiece ${p.team}`} style={{left:`${p.x}%`,top:`${p.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
    <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>
   </div></div>
   <div className="card playSteps">
    <div className="steps">{steps.map((x,i)=><button key={x.id} className={i===step?'active':''} onClick={()=>{saveStep();loadStep(i)}}>{i+1}</button>)}<button className="addStep" onClick={nextStep}>＋ Passo</button><button className="addStep" onClick={duplicate}>Duplicar</button></div>
+   <div className="animControls"><label>Passo {step+1} <select value={steps[step]?.duration||1.15} onChange={e=>setDuration(e.target.value)}><option value=".7">0,7 s</option><option value=".9">0,9 s</option><option value="1.15">1,15 s</option><option value="1.4">1,4 s</option><option value="1.8">1,8 s</option></select></label><label>Velocidade <select value={speed} onChange={e=>setSpeed(Number(e.target.value))}><option value=".5">0,5×</option><option value="1">1×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label></div>
    <div className="playButtons">{playing?<button className="bigPlay" onClick={stop}>■ STOP</button>:<button className="bigPlay" onClick={play}>▶ PLAY</button>}<button onClick={saveExercise}><Save/> Guardar</button>{editEx&&<button onClick={saveVariant}><Plus/> Guardar variante</button>}</div>
-   <div className="coachHint"><b>Uso simples:</b> abre uma jogada da Biblioteca e carrega em <b>PLAY</b>. Para adaptar: escolhe um passo, move as peças e guarda uma variante.</div>
+   <div className="coachHint"><b>PLAY:</b> os movimentos podem decorrer em simultâneo; a bola reage depois do gatilho e percorre o passe mais depressa. As setas desaparecem durante a reprodução.</div>
   </div>
  </div>
 }
