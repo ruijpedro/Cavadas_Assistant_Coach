@@ -1,6 +1,6 @@
 {
   "name": "cavadas-manager-gruefwiss",
-  "version": "11.6.0",
+  "version": "12.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,8 +11,6 @@
     "cap:sync": "npx cap sync android"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^6.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "lucide-react": "^0.468.0",
@@ -22,5 +20,9 @@
     "@capacitor/cli": "^7.2.0",
     "@capacitor/android": "^7.2.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "vite": "6.4.3",
+    "@vitejs/plugin-react": "4.3.4"
+  },
+  "packageManager": "npm@10.9.2"
 }
