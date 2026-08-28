@@ -32,6 +32,21 @@ for (const rx of malformedSetterPatterns) {
   }
 }
 
+
+const v15Required=[
+  "const snapshot=()=>({",
+  "const animateTo=(from,to,duration)",
+  "Fotogramas / Fases",
+  "Guardar fase",
+  "▶ Reproduzir"
+];
+for(const token of v15Required){
+  if(!s.includes(token)){
+    console.error('PRECHECK FAIL V15:',token);
+    process.exit(1);
+  }
+}
+
 const required=[
   "<Nav label={tr.board}",
   "active={page==='board'}",
@@ -70,4 +85,4 @@ for (const token of [
   }
 }
 
-console.log('Preflight V14.3 OK — navegação e módulos principais validados.');
+console.log('Preflight V15.0 OK — navegação e módulos principais validados.');

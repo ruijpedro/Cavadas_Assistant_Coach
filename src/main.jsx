@@ -122,7 +122,7 @@ function Card({n,title}){return <div className="stat card"><strong>{n}</strong><
 function SeasonStats({tr,athletes,games,sessions,callups}){
  const ev=games.flatMap(g=>g.events||[])
  const rows=athletes.map(a=>{const att=sessions.map(s=>s.attendance?.[a.id]).filter(Boolean);const pres=att.filter(x=>x==='present').length;return {a,g:ev.filter(e=>e.playerId===a.id&&e.type==='Golo').length,as:ev.filter(e=>e.playerId===a.id&&e.type==='Assistência').length,shots:ev.filter(e=>e.playerId===a.id&&e.type==='Remate').length,apps:callups.filter(c=>(c.players||[]).includes(a.id)).length,att:att.length?Math.round(pres/att.length*100):0}}).sort((a,b)=>(b.g*3+b.as*2+b.apps)-(a.g*3+a.as*2+a.apps))
- return <section className="card seasonTable"><div className="paneTitle"><h3>{tr.seasonStats}</h3><BarChart3/></div><div className="statsHead seasonRow"><b>{tr.athletes}</b><b>{tr.goals}</b><b>{tr.assists}</b><b>R</b><b>{tr.appearances}</b><b>{tr.trainingAttendance}</b></div>{rows.map(x=><div className="statsRow seasonRow" key={x.a.id}><span>{x.a.name}</span><b>{x.g}</b><b>{x.as}</b><b>{x.shots}</b><b>{x.apps}</b><b>{x.att}%</b></div>)}</section>
+ return <section className="card seasonTable"><div className="paneTitle"><h3>{tr.seasonStats}</h3><BarChart3/></div><div className="statsHead seasonRow"><b>{tr.athletes}</b><b>{tr.goals}</b><b>Ass.</b><b>R</b><b>{tr.appearances}</b><b>{tr.trainingAttendance}</b></div>{rows.map(x=><div className="statsRow seasonRow" key={x.a.id}><span>{x.a.name}</span><b>{x.g}</b><b>{x.as}</b><b>{x.shots}</b><b>{x.apps}</b><b>{x.att}%</b></div>)}</section>
 }
 
 function Athletes({tr,athletes,setAthletes,selected,setSelected,sessions=[],callups=[],games=[]}){
@@ -135,7 +135,7 @@ function Athletes({tr,athletes,setAthletes,selected,setSelected,sessions=[],call
  const summary=current?{games:games.filter(g=>(g.playerMinutes&&g.playerMinutes[current.id]!=null)||(g.events||[]).some(e=>e.playerId===current.id)).length,callups:callups.filter(c=>(c.players||[]).includes(current.id)).length,goals:ev.filter(e=>e.playerId===current.id&&e.type==='Golo').length,assists:ev.filter(e=>e.playerId===current.id&&e.type==='Assistência').length,attendance:att.length?Math.round(present/att.length*100):0}:null
  return <div className="split"><aside className="listPane"><div className="paneTitle rosterTitle"><div><h2>{tr.athletes}</h2><small>{athletes.length}</small></div><button className="primary rosterAdd" onClick={add}><Plus/> {tr.add}</button></div><input className="rosterSearch" placeholder={tr.search} value={q} onChange={e=>setQ(e.target.value)}/><div className="rosterList">{list.map(a=><button className={'athleteRow '+(selected===a.id?'selected':'')} onClick={()=>setSelected(a.id)} key={a.id}><span className="avatar">{a.name?a.name.split(' ').map(x=>x[0]).slice(0,2).join(''):'+'}</span><div><b>{a.name||tr.newAthlete}</b><small>{a.position}</small></div></button>)}</div>{!athletes.length&&<div className="emptyRoster"><Users size={42}/><b>{tr.emptyRoster}</b><span>{tr.tapAdd}</span><button className="primary" onClick={add}><Plus/> {tr.add}</button></div>}</aside>
  <section className="detailPane">{current?<><div className="paneTitle athleteActions"><h2>{current.name||tr.newAthlete}</h2><div className="athleteActionButtons"><button className="secondary" onClick={add}><Plus/> {tr.add}</button><button className="danger" onClick={removeCurrent}><Trash2/> {tr.delete}</button></div></div>
- <div className="athleteSeasonSummary"><div><strong>{summary.callups}</strong><span>{tr.appearances}</span></div><div><strong>{summary.games}</strong><span>{tr.games}</span></div><div><strong>{summary.goals}</strong><span>{tr.goals}</span></div><div><strong>{summary.assists}</strong><span>{tr.assists}</span></div><div><strong>{summary.attendance}%</strong><span>{tr.trainingAttendance}</span></div></div>
+ <div className="athleteSeasonSummary"><div><strong>{summary.callups}</strong><span>{tr.appearances}</span></div><div><strong>{summary.games}</strong><span>{tr.games}</span></div><div><strong>{summary.goals}</strong><span>{tr.goals}</span></div><div><strong>{summary.assists}</strong><span>Ass.</span></div><div><strong>{summary.attendance}%</strong><span>{tr.trainingAttendance}</span></div></div>
  <div className="formGrid"><Field label={tr.fullName}><input value={current.name} onChange={e=>update('name',e.target.value)}/></Field><Field label={tr.dob}><input type="date" value={current.dob} onChange={e=>update('dob',e.target.value)}/></Field><Field label={tr.height}><input type="number" value={current.height} onChange={e=>update('height',e.target.value)}/><i>{tr.cm}</i></Field><Field label={tr.currentWeight}><input type="number" value={current.currentWeight} onChange={e=>update('currentWeight',e.target.value)}/><i>{tr.kg}</i></Field><Field label={tr.idealWeight}><input value={current.idealWeight} onChange={e=>update('idealWeight',e.target.value)}/><i>{tr.kg}</i></Field><Field label={tr.position}><select value={current.position} onChange={e=>update('position',e.target.value)}>{positions.map(x=><option key={x}>{x}</option>)}</select></Field><Field label={tr.def}><select value={current.defensive} onChange={e=>update('defensive',e.target.value)}><option value="">—</option>{defensiveOptions.map(x=><option key={x}>{x}</option>)}</select></Field><Field label={tr.off}><div className="chips">{offensiveOptions.map(x=><button type="button" key={x} className={(current.offensive||[]).includes(x)?'active':''} onClick={()=>update('offensive',(current.offensive||[]).includes(x)?current.offensive.filter(y=>y!==x):[...(current.offensive||[]),x])}>{x}</button>)}</div></Field><Field label={tr.captain}><input type="checkbox" checked={!!current.captain} onChange={e=>update('captain',e.target.checked)}/></Field></div><h3>{tr.speed}</h3><SpeedFields tr={tr} athlete={current} onChange={v=>update('speed',v)}/><Field label={tr.notes}><textarea rows="5" value={current.notes||''} onChange={e=>update('notes',e.target.value)}/></Field></>:<div className="emptyRoster"><Users size={48}/><b>{tr.emptyRoster}</b></div>}</section></div>
 }
 
@@ -207,85 +207,270 @@ function PostMatch({games=[]}){
 }
 
 function Board({tr,exercises,setExercises}){
- const ref=useRef()
- const [field,setField]=useState('futsal'),[a,setA]=useState(5),[d,setD]=useState(4),[gr,setGr]=useState(1)
- const [players,setPlayers]=useState(()=>mkPlayers(5,4,1)),[ball,setBall]=useState({x:50,y:50}),[objects,setObjects]=useState([])
- const [mode,setMode]=useState('select'),[drag,setDrag]=useState(null),[start,setStart]=useState(null),[paths,setPaths]=useState([])
- const [phase,setPhase]=useState(0),[phases,setPhases]=useState(['Fase 1']),[editingId,setEditingId]=useState(null)
- const [freehand,setFreehand]=useState(null),[isPlaying,setIsPlaying]=useState(false)
+ const [sport,setSport]=useState('futsal')
+ const [mode,setMode]=useState('select')
+ const [players,setPlayers]=useState([
+  {id:'a1',team:'a',x:24,y:42,label:'1'},{id:'a2',team:'a',x:36,y:25,label:'2'},
+  {id:'a3',team:'a',x:36,y:59,label:'3'},{id:'a4',team:'a',x:48,y:42,label:'4'},
+  {id:'d1',team:'d',x:68,y:28,label:'1'},{id:'d2',team:'d',x:68,y:56,label:'2'},
+  {id:'d3',team:'d',x:78,y:42,label:'3'}
+ ])
+ const [ball,setBall]=useState({x:50,y:42})
+ const [objects,setObjects]=useState([])
+ const [paths,setPaths]=useState([])
+ const [phases,setPhases]=useState([{id:Date.now(),name:'Fase 1',duration:1200,players:null,ball:null,objects:null,paths:[]}])
+ const [phaseIndex,setPhaseIndex]=useState(0)
+ const [drag,setDrag]=useState(null)
+ const [draw,setDraw]=useState(null)
+ const [curvePoints,setCurvePoints]=useState([])
+ const [isPlaying,setIsPlaying]=useState(false)
+ const [playSpeed,setPlaySpeed]=useState(1)
+
+ const snapshot=()=>({
+   players:players.map(p=>({...p})),
+   ball:{...ball},
+   objects:objects.map(o=>({...o})),
+   paths:paths.map(p=>({...p,points:p.points?p.points.map(pt=>({...pt})):undefined}))
+ })
+
+ const saveCurrentPhase=()=>{
+   const snap=snapshot()
+   setPhases(prev=>prev.map((p,i)=>i===phaseIndex?{...p,...snap}:p))
+ }
+
+ const loadPhase=(idx)=>{
+   const p=phases[idx]
+   if(!p)return
+   if(p.players)setPlayers(p.players.map(x=>({...x})))
+   if(p.ball)setBall({...p.ball})
+   if(p.objects)setObjects(p.objects.map(x=>({...x})))
+   setPaths((p.paths||[]).map(x=>({...x,points:x.points?x.points.map(pt=>({...pt})):undefined})))
+   setPhaseIndex(idx)
+ }
+
  useEffect(()=>{
-   const id=localStorage.getItem('gw_board_edit_exercise'); if(!id)return
-   const ex=exercises.find(x=>x.id===id)
-   if(ex){setEditingId(id);setField(ex.field||ex.diagram?.field||'futsal');setPlayers(ex.players||ex.diagram?.players||mkPlayers(5,4,1));setBall(ex.ball||ex.diagram?.ball||{x:50,y:50});setPaths(ex.paths||ex.diagram?.paths||[]);setObjects(ex.objects||ex.diagram?.objects||[]);setPhases(ex.phases||ex.diagram?.phases||['Fase 1']);setPhase(0)}
-   localStorage.removeItem('gw_board_edit_exercise')
+   const p=phases[0]
+   if(p && !p.players){
+     const snap=snapshot()
+     setPhases(prev=>prev.map((x,i)=>i===0?{...x,...snap}:x))
+   }
  },[])
- useEffect(()=>{
-   if(!isPlaying)return
-   if(phases.length<=1){setIsPlaying(false);return}
-   const id=setInterval(()=>setPhase(v=>{if(v>=phases.length-1){setIsPlaying(false);return 0}return v+1}),1300)
-   return()=>clearInterval(id)
- },[isPlaying,phases.length])
- function apply(){setPlayers(mkPlayers(a,d,gr))}
- function pxy(e){const r=ref.current.getBoundingClientRect();return{x:Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100)),y:Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))}}
- function down(e,id,type){e.stopPropagation();if(mode==='select')setDrag({id,type});else if(['move','pass','shot'].includes(mode))setStart(pxy(e))}
- function move(e){
-   const p=pxy(e)
-   if(freehand&&mode==='curve'){setFreehand([...freehand,p]);return}
+
+ const addPhase=()=>{
+   saveCurrentPhase()
+   const snap=snapshot()
+   const np={id:Date.now(),name:`Fase ${phases.length+1}`,duration:1200,...snap}
+   setPhases(prev=>[...prev,np])
+   setPhaseIndex(phases.length)
+ }
+
+ const duplicatePhase=()=>{
+   saveCurrentPhase()
+   const snap=snapshot()
+   const np={id:Date.now(),name:`Fase ${phases.length+1}`,duration:phases[phaseIndex]?.duration||1200,...snap}
+   setPhases(prev=>[...prev,np])
+   setPhaseIndex(phases.length)
+ }
+
+ const deletePhase=()=>{
+   if(phases.length<=1)return
+   const next=phases.filter((_,i)=>i!==phaseIndex)
+   setPhases(next)
+   const ni=Math.max(0,phaseIndex-1)
+   setTimeout(()=>loadPhase(Math.min(ni,next.length-1)),0)
+ }
+
+ const setPhaseDuration=(v)=>{
+   const ms=Math.max(300,Number(v)||1200)
+   setPhases(prev=>prev.map((p,i)=>i===phaseIndex?{...p,duration:ms}:p))
+ }
+
+ const pct=(e)=>{
+   const r=e.currentTarget.getBoundingClientRect()
+   return {x:Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100)),y:Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))}
+ }
+
+ const addObject=(type,p)=>{
+   const sym={cone:'▲',marker:'●',barrier:'▥',ladder:'▤','mini-goal':'▱',text:'T'}[type]||'●'
+   let text=''
+   if(type==='text') text=prompt('Texto / indicação:')||''
+   setObjects(o=>[...o,{id:Date.now()+Math.random(),type,x:p.x,y:p.y,sym,text,w:18,h:16}])
+ }
+
+ const fieldDown=(e)=>{
+   if(isPlaying)return
+   const p=pct(e)
+   if(mode==='curve'){setCurvePoints([p]);return}
+   if(['movement','pass','shot'].includes(mode)){setDraw({type:mode,start:p});return}
+   if(['cone','marker','barrier','ladder','mini-goal','zone','text'].includes(mode)){addObject(mode,p);return}
+   if(mode==='ball'){setBall(p);return}
+   if(mode==='playerA'){setPlayers(v=>[...v,{id:'a'+Date.now(),team:'a',x:p.x,y:p.y,label:String(v.filter(x=>x.team==='a').length+1)}]);return}
+   if(mode==='playerD'){setPlayers(v=>[...v,{id:'d'+Date.now(),team:'d',x:p.x,y:p.y,label:String(v.filter(x=>x.team==='d').length+1)}]);return}
+  }
+
+ const fieldMove=(e)=>{
+   if(isPlaying)return
+   const p=pct(e)
+   if(curvePoints.length)setCurvePoints(v=>[...v,p])
    if(!drag)return
-   if(drag.type==='ball')setBall(p);else if(drag.type==='obj')setObjects(objects.map(x=>x.id===drag.id?{...x,...p}:x));else setPlayers(players.map(x=>x.id===drag.id?{...x,...p}:x))
+   if(drag.kind==='ball')setBall(p)
+   if(drag.kind==='player')setPlayers(v=>v.map(x=>x.id===drag.id?{...x,...p}:x))
+   if(drag.kind==='object')setObjects(v=>v.map(x=>x.id===drag.id?{...x,...p}:x))
  }
- function boardDown(e){
-   const p=pxy(e)
-   if(['move','pass','shot'].includes(mode))setStart(p)
-   if(mode==='curve')setFreehand([p])
-   if(['cone','minigoal','barrier','ladder','marker'].includes(mode))setObjects([...objects,{id:'o'+Date.now(),type:mode,...p}])
-   if(mode==='zone')setObjects([...objects,{id:'o'+Date.now(),type:'zone',...p,w:18,h:16}])
-   if(mode==='text'){const label=prompt('Texto / indicação:');if(label)setObjects([...objects,{id:'o'+Date.now(),type:'text',label,...p}])}
- }
- function boardUp(e){
-   if(start&&['move','pass','shot'].includes(mode)){setPaths([...paths,{from:start,to:pxy(e),type:mode,phase}]);setStart(null)}
-   if(freehand&&mode==='curve'&&freehand.length>1){setPaths([...paths,{points:freehand,type:'curve',phase}]);setFreehand(null)}
+
+ const fieldUp=(e)=>{
+   if(isPlaying)return
+   const p=pct(e)
+   if(draw){
+     setPaths(v=>[...v,{id:Date.now(),type:draw.type,x1:draw.start.x,y1:draw.start.y,x2:p.x,y2:p.y}])
+     setDraw(null)
+   }
+   if(curvePoints.length){
+     if(curvePoints.length>2)setPaths(v=>[...v,{id:Date.now(),type:'curve',points:curvePoints}])
+     setCurvePoints([])
+   }
    setDrag(null)
  }
- function eraseAt(kind,id){
-   if(mode!=='erase')return false
-   if(kind==='player')setPlayers(players.filter(x=>x.id!==id));if(kind==='object')setObjects(objects.filter(x=>x.id!==id));return true
+
+ const clearBoard=()=>{setPaths([]);setObjects([])}
+ const eraseLast=()=>{if(paths.length)setPaths(v=>v.slice(0,-1));else if(objects.length)setObjects(v=>v.slice(0,-1))}
+
+ const saveExercise=()=>{
+   saveCurrentPhase()
+   const ex={
+     id:Date.now(),name:`Exercício ${new Date().toLocaleDateString()}`,category:'Tática',
+     sport,board:{players,ball,objects,paths,phases},createdAt:new Date().toISOString()
+   }
+   setExercises([...(exercises||[]),ex])
+   alert('Exercício guardado')
  }
- function save(){
-   const diagram={field,players,ball,paths,objects,phases}
-   if(editingId){setExercises(exercises.map(x=>x.id===editingId?{...x,...diagram,diagram}:x));alert('Desenho do exercício atualizado.')}
-   else{const ex={id:'e'+Date.now(),title:`Exercício ${exercises.length+1}`,author:'Cavadas Manager',playersCount:players.length,equipment:'',category:'',phase:'',duration:10,objective:'',description:'',notes:'',image:'',...diagram,diagram};setExercises([...exercises,ex]);setEditingId(ex.id);alert('Exercício guardado.')}
+
+ const lerp=(a,b,t)=>a+(b-a)*t
+ const animateTo=(from,to,duration)=>new Promise(resolve=>{
+   const start=performance.now()
+   const tick=(now)=>{
+     const raw=Math.min(1,(now-start)/(duration/playSpeed))
+     const t=raw<.5?2*raw*raw:1-Math.pow(-2*raw+2,2)/2
+     const fp=from.players||[], tp=to.players||[]
+     const merged=tp.map(target=>{
+       const source=fp.find(x=>x.id===target.id)||target
+       return {...target,x:lerp(source.x,target.x,t),y:lerp(source.y,target.y,t)}
+     })
+     setPlayers(merged)
+     const fb=from.ball||to.ball||ball, tb=to.ball||fb
+     setBall({x:lerp(fb.x,tb.x,t),y:lerp(fb.y,tb.y,t)})
+     if(raw<1)requestAnimationFrame(tick)
+     else{
+       setObjects((to.objects||[]).map(x=>({...x})))
+       setPaths((to.paths||[]).map(x=>({...x,points:x.points?x.points.map(pt=>({...pt})):undefined})))
+       resolve()
+     }
+   }
+   requestAnimationFrame(tick)
+ })
+
+ const play=async()=>{
+   if(isPlaying){setIsPlaying(false);return}
+   saveCurrentPhase()
+   const seq=phases.map((p,i)=>i===phaseIndex?{...p,...snapshot()}:p)
+   if(seq.length<2)return
+   setIsPlaying(true)
+   let cancelled=false
+   for(let i=0;i<seq.length-1;i++){
+     if(cancelled)break
+     setPhaseIndex(i)
+     const from=seq[i],to=seq[i+1]
+     await animateTo(from,to,to.duration||1200)
+     if(!isPlaying && i>0){cancelled=true;break}
+     setPhaseIndex(i+1)
+   }
+   setIsPlaying(false)
  }
- function newBoard(){setEditingId(null);setField('futsal');setPlayers(mkPlayers(5,4,1));setBall({x:50,y:50});setObjects([]);setPaths([]);setPhases(['Fase 1']);setPhase(0);setIsPlaying(false)}
- const icon=o=>o.type==='cone'?'▲':o.type==='minigoal'?'▭':o.type==='barrier'?'▰':o.type==='ladder'?'▥':o.type==='marker'?'●':o.type==='text'?(o.label||'T'):''
- return <div className="boardLayout v14Board">
-  <aside className="card controls">
-   <div className="paneTitle"><h2>{tr.board}</h2>{editingId&&<span className="editingBadge">A editar exercício</span>}</div>
-   <select value={field} onChange={e=>setField(e.target.value)}><option value="futsal">{tr.futsal}</option><option value="football11">{tr.football11}</option><option value="football7">{tr.football7}</option><option value="football6">{tr.football6}</option></select>
-   <Counter label={tr.attackers} v={a} set={setA}/><Counter label={tr.defenders} v={d} set={setD}/><Counter label={tr.goalkeepers} v={gr} set={setGr}/>
-   <button className="primary" onClick={apply}>{tr.apply}</button>
-   <div className="toolGrid v14Tools">
-    {[['select',MousePointer2,tr.select],['move',MoveRight,tr.movement],['pass',ArrowRight,tr.pass],['shot',Goal,tr.shot],['curve',Pencil,'Curva'],['cone',Cone,'Cone'],['marker',Target,'Marca'],['barrier',Minus,'Barreira'],['ladder',Activity,'Escada'],['minigoal',Goal,'Mini-baliza'],['zone',ShieldCheck,'Zona'],['text',FileText,'Texto'],['erase',Trash2,'Apagar']].map(([k,I,l])=><button key={k} className={mode===k?'active':''} onClick={()=>setMode(k)}><I/>{l}</button>)}
+
+ const loadEdit=()=>{
+   try{
+     const raw=localStorage.getItem('gw_board_edit_exercise')
+     if(!raw)return
+     const ex=JSON.parse(raw)
+     if(ex.board){
+       if(ex.board.players)setPlayers(ex.board.players)
+       if(ex.board.ball)setBall(ex.board.ball)
+       if(ex.board.objects)setObjects(ex.board.objects)
+       if(ex.board.paths)setPaths(ex.board.paths)
+       if(ex.board.phases?.length)setPhases(ex.board.phases)
+       if(ex.board.sport)setSport(ex.board.sport)
+     }
+     localStorage.removeItem('gw_board_edit_exercise')
+   }catch{}
+ }
+ useEffect(loadEdit,[])
+
+ const fieldClass=`tacticalField ${sport}`
+ return <div className="boardPage">
+  <div className="card boardToolbar">
+   <div className="paneTitle"><h2>Quadro Tático</h2><small>V15 · animação por fases</small></div>
+   <div className="v14Tools">
+    <select value={sport} onChange={e=>setSport(e.target.value)}>
+     <option value="futsal">Futsal</option><option value="football11">Futebol 11</option>
+     <option value="football7">Futebol 7</option><option value="football6">Futebol 6</option>
+    </select>
+    <button className={mode==='select'?'active':''} onClick={()=>setMode('select')}>Selecionar</button>
+    <button onClick={()=>setMode('playerA')}>+ Atacante</button><button onClick={()=>setMode('playerD')}>+ Defesa</button>
+    <button onClick={()=>setMode('ball')}>⚽ Bola</button>
+    <button onClick={()=>setMode('movement')}>→ Movimento</button><button onClick={()=>setMode('pass')}>⇢ Passe</button>
+    <button onClick={()=>setMode('shot')}>➜ Remate</button><button onClick={()=>setMode('curve')}>〰 Curva</button>
+    <button onClick={()=>setMode('cone')}>▲ Cone</button><button onClick={()=>setMode('marker')}>● Marca</button>
+    <button onClick={()=>setMode('barrier')}>▥ Barreira</button><button onClick={()=>setMode('ladder')}>▤ Escada</button>
+    <button onClick={()=>setMode('mini-goal')}>▱ Mini-baliza</button><button onClick={()=>setMode('zone')}>▧ Zona</button>
+    <button onClick={()=>setMode('text')}>T Texto</button>
+    <button onClick={eraseLast}>↶ Apagar último</button><button onClick={clearBoard}>Limpar desenho</button>
    </div>
-   <button className="primary" onClick={save}><Save/> {editingId?'Atualizar exercício':tr.save}</button>
-   <button className="secondary" onClick={newBoard}><Plus/> Novo quadro</button>
-  </aside>
-  <section>
-   <div className={'pitch '+field} ref={ref} onPointerDown={boardDown} onPointerMove={move} onPointerUp={boardUp} onPointerLeave={()=>{setDrag(null);setFreehand(null)}}>
-    <FieldSvg type={field}/>
-    <svg className="arrows" viewBox="0 0 100 100" preserveAspectRatio="none">
-     {paths.filter(x=>x.phase===phase).map((x,i)=>x.type==='curve'?<polyline key={i} points={(x.points||[]).map(p=>`${p.x},${p.y}`).join(' ')} className="curve" fill="none"/>:<line key={i} x1={x.from.x} y1={x.from.y} x2={x.to.x} y2={x.to.y} className={x.type}/>)}
-     {freehand&&<polyline points={freehand.map(p=>`${p.x},${p.y}`).join(' ')} className="curve draft" fill="none"/>}
-    </svg>
-    {objects.filter(o=>o.type==='zone').map(o=><div key={o.id} onClick={()=>eraseAt('object',o.id)} className="tacticalZone" style={{left:o.x+'%',top:o.y+'%',width:(o.w||18)+'%',height:(o.h||16)+'%'}}></div>)}
-    {players.map(x=><div key={x.id} onClick={()=>eraseAt('player',x.id)} onPointerDown={e=>down(e,x.id,'p')} className={'token '+x.team} style={{left:x.x+'%',top:x.y+'%'}}>{x.n}</div>)}
-    {objects.filter(o=>o.type!=='zone').map(x=><div key={x.id} onClick={()=>eraseAt('object',x.id)} onPointerDown={e=>down(e,x.id,'obj')} className={'boardObject '+x.type} style={{left:x.x+'%',top:x.y+'%'}}>{icon(x)}</div>)}
-    <div onClick={()=>{if(mode==='erase')setBall({x:50,y:50})}} onPointerDown={e=>down(e,'ball','ball')} className="ball" style={{left:ball.x+'%',top:ball.y+'%'}}>⚽</div>
+  </div>
+
+  <div className="card">
+   <div className={fieldClass}
+    onPointerDown={fieldDown} onPointerMove={fieldMove} onPointerUp={fieldUp} onPointerLeave={()=>{setDrag(null);setDraw(null);setCurvePoints([])}}>
+    <div className="centerLine"/><div className="centerCircle"/>
+    <div className="penalty left"/><div className="penalty right"/><div className="goal left"/><div className="goal right"/>
+    {paths.map(p=>p.type==='curve'
+      ?<svg key={p.id} className="curveSvg"><polyline points={(p.points||[]).map(pt=>`${pt.x},${pt.y}`).join(' ')} vectorEffect="non-scaling-stroke"/></svg>
+      :<svg key={p.id} className={`arrowSvg ${p.type}`}><line x1={`${p.x1}%`} y1={`${p.y1}%`} x2={`${p.x2}%`} y2={`${p.y2}%`} vectorEffect="non-scaling-stroke"/></svg>
+    )}
+    {curvePoints.length>1&&<svg className="curveSvg preview"><polyline points={curvePoints.map(pt=>`${pt.x},${pt.y}`).join(' ')} vectorEffect="non-scaling-stroke"/></svg>}
+    {objects.map(o=>o.type==='zone'
+      ?<div key={o.id} className="tacticalZone" style={{left:`${o.x}%`,top:`${o.y}%`}} onPointerDown={e=>{e.stopPropagation();setDrag({kind:'object',id:o.id})}}/>
+      :<div key={o.id} className={`boardObject ${o.type}`} style={{left:`${o.x}%`,top:`${o.y}%`}} onPointerDown={e=>{e.stopPropagation();setDrag({kind:'object',id:o.id})}}>{o.type==='text'?o.text:o.sym}</div>
+    )}
+    {players.map(p=><div key={p.id} className={`boardPlayer ${p.team}`} style={{left:`${p.x}%`,top:`${p.y}%`}}
+      onPointerDown={e=>{e.stopPropagation();if(mode==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
+    <div className="boardBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}}
+      onPointerDown={e=>{e.stopPropagation();if(mode==='select')setDrag({kind:'ball'})}}>⚽</div>
    </div>
-   <div className="timeline v14Timeline">{phases.map((x,i)=><button className={phase===i?'active':''} onClick={()=>setPhase(i)} key={i}>{x}</button>)}<button onClick={()=>{setPhases([...phases,`Fase ${phases.length+1}`]);setPhase(phases.length)}}><Plus/>{tr.newPhase}</button><button className={isPlaying?'active':''} onClick={()=>{setPhase(0);setIsPlaying(!isPlaying)}}>{isPlaying?'■ Parar':'▶ Reproduzir'}</button></div>
-  </section>
+  </div>
+
+  <div className="card v15Timeline">
+   <div className="paneTitle"><h3>Fotogramas / Fases</h3><small>{phases.length}</small></div>
+   <div className="phaseStrip">
+    {phases.map((p,i)=><button key={p.id} className={i===phaseIndex?'phase active':'phase'} onClick={()=>{saveCurrentPhase();loadPhase(i)}}>
+      <b>{i+1}</b><span>{p.name}</span><small>{p.duration||1200} ms</small>
+    </button>)}
+   </div>
+   <div className="timelineActions">
+    <button className="primary" onClick={addPhase}><Plus/>Nova fase</button>
+    <button onClick={duplicatePhase}>Duplicar</button>
+    <button className="dangerLite" onClick={deletePhase}>Eliminar</button>
+    <label>Duração <input type="number" min="300" step="100" value={phases[phaseIndex]?.duration||1200} onChange={e=>setPhaseDuration(e.target.value)}/></label>
+    <label>Velocidade <select value={playSpeed} onChange={e=>setPlaySpeed(Number(e.target.value))}><option value="0.5">0,5×</option><option value="1">1×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
+    <button className={isPlaying?'dangerLite':'primary'} onClick={play}>{isPlaying?'■ Parar':'▶ Reproduzir'}</button>
+    <button onClick={saveCurrentPhase}><Save/>Guardar fase</button>
+    <button onClick={saveExercise}><Save/>Guardar exercício</button>
+   </div>
+   <p className="hint">Cada fase guarda as posições dos jogadores, bola, objetos e desenhos. Ao reproduzir, jogadores e bola deslocam-se suavemente entre fotogramas.</p>
+  </div>
  </div>
 }
+
+
 function Counter({label,v,set}){return <div className="counter"><span>{label}</span><div><button onClick={()=>set(Math.max(0,v-1))}><Minus/></button><b>{v}</b><button onClick={()=>set(v+1)}><Plus/></button></div></div>}
 function mkPlayers(a,d,gr){const out=[];for(let i=0;i<a;i++)out.push({id:'a'+i,n:i+1,team:'blue',x:25+(i%3)*15,y:25+Math.floor(i/3)*20});for(let i=0;i<d;i++)out.push({id:'d'+i,n:'X',team:'red',x:65+(i%2)*12,y:28+Math.floor(i/2)*18});for(let i=0;i<gr;i++)out.push({id:'g'+i,n:'GR',team:'yellow',x:i?92:8,y:50});return out}
 function FieldSvg({type}){if(type==='futsal')return <svg className="fieldSvg" viewBox="0 0 120 78" preserveAspectRatio="none"><rect x="4" y="4" width="112" height="70" rx="1.5" fill="none" stroke="white"/><line x1="60" y1="4" x2="60" y2="74" stroke="white"/><circle cx="60" cy="39" r="6" fill="none" stroke="white"/><path d="M4 24 C19 24 19 54 4 54" fill="none" stroke="white"/><path d="M116 24 C101 24 101 54 116 54" fill="none" stroke="white"/><circle cx="16" cy="39" r=".8" fill="white"/><circle cx="28" cy="39" r=".8" fill="white"/><circle cx="104" cy="39" r=".8" fill="white"/><circle cx="92" cy="39" r=".8" fill="white"/></svg>;return <svg className="fieldSvg" viewBox="0 0 120 78" preserveAspectRatio="none"><rect x="4" y="4" width="112" height="70" fill="none" stroke="white"/><line x1="60" y1="4" x2="60" y2="74" stroke="white"/><circle cx="60" cy="39" r="9" fill="none" stroke="white"/><rect x="4" y="18" width="18" height="42" fill="none" stroke="white"/><rect x="98" y="18" width="18" height="42" fill="none" stroke="white"/><rect x="4" y="29" width="7" height="20" fill="none" stroke="white"/><rect x="109" y="29" width="7" height="20" fill="none" stroke="white"/></svg>}

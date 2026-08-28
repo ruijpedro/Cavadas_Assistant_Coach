@@ -146,3 +146,35 @@ main{max-width:1920px;padding:14px 16px}
 .v14Tools{grid-template-columns:repeat(2,minmax(0,1fr))}.arrows .curve{stroke:#ffdf3d;stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}.arrows .curve.draft{stroke-dasharray:2 1}.boardObject.barrier{width:34px;height:10px;border-radius:3px;background:#ef7d22;color:white;font-size:8px}.boardObject.ladder{width:36px;height:16px;border:2px solid #f5d547;background:repeating-linear-gradient(90deg,transparent 0 6px,#f5d547 6px 8px);font-size:0}.boardObject.marker{width:17px;height:17px;border-radius:50%;background:#f7e440;color:#09182f;font-size:9px}.boardObject.text{min-width:34px;max-width:120px;height:auto;padding:4px 7px;border-radius:6px;background:rgba(8,28,64,.88);color:white;font-size:11px;font-weight:700;white-space:nowrap}.tacticalZone{position:absolute;transform:translate(-50%,-50%);border:2px dashed rgba(255,225,62,.95);background:rgba(255,225,62,.14);border-radius:9px;z-index:2}.v14Timeline{flex-wrap:wrap}.periodizationPage{display:flex;flex-direction:column;gap:14px}.periodHero{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#071c42,#113c78);color:#fff}.periodHero h2{margin:4px 0}.periodHero p{margin:0;opacity:.85}.periodGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.9fr);gap:14px}.cycleForm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.cycleList{display:flex;flex-direction:column;gap:8px}.cycle{display:grid;grid-template-columns:1fr 44px;gap:8px;border-left:5px solid #163d76;background:#f6f8fb;padding:11px;border-radius:9px}.cycle.mesociclo{margin-left:14px;border-left-color:#3d6ca7}.cycle.microciclo{margin-left:28px;border-left-color:#7898c2}.cycle.unidade-de-treino{margin-left:42px;border-left-color:#a4b8d0}.cycle small{display:block;color:#667085;margin-top:3px}.cycle p{margin:6px 0 0;font-size:13px}.v14Board .pitch{touch-action:none}
 @media(max-width:900px){.periodGrid{grid-template-columns:1fr}.cycleForm{grid-template-columns:1fr 1fr}.v14Tools{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:620px){.cycleForm{grid-template-columns:1fr}.v14Tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* V14.6 — compact stats headings on tablet/mobile */
+@media (max-width: 900px) {
+  .statsGrid > *, .seasonStatsGrid > *, .athleteStatsGrid > * { min-width: 0; }
+  .statsGrid small, .seasonStatsGrid small, .athleteStatsGrid small {
+    white-space: nowrap;
+    font-size: 0.82rem;
+  }
+}
+
+/* V15 — Tactical Animation */
+.v15Timeline{margin-top:12px}
+.phaseStrip{display:flex;gap:8px;overflow-x:auto;padding:8px 0}
+.phaseStrip .phase{min-width:112px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:6px;text-align:left}
+.phaseStrip .phase b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#eef3f9}
+.phaseStrip .phase span{font-weight:700}
+.phaseStrip .phase small{grid-column:2;color:#64748b}
+.phaseStrip .phase.active{outline:2px solid currentColor}
+.timelineActions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.timelineActions label{display:flex;align-items:center;gap:6px}
+.timelineActions input{width:90px}
+.curveSvg,.arrowSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.curveSvg polyline{fill:none;stroke-width:0.8;stroke:#ffd400;stroke-linecap:round;stroke-linejoin:round}
+.arrowSvg line{stroke-width:0.7;stroke-linecap:round}
+.arrowSvg.movement line{stroke:#ffffff}
+.arrowSvg.pass line{stroke:#00e5ff;stroke-dasharray:2 1}
+.arrowSvg.shot line{stroke:#ff5252}
+.hint{margin:.6rem 0 0;color:#64748b;font-size:.9rem}
+@media (max-width:900px){
+ .timelineActions{display:grid;grid-template-columns:1fr 1fr}
+ .timelineActions button,.timelineActions label{min-height:46px}
+}
