@@ -11,31 +11,31 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20.19.4
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@10.15.0 --activate
+
       - name: Install dependencies
         shell: bash
         run: |
           set -euxo pipefail
-          npm install --global npm@10.9.2
           rm -rf node_modules
-          npm cache verify || npm cache clean --force
-          for attempt in 1 2 3; do
-            npm install --include=dev --legacy-peer-deps --no-audit --no-fund && break
-            test "$attempt" = "3" && exit 1
-            rm -rf node_modules
-            npm cache clean --force || true
-            sleep 5
-          done
+          pnpm install --no-frozen-lockfile
           test -x node_modules/.bin/vite
           test -x node_modules/.bin/cap
+
       - name: Build WebApp
-        run: npm run build
+        run: pnpm run build
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
+
       - name: Prepare Android
         shell: bash
         run: |
@@ -46,11 +46,15 @@ jobs:
           fi
           ./node_modules/.bin/cap sync android
           test -f android/gradlew
+
       - name: Apply app icons
         shell: bash
         run: |
           set -e
-          if [ -d android-icons/res ]; then cp -R android-icons/res/mipmap-* android/app/src/main/res/ 2>/dev/null || true; fi
+          if [ -d android-icons/res ]; then
+            cp -R android-icons/res/mipmap-* android/app/src/main/res/ 2>/dev/null || true
+          fi
+
       - name: Build APK
         shell: bash
         run: |
@@ -59,7 +63,8 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
           test -n "$(find app/build/outputs/apk/debug -name '*.apk' -print -quit)"
+
       - uses: actions/upload-artifact@v4
         with:
-          name: Cavadas-Manager-V12-APK
+          name: Cavadas-Manager-V13.1-APK
           path: android/app/build/outputs/apk/debug/*.apk

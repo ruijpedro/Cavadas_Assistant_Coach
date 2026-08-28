@@ -13,40 +13,34 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20.19.4
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@10.15.0 --activate
+
       - name: Install dependencies
         shell: bash
-        env:
-          NPM_CONFIG_UPDATE_NOTIFIER: "false"
-          NPM_CONFIG_FUND: "false"
-          NPM_CONFIG_AUDIT: "false"
         run: |
           set -euxo pipefail
-          npm install --global npm@10.9.2
           rm -rf node_modules
-          npm cache verify || npm cache clean --force
-          for attempt in 1 2 3; do
-            npm install --include=dev --legacy-peer-deps --no-audit --no-fund && break
-            test "$attempt" = "3" && exit 1
-            rm -rf node_modules
-            npm cache clean --force || true
-            sleep 5
-          done
+          pnpm install --no-frozen-lockfile
           test -x node_modules/.bin/vite
           test -d node_modules/@vitejs/plugin-react
-          node -e "console.log(require('./node_modules/vite/package.json').version)"
+
       - name: Build WebApp
         shell: bash
         run: |
           set -euxo pipefail
-          test -x node_modules/.bin/vite
-          npm run build
+          pnpm run build
           test -f dist/index.html
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
