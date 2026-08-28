@@ -1,0 +1,10 @@
+Cavadas Manager V18.0 — Build status
+
+Preflight: PASSED
+Full local Vite build: NOT RUN
+Reason: this runtime could not reach npm registry / pnpm through Corepack (EAI_AGAIN).
+GitHub Actions remains configured to install dependencies and build the Android APK.
+
+V18 dependencies added:
+- pdfjs-dist
+- jszip

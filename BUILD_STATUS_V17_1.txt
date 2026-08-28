@@ -1,0 +1,3 @@
+Preflight PASSED.
+Local pnpm build unavailable: PermissionError(13, 'Permission denied')
+GitHub Actions is configured to install dependencies and build.
