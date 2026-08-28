@@ -56,13 +56,17 @@ jobs:
           ./node_modules/.bin/cap sync android
           test -f android/gradlew
 
-      - name: Apply app icons
+      - name: Apply Cavadas Manager icons
         shell: bash
         run: |
-          set -e
-          if [ -d android-icons/res ]; then
-            cp -R android-icons/res/mipmap-* android/app/src/main/res/ 2>/dev/null || true
-          fi
+          set -euxo pipefail
+          node scripts/apply-android-icons.cjs
+          test -f android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          test -f android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+          test -f android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+          test -f android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+          grep -q 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
+          grep -q 'android:roundIcon="@mipmap/ic_launcher_round"' android/app/src/main/AndroidManifest.xml
 
       - name: Build APK
         shell: bash
@@ -75,5 +79,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Cavadas-Manager-V14.4-APK
+          name: Cavadas-Manager-V14.5-APK
           path: android/app/build/outputs/apk/debug/*.apk
