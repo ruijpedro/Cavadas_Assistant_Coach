@@ -1,0 +1,4 @@
+Cavadas Manager V17.0
+Preflight: PASSED
+Local pnpm build: not executed to completion in this runtime because external npm registry access is blocked (EAI_AGAIN registry.npmjs.org).
+GitHub Actions remains configured to run pnpm install and pnpm run build normally.
