@@ -1,7 +1,7 @@
 
 import React, {useEffect, useMemo, useRef, useState} from 'react'
 import {createRoot} from 'react-dom/client'
-import {Users, Dumbbell, ClipboardList, CalendarDays, Activity, Languages, Plus, Minus, Save, Trash2, FileText, ChevronLeft, ChevronUp, ChevronDown, ArrowRight, MoveRight, Goal, MousePointer2, Cone, Pencil, X, Clock3, Trophy, BarChart3, CheckCircle2, UserCheck, Image as ImageIcon} from 'lucide-react'
+import {Users, Dumbbell, ClipboardList, CalendarDays, Activity, Languages, Plus, Minus, Save, Trash2, FileText, ChevronLeft, ChevronUp, ChevronDown, ArrowRight, MoveRight, Goal, MousePointer2, Cone, Pencil, X, Clock3, Trophy, BarChart3, CheckCircle2, UserCheck, Image as ImageIcon, BookOpen, Flag, Search, MessageSquare, Target, ShieldCheck} from 'lucide-react'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import './style.css'
@@ -71,9 +71,17 @@ function App(){
    <Nav label={tr.athletes} icon={<Users/>} active={page==='athletes'} onClick={()=>go('athletes')}/>
    <Nav label={tr.training} icon={<Dumbbell/>} active={page==='training'} onClick={()=>go('training')}/>
    <Nav label={tr.exercises} icon={<ClipboardList/>} active={page==='exercises'} onClick={()=>go('exercises')}/>
-   <Nav label={tr.board} icon={<Activity/>} active={page==='board'} onClick={()=>go('board')}/>
+   <Nav label={tr.board} icon={<Activity/>} active={page==='model'&&<GameModel athletes={athletes}/>}
+    {page==='setpieces'&&<SetPieces exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
+    {page==='opponents'&&<Opponents/>}
+    {page==='postmatch'&&<PostMatch games={games}/>}
+    {page==='board'} onClick={()=>go('board')}/>
    <Nav label={tr.games} icon={<Trophy/>} active={page==='games'} onClick={()=>go('games')}/>
-   <Nav label={tr.callups} icon={<UserCheck/>} active={page==='callups'} onClick={()=>go('callups')}/>
+   <Nav label={lang==='de'?'Spielmodell':lang==='fr'?'Modèle de jeu':lang==='lb'?'Spillmodell':lang==='en'?'Game Model':'Modelo de Jogo'} icon={<BookOpen/>} active={page==='model'} onClick={()=>setPage('model')}/>
+    <Nav label={lang==='de'?'Standards':lang==='fr'?'Coups de pied arrêtés':lang==='lb'?'Standard-Situatiounen':lang==='en'?'Set Pieces':'Bolas Paradas'} icon={<Flag/>} active={page==='setpieces'} onClick={()=>setPage('setpieces')}/>
+    <Nav label={lang==='de'?'Gegner':lang==='fr'?'Adversaires':lang==='lb'?'Géigner':lang==='en'?'Opponents':'Adversários'} icon={<Search/>} active={page==='opponents'} onClick={()=>setPage('opponents')}/>
+    <Nav label={lang==='de'?'Nachspiel':lang==='fr'?'Après-match':lang==='lb'?'Nom Match':lang==='en'?'Post-match':'Pós-jogo'} icon={<MessageSquare/>} active={page==='postmatch'} onClick={()=>setPage('postmatch')}/>
+    <Nav label={tr.callups} icon={<UserCheck/>} active={page==='callups'} onClick={()=>go('callups')}/>
    <Nav label={tr.tests} icon={<Activity/>} active={page==='tests'} onClick={()=>go('tests')}/>
    <Nav label={tr.planning} icon={<CalendarDays/>} active={page==='planning'} onClick={()=>go('planning')}/>
   </nav>
@@ -159,6 +167,43 @@ function Callups({tr,athletes,callups,setCallups}){
  const save=()=>{if(!draft.opponent||!draft.players.length)return alert('Preencha o adversário e escolha os atletas.');setCallups([...callups,{...draft,id:'c'+Date.now()}]);setDraft(empty)}
  return <div className="callupLayout"><section className="card"><div className="paneTitle"><h2>{tr.callups}</h2><UserCheck/></div><div className="formGrid"><Field label={tr.opponent}><input value={draft.opponent} onChange={e=>setDraft({...draft,opponent:e.target.value})}/></Field><Field label={tr.competition}><input value={draft.competition} onChange={e=>setDraft({...draft,competition:e.target.value})}/></Field><Field label={tr.date}><input type="date" value={draft.date} onChange={e=>setDraft({...draft,date:e.target.value})}/></Field><Field label={tr.time}><input type="time" value={draft.time} onChange={e=>setDraft({...draft,time:e.target.value})}/></Field><Field label={tr.meeting}><input type="time" value={draft.meeting} onChange={e=>setDraft({...draft,meeting:e.target.value})}/></Field><Field label={tr.location}><input value={draft.location} onChange={e=>setDraft({...draft,location:e.target.value})}/></Field></div><div className="callupQuick"><button onClick={()=>setDraft({...draft,players:athletes.map(a=>a.id)})}>{tr.selectAll}</button><button onClick={()=>setDraft({...draft,players:athletes.filter(a=>(a.position||'').includes('Guarda-redes')).map(a=>a.id)})}>Só GR</button><button onClick={()=>setDraft({...draft,players:[]})}>{tr.clear}</button></div><div className="athletePicker compact">{athletes.map(a=><button key={a.id} className={draft.players.includes(a.id)?'active':''} onClick={()=>toggle(a.id)}><span className="avatar">{a.name.split(' ').map(x=>x[0]).slice(0,2).join('')}</span><div><b>{a.name}</b><small>{a.position}</small></div></button>)}</div><Field label={tr.notes}><textarea rows="3" value={draft.notes} onChange={e=>setDraft({...draft,notes:e.target.value)}/></Field><button className="primary wideAction" onClick={save}><Save/>{tr.save} · {draft.players.length}</button></section>
  <aside className="card"><div className="paneTitle"><h3>{tr.history}</h3><small>{callups.length}</small></div>{callups.slice().reverse().map(c=><div className="exportItem" key={c.id}><div id={'callup-'+c.id} className="brandedExport"><div className="exportBrand"><img src="club-crest.jpg"/><div><b>1. FC GRUEFWISS LEIDELENG</b><span>CONVOCATÓRIA · 2026/27</span></div></div><h2>Gruefwiss vs {c.opponent}</h2><p>{c.competition||''}</p><div className="exportMeta"><span>{c.date||'—'} · {c.time||'—'}</span><span>{c.location||'—'}</span><span>Concentração: {c.meeting||'—'}</span></div><div className="exportPlayers">{athletes.filter(a=>(c.players||[]).includes(a.id)).map((a,i)=><div key={a.id}><b>{String(i+1).padStart(2,'0')}</b><span>{a.name}</span><small>{a.position}</small></div>)}</div></div><div className="exportButtons"><button onClick={()=>exportNode('callup-'+c.id,'pdf','convocatoria-'+c.opponent)}><FileText/>PDF</button><button onClick={()=>exportNode('callup-'+c.id,'png','convocatoria-'+c.opponent)}><ImageIcon/>{tr.exportImage}</button><button className="dangerLite" onClick={()=>setCallups(callups.filter(x=>x.id!==c.id))}><Trash2/></button></div></div>)}</aside></div>
+}
+
+
+function GameModel({athletes}){
+ const [model,setModel]=useStore('gw_game_model_v13',{identity:'',offensive:'4-0',defensive:'Zona',pressing:'',transitionAttack:'',transitionDefence:'',principles:[],notes:''})
+ const [principle,setPrinciple]=useState('')
+ const upd=(k,v)=>setModel({...model,[k]:v})
+ const add=()=>{if(principle.trim()){upd('principles',[...(model.principles||[]),principle.trim()]);setPrinciple('')}}
+ return <div className="v13TwoCol"><section className="card"><div className="paneTitle"><div><h2>Modelo de Jogo</h2><small>Identidade e princípios da equipa</small></div><BookOpen/></div>
+  <Field label="Identidade / ideia de jogo"><textarea rows="4" value={model.identity||''} onChange={e=>upd('identity',e.target.value)}/></Field>
+  <div className="formGrid"><Field label="Organização ofensiva"><select value={model.offensive} onChange={e=>upd('offensive',e.target.value)}><option>4-0</option><option>3-1</option><option>2-2</option><option>Dinâmico / híbrido</option></select></Field><Field label="Organização defensiva"><select value={model.defensive} onChange={e=>upd('defensive',e.target.value)}><option>Zona</option><option>Individual</option><option>Misto</option></select></Field></div>
+  <Field label="Pressão"><textarea rows="3" value={model.pressing||''} onChange={e=>upd('pressing',e.target.value)}/></Field>
+  <Field label="Transição ofensiva"><textarea rows="3" value={model.transitionAttack||''} onChange={e=>upd('transitionAttack',e.target.value)}/></Field>
+  <Field label="Transição defensiva"><textarea rows="3" value={model.transitionDefence||''} onChange={e=>upd('transitionDefence',e.target.value)}/></Field>
+ </section><aside className="card"><h3>Princípios da equipa</h3><div className="inlineAdd"><input value={principle} onChange={e=>setPrinciple(e.target.value)} placeholder="Novo princípio"/><button className="primary" onClick={add}><Plus/></button></div><div className="principleList">{(model.principles||[]).map((x,i)=><div key={i}><Target/><span>{x}</span><button onClick={()=>upd('principles',model.principles.filter((_,n)=>n!==i))}><X/></button></div>)}</div><Field label="Notas"><textarea rows="8" value={model.notes||''} onChange={e=>upd('notes',e.target.value)}/></Field></aside></div>
+}
+
+function SetPieces({exercises,setExercises,setPage}){
+ const kinds=['Canto ofensivo','Canto defensivo','Lateral ofensivo','Lateral defensivo','Livre direto','Livre indireto','5x4 / GR avançado','Defesa 4x5']
+ const setpieces=exercises.filter(x=>x.isSetPiece)
+ const create=k=>{const ex={id:'sp'+Date.now(),title:k,author:'Cavadas Manager',category:'Bola parada',phase:'Aplicação em jogo',duration:10,objective:'',description:'',notes:'',isSetPiece:true,field:'futsal',players:mkPlayers(5,4,1),ball:{x:50,y:50},paths:[],objects:[],phases:['Fase 1']};setExercises([...exercises,ex]);localStorage.setItem('gw_board_edit_exercise',ex.id);setPage('board')}
+ return <div className="card"><div className="paneTitle"><div><h2>Bolas Paradas</h2><small>Biblioteca ligada ao Quadro Tático</small></div><Flag/></div><div className="setPieceTypes">{kinds.map(k=><button onClick={()=>create(k)} key={k}><Plus/><b>{k}</b><small>Criar e desenhar</small></button>)}</div><h3>Jogadas guardadas</h3><div className="setPieceSaved">{setpieces.map(x=><button key={x.id} onClick={()=>{localStorage.setItem('gw_board_edit_exercise',x.id);setPage('board')}}><Flag/><span><b>{x.title}</b><small>{x.description||'Abrir no quadro tático'}</small></span><Pencil/></button>)}</div></div>
+}
+
+function Opponents(){
+ const [items,setItems]=useStore('gw_opponents_v13',[])
+ const [d,setD]=useState({name:'',competition:'',system:'',strengths:'',weaknesses:'',setpieces:'',notes:''})
+ const save=()=>{if(!d.name)return;setItems([...items,{...d,id:'op'+Date.now()}]);setD({name:'',competition:'',system:'',strengths:'',weaknesses:'',setpieces:'',notes:''})}
+ return <div className="v13TwoCol"><section className="card"><div className="paneTitle"><div><h2>Adversários</h2><small>Scouting pré-jogo</small></div><Search/></div><div className="formGrid"><Field label="Equipa"><input value={d.name} onChange={e=>setD({...d,name:e.target.value})}/></Field><Field label="Competição"><input value={d.competition} onChange={e=>setD({...d,competition:e.target.value})}/></Field><Field label="Sistema habitual"><input value={d.system} onChange={e=>setD({...d,system:e.target.value})}/></Field></div><Field label="Pontos fortes"><textarea rows="3" value={d.strengths} onChange={e=>setD({...d,strengths:e.target.value})}/></Field><Field label="Fragilidades a explorar"><textarea rows="3" value={d.weaknesses} onChange={e=>setD({...d,weaknesses:e.target.value})}/></Field><Field label="Bolas paradas"><textarea rows="3" value={d.setpieces} onChange={e=>setD({...d,setpieces:e.target.value})}/></Field><button className="primary wideAction" onClick={save}><Save/> Guardar adversário</button></section><aside className="card"><h3>Arquivo de adversários</h3>{items.length?items.slice().reverse().map(x=><div className="opponentCard" key={x.id}><div><b>{x.name}</b><small>{x.system||'Sistema não definido'} · {x.competition||''}</small><p>{x.weaknesses||'Sem observações.'}</p></div><button className="dangerLite" onClick={()=>setItems(items.filter(i=>i.id!==x.id))}><Trash2/></button></div>):<p className="muted">Ainda não existem adversários analisados.</p>}</aside></div>
+}
+
+function PostMatch({games=[]}){
+ const [reviews,setReviews]=useStore('gw_postmatch_v13',[])
+ const [gameId,setGameId]=useState(''),[r,setR]=useState({rating:3,worked:'',failed:'',offensive:'',defensive:'',transition:'',setpieces:'',next:''})
+ const save=()=>{if(!gameId)return;setReviews([...reviews,{...r,id:'pm'+Date.now(),gameId,date:new Date().toISOString()}]);setR({rating:3,worked:'',failed:'',offensive:'',defensive:'',transition:'',setpieces:'',next:''})}
+ const upd=(k,v)=>setR({...r,[k]:v})
+ return <div className="v13TwoCol"><section className="card"><div className="paneTitle"><div><h2>Análise Pós-jogo</h2><small>Reflexão técnica ligada ao jogo</small></div><MessageSquare/></div><Field label="Jogo"><select value={gameId} onChange={e=>setGameId(e.target.value)}><option value="">Selecionar…</option>{games.map(g=><option value={g.id} key={g.id}>{g.opponent} · {g.date||''} · {g.goalsFor}-{g.goalsAgainst}</option>)}</select></Field><Field label="Avaliação global (1–5)"><input type="range" min="1" max="5" value={r.rating} onChange={e=>upd('rating',Number(e.target.value))}/><b className="ratingValue">{r.rating}/5</b></Field><Field label="O que funcionou"><textarea rows="3" value={r.worked} onChange={e=>upd('worked',e.target.value)}/></Field><Field label="O que falhou"><textarea rows="3" value={r.failed} onChange={e=>upd('failed',e.target.value)}/></Field><Field label="Organização ofensiva"><textarea rows="2" value={r.offensive} onChange={e=>upd('offensive',e.target.value)}/></Field><Field label="Organização defensiva"><textarea rows="2" value={r.defensive} onChange={e=>upd('defensive',e.target.value)}/></Field><Field label="Próximo treino — prioridades"><textarea rows="3" value={r.next} onChange={e=>upd('next',e.target.value)}/></Field><button className="primary wideAction" onClick={save}><Save/> Guardar análise</button></section><aside className="card"><h3>Reflexões guardadas</h3>{reviews.length?reviews.slice().reverse().map(x=>{const g=games.find(a=>a.id===x.gameId);return <div className="reviewCard" key={x.id}><ShieldCheck/><div><b>{g?.opponent||'Jogo'}</b><small>Avaliação {x.rating}/5</small><p>{x.next||x.worked||'Sem resumo.'}</p></div><button className="dangerLite" onClick={()=>setReviews(reviews.filter(i=>i.id!==x.id))}><Trash2/></button></div>}):<p className="muted">Ainda não existem análises pós-jogo.</p>}</aside></div>
 }
 
 function Board({tr,exercises,setExercises}){
