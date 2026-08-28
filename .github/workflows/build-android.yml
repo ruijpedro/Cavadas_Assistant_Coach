@@ -79,5 +79,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Cavadas-Manager-V18.1-APK
+          name: Cavadas-Manager-V18.2-APK
           path: android/app/build/outputs/apk/debug/*.apk
