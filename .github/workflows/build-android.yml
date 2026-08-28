@@ -8,45 +8,58 @@ permissions:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20.19.4
       - name: Install dependencies
-        run: npm install --include=dev --no-audit --no-fund --legacy-peer-deps
+        shell: bash
+        run: |
+          set -euxo pipefail
+          npm install --global npm@10.9.2
+          rm -rf node_modules
+          npm cache verify || npm cache clean --force
+          for attempt in 1 2 3; do
+            npm install --include=dev --legacy-peer-deps --no-audit --no-fund && break
+            test "$attempt" = "3" && exit 1
+            rm -rf node_modules
+            npm cache clean --force || true
+            sleep 5
+          done
+          test -x node_modules/.bin/vite
+          test -x node_modules/.bin/cap
       - name: Build WebApp
-        run: npx vite build
+        run: npm run build
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
-      - name: Ensure Android
+      - name: Prepare Android
+        shell: bash
         run: |
+          set -euxo pipefail
           if [ ! -f android/gradlew ]; then
             rm -rf android
-            npx cap add android
+            ./node_modules/.bin/cap add android
           fi
-          npx cap sync android
-      - name: Apply Cavadas Manager icons
+          ./node_modules/.bin/cap sync android
+          test -f android/gradlew
+      - name: Apply app icons
+        shell: bash
         run: |
-          if [ -d android-icons/res ]; then
-            cp -R android-icons/res/mipmap-* android/app/src/main/res/ 2>/dev/null || true
-            cp -R android-icons/res/drawable* android/app/src/main/res/ 2>/dev/null || true
-          else
-            find android-icons -type d -name "mipmap-*" | while read dir; do
-              base=$(basename "$dir")
-              mkdir -p "android/app/src/main/res/$base"
-              cp -R "$dir"/* "android/app/src/main/res/$base/" || true
-            done
-          fi
+          set -e
+          if [ -d android-icons/res ]; then cp -R android-icons/res/mipmap-* android/app/src/main/res/ 2>/dev/null || true; fi
       - name: Build APK
+        shell: bash
         run: |
+          set -euxo pipefail
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
+          test -n "$(find app/build/outputs/apk/debug -name '*.apk' -print -quit)"
       - uses: actions/upload-artifact@v4
         with:
-          name: Cavadas-Manager-APK
+          name: Cavadas-Manager-V12-APK
           path: android/app/build/outputs/apk/debug/*.apk
