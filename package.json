@@ -1,14 +1,15 @@
 {
   "name": "cavadas-manager-gruefwiss",
-  "version": "13.1.0",
+  "version": "14.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
+    "build": "node scripts/preflight.mjs && vite build",
     "preview": "vite preview",
     "cap:add:android": "npx cap add android",
-    "cap:sync": "npx cap sync android"
+    "cap:sync": "npx cap sync android",
+    "preflight": "node scripts/preflight.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",
