@@ -18,6 +18,20 @@ for (const token of forbidden) {
   }
 }
 
+
+const malformedSetterPatterns=[
+  /setDraft\(\{\.\.\.draft,[^;\n]*\.value\)\s*\/>/g,
+  /setEvent\(\{\.\.\.event,[^;\n]*\.value\)\s*\/>/g
+];
+
+for (const rx of malformedSetterPatterns) {
+  const m=s.match(rx);
+  if(m){
+    console.error('PRECHECK FAIL: setter JSX mal fechado encontrado:', m[0]);
+    process.exit(1);
+  }
+}
+
 const required=[
   "<Nav label={tr.board}",
   "active={page==='board'}",
@@ -56,4 +70,4 @@ for (const token of [
   }
 }
 
-console.log('Preflight V14.2 OK — navegação e módulos principais validados.');
+console.log('Preflight V14.3 OK — navegação e módulos principais validados.');
