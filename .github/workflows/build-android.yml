@@ -1,27 +1,52 @@
-name: Build Android APK
+name: Build Cavadas Manager Android APK
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
-  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
-  android:
+  build-android:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install dependencies
+        run: npm install --include=dev --no-audit --no-fund --legacy-peer-deps
+      - name: Build WebApp
+        run: npx vite build
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
-      - run: npm install
-      - run: npm run build
-      - run: npx cap add android || true
-      - run: npx cap sync android
+      - name: Ensure Android
+        run: |
+          if [ ! -f android/gradlew ]; then
+            rm -rf android
+            npx cap add android
+          fi
+          npx cap sync android
+      - name: Apply Cavadas Manager icons
+        run: |
+          if [ -d android-icons/res ]; then
+            cp -R android-icons/res/mipmap-* android/app/src/main/res/ 2>/dev/null || true
+            cp -R android-icons/res/drawable* android/app/src/main/res/ 2>/dev/null || true
+          else
+            find android-icons -type d -name "mipmap-*" | while read dir; do
+              base=$(basename "$dir")
+              mkdir -p "android/app/src/main/res/$base"
+              cp -R "$dir"/* "android/app/src/main/res/$base/" || true
+            done
+          fi
       - name: Build APK
-        run: cd android && ./gradlew assembleDebug
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
         with:
-          name: Cav-Assistant-Coach-debug-apk
+          name: Cavadas-Manager-APK
           path: android/app/build/outputs/apk/debug/*.apk
