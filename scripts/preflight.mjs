@@ -5,14 +5,15 @@ const s=fs.readFileSync(file,'utf8');
 
 const forbidden=[
   "active={page==='model'&&<GameModel",
-  "{page==='setpieces'&&<SetPieces exercises={exercises} setExercises={setExercises} setPage={setPage}/>} onClick",
-  "{page==='opponents'&&<Opponents/>} onClick",
-  "{page==='postmatch'&&<PostMatch"
+  "active={page==='setpieces'&&<SetPieces",
+  "active={page==='opponents'&&<Opponents",
+  "active={page==='postmatch'&&<PostMatch",
+  "active={page==='board'&&<"
 ];
 
 for (const token of forbidden) {
   if (s.includes(token)) {
-    console.error('PRECHECK FAIL: JSX de navegação corrompido encontrado:', token);
+    console.error('PRECHECK FAIL: padrão JSX realmente corrompido encontrado:', token);
     process.exit(1);
   }
 }
@@ -20,6 +21,7 @@ for (const token of forbidden) {
 const required=[
   "<Nav label={tr.board}",
   "active={page==='board'}",
+  "onClick={()=>go('board')}",
   "{page==='model'&&<GameModel",
   "{page==='setpieces'&&<SetPieces",
   "{page==='opponents'&&<Opponents",
@@ -35,4 +37,23 @@ for (const token of required) {
   }
 }
 
-console.log('Preflight V14.1 OK — navegação e módulos principais presentes.');
+const mainPos=s.indexOf('<main>');
+if(mainPos<0){
+  console.error('PRECHECK FAIL: <main> não encontrado.');
+  process.exit(1);
+}
+
+for (const token of [
+  "{page==='model'&&<GameModel",
+  "{page==='setpieces'&&<SetPieces",
+  "{page==='opponents'&&<Opponents",
+  "{page==='postmatch'&&<PostMatch"
+]) {
+  const pos=s.indexOf(token);
+  if (pos < mainPos) {
+    console.error('PRECHECK FAIL: módulo encontrado fora de <main>:', token);
+    process.exit(1);
+  }
+}
+
+console.log('Preflight V14.2 OK — navegação e módulos principais validados.');
