@@ -454,6 +454,7 @@ function Board({tr,exercises,setExercises}){
    };requestAnimationFrame(frame)
  })
  const play=async()=>{
+   setFullscreen(true)
    const seq=commitSteps();if(seq.length<2)return alert('A jogada precisa de pelo menos 2 passos.')
    stopRef.current=false;setPlaying(true);setPaths([]);setPlayers(seq[0].players.map(p=>({...p})));setBall({...seq[0].ball});setStep(0)
    await new Promise(r=>setTimeout(r,280/speed))
