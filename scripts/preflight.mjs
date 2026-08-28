@@ -38,6 +38,12 @@ for (const rx of malformedSetterPatterns) {
 const v16Required=['Quadro Tático','＋ Passo','▶ PLAY','Como usar:','coachPitch'];
 for(const token of v16Required){if(!s.includes(token)){console.error('PRECHECK FAIL V16:',token);process.exit(1);}}
 
+
+if(s.includes("setPaths((x.paths||[]).map(p=>({...p}));")){
+  console.error("PRECHECK FAIL V16.1: loadStep setPaths syntax regression");
+  process.exit(1);
+}
+
 const required=[
   "<Nav label={tr.board}",
   "active={page==='board'}",
@@ -76,4 +82,4 @@ for (const token of [
   }
 }
 
-console.log('Preflight V15.2 OK — navegação e módulos principais validados.');
+console.log('Preflight V16.1 OK — navegação e módulos principais validados.');

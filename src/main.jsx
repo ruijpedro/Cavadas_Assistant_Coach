@@ -228,7 +228,7 @@ function Board({tr,exercises,setExercises}){
  const saveStep=()=>setSteps(v=>v.map((x,i)=>i===step?{...x,...snap()}:x))
  const loadStep=i=>{
    const x=steps[i]; if(!x)return
-   setPlayers((x.players||[]).map(p=>({...p}))); setBall({...x.ball}); setPaths((x.paths||[]).map(p=>({...p})); setStep(i)
+   setPlayers((x.players||[]).map(p=>({...p}))); setBall({...x.ball}); setPaths((x.paths||[]).map(p=>({...p}))); setStep(i)
  }
  const point=e=>{
    const r=e.currentTarget.getBoundingClientRect()
