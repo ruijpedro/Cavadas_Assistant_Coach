@@ -31,3 +31,34 @@
  .timelineActions{display:grid;grid-template-columns:1fr 1fr}
  .timelineActions button,.timelineActions label{min-height:46px}
 }
+
+/* V16 SIMPLE TACTICAL BOARD */
+.simpleBoard{max-width:1180px;margin:auto}
+.simpleHead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.simpleHead h2{margin:0}.simpleHead small{color:#64748b}
+.coachTools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.coachTools button{min-height:44px;border-radius:10px;font-weight:700}
+.coachTools button.active{background:#123f9c;color:white}
+.pitchCard{padding:12px}
+.coachPitch{height:min(64vw,620px);min-height:420px;position:relative;overflow:hidden;border:4px solid white;border-radius:14px;background:repeating-linear-gradient(90deg,#197447 0,#197447 12.5%,#207e50 12.5%,#207e50 25%);box-shadow:0 2px 12px #0002;touch-action:none}
+.coachPitch:before{content:"";position:absolute;inset:3%;border:3px solid #fff;border-radius:4px;pointer-events:none}
+.pitchHalf{position:absolute;left:50%;top:3%;bottom:3%;border-left:3px solid #fff}
+.pitchCircle{position:absolute;left:50%;top:50%;width:16%;aspect-ratio:1;border:3px solid #fff;border-radius:50%;transform:translate(-50%,-50%)}
+.pitchSpot{position:absolute;left:50%;top:50%;width:6px;height:6px;background:#fff;border-radius:50%;transform:translate(-50%,-50%)}
+.pitchArea{position:absolute;top:31%;width:13%;height:38%;border:3px solid #fff}.pitchArea.left{left:3%;border-left:0;border-radius:0 45% 45% 0}.pitchArea.right{right:3%;border-right:0;border-radius:45% 0 0 45%}
+.pitchGoal{position:absolute;top:42%;width:2.5%;height:16%;border:3px solid #fff}.pitchGoal.left{left:.3%}.pitchGoal.right{right:.3%}
+.coachPiece{position:absolute;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;transform:translate(-50%,-50%);font-weight:900;font-size:19px;z-index:6;box-shadow:0 3px 8px #0005;border:4px solid white;user-select:none}
+.coachPiece.a{background:#123f9c;color:white}.coachPiece.d{background:#d52b2b;color:white}
+.coachBall{position:absolute;transform:translate(-50%,-50%);font-size:28px;z-index:8;filter:drop-shadow(0 2px 2px #0007);user-select:none}
+.coachLines{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
+.coachLines line{vector-effect:non-scaling-stroke;stroke-width:4;stroke-linecap:round}.coachLines .move{stroke:#ffe500}.coachLines .pass{stroke:#fff;stroke-dasharray:8 7}
+.coachLines marker path{fill:#ffe500}
+.playSteps{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.steps{display:flex;align-items:center;gap:8px}.steps button{width:46px;height:46px;border-radius:50%;font-weight:900}.steps button.active{background:#123f9c;color:#fff}.steps .addStep{width:auto;border-radius:12px;padding:0 16px}
+.playButtons{display:flex;gap:8px}.bigPlay{background:#123f9c!important;color:#fff!important;font-size:20px!important;font-weight:900!important;padding:12px 26px!important;border-radius:12px!important}
+.coachHint{width:100%;color:#475569;text-align:center;padding-top:4px}
+@media(max-width:700px){
+ .coachPitch{min-height:360px;height:72vw}.coachPiece{width:38px;height:38px;font-size:16px;border-width:3px}
+ .coachTools{display:grid;grid-template-columns:1fr 1fr}.coachTools button{width:100%}
+ .playSteps{justify-content:center}.coachHint{font-size:13px}.simpleHead{align-items:flex-start}
+}

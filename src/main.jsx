@@ -122,7 +122,7 @@ function Card({n,title}){return <div className="stat card"><strong>{n}</strong><
 function SeasonStats({tr,athletes,games,sessions,callups}){
  const ev=games.flatMap(g=>g.events||[])
  const rows=athletes.map(a=>{const att=sessions.map(s=>s.attendance?.[a.id]).filter(Boolean);const pres=att.filter(x=>x==='present').length;return {a,g:ev.filter(e=>e.playerId===a.id&&e.type==='Golo').length,as:ev.filter(e=>e.playerId===a.id&&e.type==='Assistência').length,shots:ev.filter(e=>e.playerId===a.id&&e.type==='Remate').length,apps:callups.filter(c=>(c.players||[]).includes(a.id)).length,att:att.length?Math.round(pres/att.length*100):0}}).sort((a,b)=>(b.g*3+b.as*2+b.apps)-(a.g*3+a.as*2+a.apps))
- return <section className="card seasonTable"><div className="paneTitle"><h3>{tr.seasonStats}</h3><BarChart3/></div><div className="statsHead seasonRow"><b>{tr.athletes}</b><b>{tr.goals}</b><b>Ass.</b><b>R</b><b>{tr.appearances}</b><b>{tr.trainingAttendance}</b></div>{rows.map(x=><div className="statsRow seasonRow" key={x.a.id}><span>{x.a.name}</span><b>{x.g}</b><b>{x.as}</b><b>{x.shots}</b><b>{x.apps}</b><b>{x.att}%</b></div>)}</section>
+ return <section className="card seasonTable"><div className="paneTitle"><h3>{tr.seasonStats}</h3><BarChart3/></div><div className="statsHead seasonRow"><b>{tr.athletes}</b><b>{tr.goals}</b><b>Ass.</b><b>{tr.appearances}</b><b>{tr.trainingAttendance}</b></div>{rows.map(x=><div className="statsRow seasonRow" key={x.a.id}><span>{x.a.name}</span><b>{x.g}</b><b>{x.as}</b><b>{x.apps}</b><b>{x.att}%</b></div>)}</section>
 }
 
 function Athletes({tr,athletes,setAthletes,selected,setSelected,sessions=[],callups=[],games=[]}){
@@ -135,7 +135,7 @@ function Athletes({tr,athletes,setAthletes,selected,setSelected,sessions=[],call
  const summary=current?{games:games.filter(g=>(g.playerMinutes&&g.playerMinutes[current.id]!=null)||(g.events||[]).some(e=>e.playerId===current.id)).length,callups:callups.filter(c=>(c.players||[]).includes(current.id)).length,goals:ev.filter(e=>e.playerId===current.id&&e.type==='Golo').length,assists:ev.filter(e=>e.playerId===current.id&&e.type==='Assistência').length,attendance:att.length?Math.round(present/att.length*100):0}:null
  return <div className="split"><aside className="listPane"><div className="paneTitle rosterTitle"><div><h2>{tr.athletes}</h2><small>{athletes.length}</small></div><button className="primary rosterAdd" onClick={add}><Plus/> {tr.add}</button></div><input className="rosterSearch" placeholder={tr.search} value={q} onChange={e=>setQ(e.target.value)}/><div className="rosterList">{list.map(a=><button className={'athleteRow '+(selected===a.id?'selected':'')} onClick={()=>setSelected(a.id)} key={a.id}><span className="avatar">{a.name?a.name.split(' ').map(x=>x[0]).slice(0,2).join(''):'+'}</span><div><b>{a.name||tr.newAthlete}</b><small>{a.position}</small></div></button>)}</div>{!athletes.length&&<div className="emptyRoster"><Users size={42}/><b>{tr.emptyRoster}</b><span>{tr.tapAdd}</span><button className="primary" onClick={add}><Plus/> {tr.add}</button></div>}</aside>
  <section className="detailPane">{current?<><div className="paneTitle athleteActions"><h2>{current.name||tr.newAthlete}</h2><div className="athleteActionButtons"><button className="secondary" onClick={add}><Plus/> {tr.add}</button><button className="danger" onClick={removeCurrent}><Trash2/> {tr.delete}</button></div></div>
- <div className="athleteSeasonSummary"><div><strong>{summary.callups}</strong><span>{tr.appearances}</span></div><div><strong>{summary.games}</strong><span>{tr.games}</span></div><div><strong>{summary.goals}</strong><span>{tr.goals}</span></div><div><strong>{summary.assists}</strong><span>Ass.</span></div><div><strong>{summary.attendance}%</strong><span>{tr.trainingAttendance}</span></div></div>
+ <div className="athleteSeasonSummary"><div><strong>{summary.goals}</strong><span>{tr.goals}</span></div><div><strong>{summary.assists}</strong><span>Ass.</span></div><div><strong>{summary.callups}</strong><span>{tr.appearances}</span></div><div><strong>{summary.attendance}%</strong><span>{tr.trainingAttendance}</span></div></div>
  <div className="formGrid"><Field label={tr.fullName}><input value={current.name} onChange={e=>update('name',e.target.value)}/></Field><Field label={tr.dob}><input type="date" value={current.dob} onChange={e=>update('dob',e.target.value)}/></Field><Field label={tr.height}><input type="number" value={current.height} onChange={e=>update('height',e.target.value)}/><i>{tr.cm}</i></Field><Field label={tr.currentWeight}><input type="number" value={current.currentWeight} onChange={e=>update('currentWeight',e.target.value)}/><i>{tr.kg}</i></Field><Field label={tr.idealWeight}><input value={current.idealWeight} onChange={e=>update('idealWeight',e.target.value)}/><i>{tr.kg}</i></Field><Field label={tr.position}><select value={current.position} onChange={e=>update('position',e.target.value)}>{positions.map(x=><option key={x}>{x}</option>)}</select></Field><Field label={tr.def}><select value={current.defensive} onChange={e=>update('defensive',e.target.value)}><option value="">—</option>{defensiveOptions.map(x=><option key={x}>{x}</option>)}</select></Field><Field label={tr.off}><div className="chips">{offensiveOptions.map(x=><button type="button" key={x} className={(current.offensive||[]).includes(x)?'active':''} onClick={()=>update('offensive',(current.offensive||[]).includes(x)?current.offensive.filter(y=>y!==x):[...(current.offensive||[]),x])}>{x}</button>)}</div></Field><Field label={tr.captain}><input type="checkbox" checked={!!current.captain} onChange={e=>update('captain',e.target.checked)}/></Field></div><h3>{tr.speed}</h3><SpeedFields tr={tr} athlete={current} onChange={v=>update('speed',v)}/><Field label={tr.notes}><textarea rows="5" value={current.notes||''} onChange={e=>update('notes',e.target.value)}/></Field></>:<div className="emptyRoster"><Users size={48}/><b>{tr.emptyRoster}</b></div>}</section></div>
 }
 
@@ -207,265 +207,132 @@ function PostMatch({games=[]}){
 }
 
 function Board({tr,exercises,setExercises}){
- const [sport,setSport]=useState('futsal')
- const [mode,setMode]=useState('select')
- const [players,setPlayers]=useState([
-  {id:'a1',team:'a',x:24,y:42,label:'1'},{id:'a2',team:'a',x:36,y:25,label:'2'},
-  {id:'a3',team:'a',x:36,y:59,label:'3'},{id:'a4',team:'a',x:48,y:42,label:'4'},
+ const basePlayers=[
+  {id:'a1',team:'a',x:22,y:42,label:'1'},{id:'a2',team:'a',x:35,y:25,label:'2'},
+  {id:'a3',team:'a',x:35,y:59,label:'3'},{id:'a4',team:'a',x:48,y:42,label:'4'},
   {id:'d1',team:'d',x:68,y:28,label:'1'},{id:'d2',team:'d',x:68,y:56,label:'2'},
-  {id:'d3',team:'d',x:78,y:42,label:'3'}
- ])
- const [ball,setBall]=useState({x:50,y:42})
- const [objects,setObjects]=useState([])
- const [paths,setPaths]=useState([])
- const [phases,setPhases]=useState([{id:Date.now(),name:'Fase 1',duration:1200,players:null,ball:null,objects:null,paths:[]}])
- const [phaseIndex,setPhaseIndex]=useState(0)
+  {id:'d3',team:'d',x:79,y:42,label:'3'}
+ ]
+ const [sport,setSport]=useState('futsal')
+ const [players,setPlayers]=useState(basePlayers)
+ const [ball,setBall]=useState({x:52,y:42})
+ const [tool,setTool]=useState('select')
  const [drag,setDrag]=useState(null)
- const [draw,setDraw]=useState(null)
- const [curvePoints,setCurvePoints]=useState([])
- const [isPlaying,setIsPlaying]=useState(false)
- const [playSpeed,setPlaySpeed]=useState(1)
+ const [pathStart,setPathStart]=useState(null)
+ const [paths,setPaths]=useState([])
+ const [steps,setSteps]=useState([{id:Date.now(),name:'Passo 1',players:basePlayers.map(p=>({...p})),ball:{x:52,y:42},paths:[]}])
+ const [step,setStep]=useState(0)
+ const [playing,setPlaying]=useState(false)
 
- const snapshot=()=>({
-   players:players.map(p=>({...p})),
-   ball:{...ball},
-   objects:objects.map(o=>({...o})),
-   paths:paths.map(p=>({...p,points:p.points?p.points.map(pt=>({...pt})):undefined}))
- })
-
- const saveCurrentPhase=()=>{
-   const snap=snapshot()
-   setPhases(prev=>prev.map((p,i)=>i===phaseIndex?{...p,...snap}:p))
+ const snap=()=>({players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p}))})
+ const saveStep=()=>setSteps(v=>v.map((x,i)=>i===step?{...x,...snap()}:x))
+ const loadStep=i=>{
+   const x=steps[i]; if(!x)return
+   setPlayers((x.players||[]).map(p=>({...p}))); setBall({...x.ball}); setPaths((x.paths||[]).map(p=>({...p})); setStep(i)
  }
-
- const loadPhase=(idx)=>{
-   const p=phases[idx]
-   if(!p)return
-   if(p.players)setPlayers(p.players.map(x=>({...x})))
-   if(p.ball)setBall({...p.ball})
-   if(p.objects)setObjects(p.objects.map(x=>({...x})))
-   setPaths((p.paths||[]).map(x=>({...x,points:x.points?x.points.map(pt=>({...pt})):undefined})))
-   setPhaseIndex(idx)
- }
-
- useEffect(()=>{
-   const p=phases[0]
-   if(p && !p.players){
-     const snap=snapshot()
-     setPhases(prev=>prev.map((x,i)=>i===0?{...x,...snap}:x))
-   }
- },[])
-
- const addPhase=()=>{
-   saveCurrentPhase()
-   const snap=snapshot()
-   const np={id:Date.now(),name:`Fase ${phases.length+1}`,duration:1200,...snap}
-   setPhases(prev=>[...prev,np])
-   setPhaseIndex(phases.length)
- }
-
- const duplicatePhase=()=>{
-   saveCurrentPhase()
-   const snap=snapshot()
-   const np={id:Date.now(),name:`Fase ${phases.length+1}`,duration:phases[phaseIndex]?.duration||1200,...snap}
-   setPhases(prev=>[...prev,np])
-   setPhaseIndex(phases.length)
- }
-
- const deletePhase=()=>{
-   if(phases.length<=1)return
-   const next=phases.filter((_,i)=>i!==phaseIndex)
-   setPhases(next)
-   const ni=Math.max(0,phaseIndex-1)
-   setTimeout(()=>loadPhase(Math.min(ni,next.length-1)),0)
- }
-
- const setPhaseDuration=(v)=>{
-   const ms=Math.max(300,Number(v)||1200)
-   setPhases(prev=>prev.map((p,i)=>i===phaseIndex?{...p,duration:ms}:p))
- }
-
- const pct=(e)=>{
+ const point=e=>{
    const r=e.currentTarget.getBoundingClientRect()
-   return {x:Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100)),y:Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))}
+   return {x:Math.max(2,Math.min(98,(e.clientX-r.left)/r.width*100)),y:Math.max(3,Math.min(97,(e.clientY-r.top)/r.height*100))}
  }
-
- const addObject=(type,p)=>{
-   const sym={cone:'▲',marker:'●',barrier:'▥',ladder:'▤','mini-goal':'▱',text:'T'}[type]||'●'
-   let text=''
-   if(type==='text') text=prompt('Texto / indicação:')||''
-   setObjects(o=>[...o,{id:Date.now()+Math.random(),type,x:p.x,y:p.y,sym,text,w:18,h:16}])
+ const down=e=>{
+   if(playing)return
+   const p=point(e)
+   if(tool==='move'||tool==='pass')setPathStart(p)
  }
-
- const fieldDown=(e)=>{
-   if(isPlaying)return
-   const p=pct(e)
-   if(mode==='curve'){setCurvePoints([p]);return}
-   if(['movement','pass','shot'].includes(mode)){setDraw({type:mode,start:p});return}
-   if(['cone','marker','barrier','ladder','mini-goal','zone','text'].includes(mode)){addObject(mode,p);return}
-   if(mode==='ball'){setBall(p);return}
-   if(mode==='playerA'){setPlayers(v=>[...v,{id:'a'+Date.now(),team:'a',x:p.x,y:p.y,label:String(v.filter(x=>x.team==='a').length+1)}]);return}
-   if(mode==='playerD'){setPlayers(v=>[...v,{id:'d'+Date.now(),team:'d',x:p.x,y:p.y,label:String(v.filter(x=>x.team==='d').length+1)}]);return}
-  }
-
- const fieldMove=(e)=>{
-   if(isPlaying)return
-   const p=pct(e)
-   if(curvePoints.length)setCurvePoints(v=>[...v,p])
-   if(!drag)return
+ const move=e=>{
+   if(!drag||playing)return
+   const p=point(e)
    if(drag.kind==='ball')setBall(p)
-   if(drag.kind==='player')setPlayers(v=>v.map(x=>x.id===drag.id?{...x,...p}:x))
-   if(drag.kind==='object')setObjects(v=>v.map(x=>x.id===drag.id?{...x,...p}:x))
+   else setPlayers(v=>v.map(x=>x.id===drag.id?{...x,...p}:x))
  }
-
- const fieldUp=(e)=>{
-   if(isPlaying)return
-   const p=pct(e)
-   if(draw){
-     setPaths(v=>[...v,{id:Date.now(),type:draw.type,x1:draw.start.x,y1:draw.start.y,x2:p.x,y2:p.y}])
-     setDraw(null)
-   }
-   if(curvePoints.length){
-     if(curvePoints.length>2)setPaths(v=>[...v,{id:Date.now(),type:'curve',points:curvePoints}])
-     setCurvePoints([])
+ const up=e=>{
+   if(playing)return
+   if(pathStart){
+     const p=point(e)
+     setPaths(v=>[...v,{id:Date.now()+Math.random(),type:tool,x1:pathStart.x,y1:pathStart.y,x2:p.x,y2:p.y}])
+     setPathStart(null)
    }
    setDrag(null)
  }
-
- const clearBoard=()=>{setPaths([]);setObjects([])}
- const eraseLast=()=>{if(paths.length)setPaths(v=>v.slice(0,-1));else if(objects.length)setObjects(v=>v.slice(0,-1))}
-
- const saveExercise=()=>{
-   saveCurrentPhase()
-   const ex={
-     id:Date.now(),name:`Exercício ${new Date().toLocaleDateString()}`,category:'Tática',
-     sport,board:{players,ball,objects,paths,phases},createdAt:new Date().toISOString()
-   }
-   setExercises([...(exercises||[]),ex])
-   alert('Exercício guardado')
+ const addPlayer=team=>{
+   const n=players.filter(p=>p.team===team).length+1
+   setPlayers(v=>[...v,{id:team+Date.now(),team,x:team==='a'?30:70,y:50,label:String(n)}])
  }
-
+ const nextStep=()=>{
+   saveStep()
+   const n={id:Date.now(),name:`Passo ${steps.length+1}`,...snap(),paths:[]}
+   setSteps(v=>[...v,n]); setPaths([]); setStep(steps.length)
+ }
  const lerp=(a,b,t)=>a+(b-a)*t
- const animateTo=(from,to,duration)=>new Promise(resolve=>{
-   const start=performance.now()
-   const tick=(now)=>{
-     const raw=Math.min(1,(now-start)/(duration/playSpeed))
-     const t=raw<.5?2*raw*raw:1-Math.pow(-2*raw+2,2)/2
-     const fp=from.players||[], tp=to.players||[]
-     const merged=tp.map(target=>{
-       const source=fp.find(x=>x.id===target.id)||target
-       return {...target,x:lerp(source.x,target.x,t),y:lerp(source.y,target.y,t)}
-     })
-     setPlayers(merged)
-     const fb=from.ball||to.ball||ball, tb=to.ball||fb
-     setBall({x:lerp(fb.x,tb.x,t),y:lerp(fb.y,tb.y,t)})
-     if(raw<1)requestAnimationFrame(tick)
-     else{
-       setObjects((to.objects||[]).map(x=>({...x})))
-       setPaths((to.paths||[]).map(x=>({...x,points:x.points?x.points.map(pt=>({...pt})):undefined})))
-       resolve()
-     }
+ const animate=(a,b)=>new Promise(resolve=>{
+   const t0=performance.now(), duration=1100
+   const frame=now=>{
+     const q=Math.min(1,(now-t0)/duration), t=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2
+     setPlayers((b.players||[]).map(bp=>{
+       const ap=(a.players||[]).find(x=>x.id===bp.id)||bp
+       return {...bp,x:lerp(ap.x,bp.x,t),y:lerp(ap.y,bp.y,t)}
+     }))
+     const ab=a.ball||b.ball, bb=b.ball||ab
+     setBall({x:lerp(ab.x,bb.x,t),y:lerp(ab.y,bb.y,t)})
+     if(q<1)requestAnimationFrame(frame); else resolve()
    }
-   requestAnimationFrame(tick)
+   requestAnimationFrame(frame)
  })
-
  const play=async()=>{
-   if(isPlaying){setIsPlaying(false);return}
-   saveCurrentPhase()
-   const seq=phases.map((p,i)=>i===phaseIndex?{...p,...snapshot()}:p)
-   if(seq.length<2)return
-   setIsPlaying(true)
-   let cancelled=false
-   for(let i=0;i<seq.length-1;i++){
-     if(cancelled)break
-     setPhaseIndex(i)
-     const from=seq[i],to=seq[i+1]
-     await animateTo(from,to,to.duration||1200)
-     if(!isPlaying && i>0){cancelled=true;break}
-     setPhaseIndex(i+1)
-   }
-   setIsPlaying(false)
+   saveStep()
+   const seq=steps.map((x,i)=>i===step?{...x,...snap()}:x)
+   if(seq.length<2){alert('Cria o Passo 2 e move os jogadores ou a bola.');return}
+   setPlaying(true); setPaths([])
+   setPlayers(seq[0].players.map(p=>({...p})));setBall({...seq[0].ball});setStep(0)
+   for(let i=0;i<seq.length-1;i++){await animate(seq[i],seq[i+1]);setStep(i+1)}
+   setPlaying(false)
  }
-
- const loadEdit=()=>{
-   try{
-     const raw=localStorage.getItem('gw_board_edit_exercise')
-     if(!raw)return
-     const ex=JSON.parse(raw)
-     if(ex.board){
-       if(ex.board.players)setPlayers(ex.board.players)
-       if(ex.board.ball)setBall(ex.board.ball)
-       if(ex.board.objects)setObjects(ex.board.objects)
-       if(ex.board.paths)setPaths(ex.board.paths)
-       if(ex.board.phases?.length)setPhases(ex.board.phases)
-       if(ex.board.sport)setSport(ex.board.sport)
-     }
-     localStorage.removeItem('gw_board_edit_exercise')
-   }catch{}
+ const saveExercise=()=>{
+   saveStep()
+   const item={id:Date.now(),name:`Jogada ${new Date().toLocaleDateString()}`,category:'Tática',sport,board:{players,ball,steps},createdAt:new Date().toISOString()}
+   setExercises([...(exercises||[]),item]);alert('Jogada guardada')
  }
- useEffect(loadEdit,[])
+ const erase=()=>setPaths(v=>v.slice(0,-1))
+ return <div className="simpleBoard">
+  <div className="card simpleHead">
+   <div><h2>Quadro Tático</h2><small>Cria a jogada diretamente no campo</small></div>
+   <select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select>
+  </div>
 
- const fieldClass=`tacticalField ${sport}`
- return <div className="boardPage">
-  <div className="card boardToolbar">
-   <div className="paneTitle"><h2>Quadro Tático</h2><small>V15 · animação por fases</small></div>
-   <div className="v14Tools">
-    <select value={sport} onChange={e=>setSport(e.target.value)}>
-     <option value="futsal">Futsal</option><option value="football11">Futebol 11</option>
-     <option value="football7">Futebol 7</option><option value="football6">Futebol 6</option>
-    </select>
-    <button className={mode==='select'?'active':''} onClick={()=>setMode('select')}>Selecionar</button>
-    <button onClick={()=>setMode('playerA')}>+ Atacante</button><button onClick={()=>setMode('playerD')}>+ Defesa</button>
-    <button onClick={()=>setMode('ball')}>⚽ Bola</button>
-    <button onClick={()=>setMode('movement')}>→ Movimento</button><button onClick={()=>setMode('pass')}>⇢ Passe</button>
-    <button onClick={()=>setMode('shot')}>➜ Remate</button><button onClick={()=>setMode('curve')}>〰 Curva</button>
-    <button onClick={()=>setMode('cone')}>▲ Cone</button><button onClick={()=>setMode('marker')}>● Marca</button>
-    <button onClick={()=>setMode('barrier')}>▥ Barreira</button><button onClick={()=>setMode('ladder')}>▤ Escada</button>
-    <button onClick={()=>setMode('mini-goal')}>▱ Mini-baliza</button><button onClick={()=>setMode('zone')}>▧ Zona</button>
-    <button onClick={()=>setMode('text')}>T Texto</button>
-    <button onClick={eraseLast}>↶ Apagar último</button><button onClick={clearBoard}>Limpar desenho</button>
+  <div className="card coachTools">
+   <button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button>
+   <button onClick={()=>addPlayer('a')}>＋ Nossa equipa</button>
+   <button onClick={()=>addPlayer('d')}>＋ Adversário</button>
+   <button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button>
+   <button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button>
+   <button onClick={erase}>↶ Apagar seta</button>
+  </div>
+
+  <div className="card pitchCard">
+   <div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
+    <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/>
+    <div className="pitchArea left"/><div className="pitchArea right"/>
+    <div className="pitchGoal left"/><div className="pitchGoal right"/>
+    <svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none">
+     <defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>
+     {paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={p.type} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}
+    </svg>
+    {players.map(p=><div key={p.id} className={`coachPiece ${p.team}`} style={{left:`${p.x}%`,top:`${p.y}%`}}
+      onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
+    <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>
    </div>
   </div>
 
-  <div className="card">
-   <div className={fieldClass}
-    onPointerDown={fieldDown} onPointerMove={fieldMove} onPointerUp={fieldUp} onPointerLeave={()=>{setDrag(null);setDraw(null);setCurvePoints([])}}>
-    <div className="centerLine"/><div className="centerCircle"/>
-    <div className="penalty left"/><div className="penalty right"/><div className="goal left"/><div className="goal right"/>
-    {paths.map(p=>p.type==='curve'
-      ?<svg key={p.id} className="curveSvg"><polyline points={(p.points||[]).map(pt=>`${pt.x},${pt.y}`).join(' ')} vectorEffect="non-scaling-stroke"/></svg>
-      :<svg key={p.id} className={`arrowSvg ${p.type}`}><line x1={`${p.x1}%`} y1={`${p.y1}%`} x2={`${p.x2}%`} y2={`${p.y2}%`} vectorEffect="non-scaling-stroke"/></svg>
-    )}
-    {curvePoints.length>1&&<svg className="curveSvg preview"><polyline points={curvePoints.map(pt=>`${pt.x},${pt.y}`).join(' ')} vectorEffect="non-scaling-stroke"/></svg>}
-    {objects.map(o=>o.type==='zone'
-      ?<div key={o.id} className="tacticalZone" style={{left:`${o.x}%`,top:`${o.y}%`}} onPointerDown={e=>{e.stopPropagation();setDrag({kind:'object',id:o.id})}}/>
-      :<div key={o.id} className={`boardObject ${o.type}`} style={{left:`${o.x}%`,top:`${o.y}%`}} onPointerDown={e=>{e.stopPropagation();setDrag({kind:'object',id:o.id})}}>{o.type==='text'?o.text:o.sym}</div>
-    )}
-    {players.map(p=><div key={p.id} className={`boardPlayer ${p.team}`} style={{left:`${p.x}%`,top:`${p.y}%`}}
-      onPointerDown={e=>{e.stopPropagation();if(mode==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
-    <div className="boardBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}}
-      onPointerDown={e=>{e.stopPropagation();if(mode==='select')setDrag({kind:'ball'})}}>⚽</div>
+  <div className="card playSteps">
+   <div className="steps">
+    {steps.map((x,i)=><button key={x.id} className={i===step?'active':''} onClick={()=>{saveStep();loadStep(i)}}>{i+1}</button>)}
+    <button className="addStep" onClick={nextStep}>＋ Passo</button>
    </div>
-  </div>
-
-  <div className="card v15Timeline">
-   <div className="paneTitle"><h3>Fotogramas / Fases</h3><small>{phases.length}</small></div>
-   <div className="phaseStrip">
-    {phases.map((p,i)=><button key={p.id} className={i===phaseIndex?'phase active':'phase'} onClick={()=>{saveCurrentPhase();loadPhase(i)}}>
-      <b>{i+1}</b><span>{p.name}</span><small>{p.duration||1200} ms</small>
-    </button>)}
+   <div className="playButtons">
+    <button className="bigPlay" onClick={play} disabled={playing}>{playing?'A reproduzir…':'▶ PLAY'}</button>
+    <button onClick={saveExercise}><Save/> Guardar</button>
    </div>
-   <div className="timelineActions">
-    <button className="primary" onClick={addPhase}><Plus/>Nova fase</button>
-    <button onClick={duplicatePhase}>Duplicar</button>
-    <button className="dangerLite" onClick={deletePhase}>Eliminar</button>
-    <label>Duração <input type="number" min="300" step="100" value={phases[phaseIndex]?.duration||1200} onChange={e=>setPhaseDuration(e.target.value)}/></label>
-    <label>Velocidade <select value={playSpeed} onChange={e=>setPlaySpeed(Number(e.target.value))}><option value="0.5">0,5×</option><option value="1">1×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
-    <button className={isPlaying?'dangerLite':'primary'} onClick={play}>{isPlaying?'■ Parar':'▶ Reproduzir'}</button>
-    <button onClick={saveCurrentPhase}><Save/>Guardar fase</button>
-    <button onClick={saveExercise}><Save/>Guardar exercício</button>
-   </div>
-   <p className="hint">Cada fase guarda as posições dos jogadores, bola, objetos e desenhos. Ao reproduzir, jogadores e bola deslocam-se suavemente entre fotogramas.</p>
+   <div className="coachHint"><b>Como usar:</b> posiciona → <b>+ Passo</b> → move jogadores/bola → <b>PLAY</b>.</div>
   </div>
  </div>
 }
