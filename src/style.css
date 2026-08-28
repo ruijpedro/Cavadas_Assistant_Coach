@@ -1,1 +1,130 @@
-:root{--black:#121212;--dark:#1c1c1c;--blue:#1296D4;--green:#99CC00;--white:#fff;--muted:#b9c0c8}*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:linear-gradient(135deg,#070707,#1d1d1d);color:var(--white)}button,input,select,textarea{font:inherit}button{border:0;border-radius:14px;padding:12px 14px;background:var(--blue);color:white;font-weight:800;cursor:pointer}button:disabled{opacity:.6}.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;background:#0c0c0c;border-bottom:3px solid var(--green)}.brand{display:flex;gap:14px;align-items:center}.logo{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,var(--blue),var(--green));display:grid;place-items:center;color:#071007;font-weight:1000;font-size:22px}.brand h1{margin:0;font-size:24px}.brand p{margin:4px 0 0;color:var(--muted)}.online{display:flex;gap:8px;align-items:center;background:#17320d;color:#d8ff9a;padding:9px 12px;border-radius:999px}.tabs{display:flex;gap:8px;overflow:auto;padding:12px;background:#141414;position:sticky;top:0;z-index:2}.tabs button{background:#252525;color:#e9e9e9;display:flex;align-items:center;gap:8px;white-space:nowrap}.tabs button svg{width:18px}.tabs .active{background:var(--green);color:#101010}main{padding:18px;max-width:1180px;margin:auto}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.card,.panel{background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:18px;box-shadow:0 12px 40px rgba(0,0,0,.22)}.cardtitle{display:flex;gap:8px;align-items:center;color:#bff247;font-weight:900;margin-bottom:10px}.cardtitle svg{width:20px}.card b{font-size:24px}.card p{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.player{background:#111;border-left:5px solid var(--green);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px}.player span,.player small,.note{color:var(--muted)}.formrow{display:grid;grid-template-columns:90px 1fr 1fr;gap:10px;margin:12px 0}.eventgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}.eventgrid button:nth-child(odd){background:var(--green);color:#111}.event{background:#101010;border-radius:12px;padding:10px;border:1px solid #2c2c2c}input,select,textarea{width:100%;border:1px solid #333;background:#0d0d0d;color:white;border-radius:14px;padding:12px;margin:7px 0}textarea{min-height:110px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}.actions button{display:flex;align-items:center;gap:7px}.answer{white-space:pre-wrap;background:#080808;border:1px solid #333;border-radius:16px;min-height:220px;padding:16px;color:#e9e9e9;line-height:1.45}@media(max-width:720px){.topbar{align-items:flex-start;gap:12px;flex-direction:column}.formrow{grid-template-columns:1fr}.brand h1{font-size:20px}}
+
+:root{font-family:Inter,system-ui,Arial;background:#07164a;color:#fff}*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#0c1e5b}.app{min-height:100vh}.topbar{height:86px;background:#08194f;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 22px;border-bottom:5px solid #1d55b5}.brand{display:flex;align-items:center;gap:14px}.brand img{width:64px;height:64px;object-fit:contain;background:#fff;border-radius:12px}.brand b{font-size:21px;display:block}.brand span{font-size:13px;color:#6bc4ff;font-weight:800;letter-spacing:2px}.languages{display:flex;gap:6px;align-items:center}.languages button{border:1px solid #5c83d2;background:#102a68;color:#fff;border-radius:9px;padding:9px 12px;font-weight:800}.languages .active{background:#fff;color:#092164}.nav{background:#fff;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:8px 16px;box-shadow:0 4px 18px #08194f22;position:sticky;top:0;z-index:20}.nav button{border:0;background:transparent;color:#294174;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;gap:7px;font-weight:800}.nav .active{background:#0c2a78;color:#fff}main{padding:18px;max-width:1600px;margin:auto}.card,.listPane,.detailPane{background:#fff;border:1px solid #d7dfef;border-radius:18px;box-shadow:0 8px 24px #0b245b12;padding:18px}.homeCards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.stat{min-height:130px;display:grid;place-items:center}.stat strong{font-size:48px;color:#0c2a78}.stat span{font-size:18px;font-weight:800}.welcome{grid-column:1/-1;display:flex;align-items:center;gap:22px;background:linear-gradient(135deg,#07164a,#143f98);color:#fff}.welcome img{width:130px;height:130px;object-fit:contain;background:#fff;border-radius:16px}.split{display:grid;grid-template-columns:360px 1fr;gap:16px}.paneTitle{display:flex;justify-content:space-between;align-items:center;gap:8px}.paneTitle h2{margin:0}.primary{background:#0d3187!important;color:#fff!important;border-color:#0d3187!important}.danger{background:#fff3f3!important;color:#b51d2b!important;border-color:#efb4bb!important}button{cursor:pointer}.listPane input,.field input,.field select,.field textarea,.controls select{width:100%;border:1px solid #cfd8e8;border-radius:11px;padding:12px;background:#fbfcff;color:#10255c;font:inherit}.athleteRow{width:100%;border:0;background:#fff;display:flex;align-items:center;gap:11px;text-align:left;padding:11px;border-radius:12px;margin-top:7px}.athleteRow.selected{background:#e9f1ff}.athleteRow small,.athletePicker small{display:block;color:#637398}.avatar{width:42px;height:42px;border-radius:50%;background:#0d3187;color:#fff;display:grid;place-items:center;font-weight:900}.formGrid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:13px}.field{display:grid;gap:6px}.field>span{font-weight:800;color:#34476f}.field>div{display:flex;align-items:center;gap:6px}.field i{font-style:normal;color:#607195}.chips{display:flex!important;gap:8px;flex-wrap:wrap}.chips button,.actionRow button,.paneTitle button,.controls button,.timeline button{border:1px solid #cdd8e9;background:#fff;color:#13306e;border-radius:11px;padding:10px 12px;display:inline-flex;gap:6px;align-items:center;font-weight:800}.chips .active,.athletePicker .active,.toolGrid .active,.timeline .active{background:#0c2a78!important;color:#fff!important}.speedGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.tableWrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:12px;border-bottom:1px solid #dce3ef;text-align:left}th{background:#0c2a78;color:#fff}.callupLayout{display:grid;grid-template-columns:1fr 1.1fr;gap:16px}.actionRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.athletePicker{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.athletePicker button{display:flex;align-items:center;gap:9px;text-align:left;border:1px solid #d7dfef;background:#fff;padding:10px;border-radius:12px}.boardLayout{display:grid;grid-template-columns:290px 1fr;gap:15px}.controls{display:grid;gap:10px}.counter{display:grid;grid-template-columns:1fr auto;align-items:center;font-weight:800}.counter>div{display:grid;grid-template-columns:38px 42px 38px;border:1px solid #d7dfef;border-radius:10px;overflow:hidden}.counter button{border:0;background:#edf2fb;color:#0c2a78}.counter b{display:grid;place-items:center}.toolGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pitch{position:relative;aspect-ratio:120/78;border-radius:18px;overflow:hidden;touch-action:none;box-shadow:0 12px 26px #06143a35}.pitch.futsal{background:linear-gradient(135deg,#237dcc,#155eac)}.pitch:not(.futsal){background:repeating-linear-gradient(90deg,#198444 0,#198444 8.33%,#20934c 8.33%,#20934c 16.66%)}.fieldSvg,.arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.fieldSvg{z-index:1}.fieldSvg *{vector-effect:non-scaling-stroke;stroke-width:3px}.arrows{z-index:3}.arrows line{stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:4 3}.arrows .move{stroke:#ffdf4d}.arrows .pass{stroke:#fff}.arrows .shot{stroke:#ff4b4b}.token,.ball{position:absolute;transform:translate(-50%,-50%);z-index:5;display:grid;place-items:center;touch-action:none;user-select:none}.token{width:45px;height:45px;border:3px solid #fff;border-radius:50%;font-weight:900;box-shadow:0 6px 14px #0007}.blue{background:#074ec2}.red{background:#dc3844}.yellow{background:#ffd34e;color:#07164a}.ball{width:36px;height:36px;background:#fff;border-radius:50%;box-shadow:0 6px 14px #0007}.timeline{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.libraryCards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.exerciseCard{border:1px solid #d7dfef;border-radius:14px;padding:15px}.exerciseCard small{display:block;color:#637398;margin-top:5px}.trainingEmpty{display:grid;place-items:center;min-height:300px;color:#607195}
+@media(max-width:1100px){.nav{grid-template-columns:repeat(4,1fr)}.split,.callupLayout,.boardLayout{grid-template-columns:1fr}.listPane{max-height:420px;overflow:auto}.homeCards{grid-template-columns:1fr 1fr}.speedGrid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.topbar{height:auto;align-items:flex-start;gap:10px;flex-direction:column}.languages{width:100%}.languages button{flex:1}.nav{grid-template-columns:repeat(2,1fr)}main{padding:10px}.homeCards{grid-template-columns:1fr}.formGrid{grid-template-columns:1fr}.speedGrid{grid-template-columns:1fr 1fr}.athletePicker{grid-template-columns:1fr}.brand b{font-size:16px}}
+.toggleCaptain{display:flex!important;align-items:center!important;gap:10px!important;font-weight:800;color:#0c2a78}.toggleCaptain input{width:22px!important;height:22px!important}
+
+
+/* ===== V11.3 TABLET-FIRST =====
+   Otimizado para tablets Android/iPad em orientação horizontal e vertical.
+   Alvos tácteis >= 48px, navegação compacta e quadro táctico com área máxima.
+*/
+html,body,#root{min-width:100%;min-height:100%;overscroll-behavior:none}
+body{-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font-size:16px}
+button{min-height:48px;touch-action:manipulation}
+.app{min-height:100dvh}
+.topbar{min-height:78px;height:auto;padding:8px 18px;position:relative}
+.brand img{width:58px;height:58px}
+.languages button{min-width:48px;min-height:48px;padding:8px 10px}
+.nav{top:0;padding:7px 12px;grid-template-columns:repeat(7,minmax(105px,1fr));overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav button{min-width:105px;min-height:54px;padding:8px 10px;white-space:nowrap}
+main{max-width:1920px;padding:14px 16px}
+.card,.listPane,.detailPane{border-radius:16px;padding:16px}
+.split{grid-template-columns:minmax(280px,32%) 1fr}
+.callupLayout{grid-template-columns:minmax(390px,.9fr) 1.1fr}
+.boardLayout{grid-template-columns:260px minmax(0,1fr);align-items:start}
+.boardLayout>.card:last-child{padding:12px}
+.controls{position:sticky;top:76px;max-height:calc(100dvh - 105px);overflow:auto}
+.pitch{width:100%;max-height:calc(100dvh - 205px);margin:auto}
+.token{width:48px;height:48px}
+.ball{width:40px;height:40px}
+.toolGrid button,.counter button,.timeline button,.actionRow button,.paneTitle button,.chips button{min-height:48px}
+.field input,.field select,.field textarea,.controls select,.listPane input{min-height:48px}
+.athleteRow{min-height:62px}
+.athletePicker button{min-height:64px}
+.formGrid{grid-template-columns:repeat(2,minmax(200px,1fr))}
+.speedGrid{grid-template-columns:repeat(5,minmax(105px,1fr))}
+.libraryCards{grid-template-columns:repeat(3,minmax(220px,1fr))}
+.tableWrap{-webkit-overflow-scrolling:touch}
+
+/* Tablet landscape: 768–1366px */
+@media (min-width:768px) and (max-width:1366px){
+  .topbar{min-height:72px}
+  .brand b{font-size:18px}.brand span{font-size:11px}
+  .brand img{width:52px;height:52px}
+  .nav{grid-template-columns:repeat(7,minmax(96px,1fr))}
+  .nav button{min-width:96px;font-size:13px}
+  main{padding:12px}
+  .homeCards{grid-template-columns:repeat(3,1fr)}
+  .stat{min-height:105px}.stat strong{font-size:40px}
+  .welcome img{width:105px;height:105px}
+  .split{grid-template-columns:290px minmax(0,1fr)}
+  .callupLayout{grid-template-columns:.95fr 1.05fr}
+  .boardLayout{grid-template-columns:235px minmax(0,1fr);gap:10px}
+  .controls{top:72px}
+  .pitch{max-height:calc(100dvh - 190px)}
+  .libraryCards{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Tablet portrait */
+@media (min-width:768px) and (max-width:1050px) and (orientation:portrait){
+  .topbar{gap:10px}
+  .nav{grid-template-columns:repeat(4,1fr);overflow:visible}
+  .nav button{min-width:0}
+  .split,.callupLayout{grid-template-columns:1fr}
+  .listPane{max-height:300px;overflow:auto}
+  .boardLayout{grid-template-columns:1fr}
+  .controls{position:static;max-height:none;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .controls>h2,.controls>select,.controls>.toolGrid,.controls>.timeline{grid-column:1/-1}
+  .pitch{max-height:none}
+  .speedGrid{grid-template-columns:repeat(3,1fr)}
+  .athletePicker{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Fullscreen/PWA safe areas */
+@supports(padding:max(0px)){
+  .topbar{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right))}
+  main{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));padding-bottom:max(16px,env(safe-area-inset-bottom))}
+}
+
+
+/* ===== V11.4 PLANTEL EDITÁVEL — TABLET ===== */
+.rosterTitle{align-items:center}
+.rosterTitle small{display:block;opacity:.65;margin-top:3px}
+.rosterAdd{min-width:132px}
+.rosterSearch{width:100%;box-sizing:border-box;margin:8px 0 12px}
+.rosterList{display:flex;flex-direction:column;gap:7px}
+.athleteActionButtons{display:flex;gap:9px;flex-wrap:wrap}
+.athleteActionButtons button{min-width:130px}
+.secondary{background:#eef3fb;color:#08194f;border:1px solid #cfd9eb}
+.emptyRoster,.emptyDetail{min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;color:#667085;padding:24px}
+.emptyRoster b,.emptyDetail h2{color:#08194f;margin:0}
+.emptyRoster button,.emptyDetail button{min-width:180px}
+.athleteRow{width:100%;text-align:left}
+.athleteRow>div{min-width:0}
+.athleteRow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.toggleCaptain{min-height:48px;display:flex;align-items:center;gap:12px}
+.toggleCaptain input{width:24px;height:24px}
+
+@media (min-width:768px) and (max-width:1366px){
+  .athleteActions{gap:12px}
+  .athleteActionButtons{justify-content:flex-end}
+}
+@media (min-width:768px) and (max-width:1050px) and (orientation:portrait){
+  .listPane{max-height:360px}
+  .rosterList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .athleteActions{align-items:flex-start}
+}
+
+/* V11.5 EXERCÍCIOS TABLET */
+.exerciseWorkspace{display:grid;grid-template-columns:minmax(285px,30%) minmax(0,1fr);gap:14px;align-items:start}.exerciseLibrary{position:sticky;top:78px;max-height:calc(100dvh - 105px);overflow:auto}.exerciseLibrary>input{width:100%;box-sizing:border-box;min-height:48px;margin:8px 0 12px}.exerciseList{display:flex;flex-direction:column;gap:8px}.exerciseListItem{width:100%;display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px;align-items:center;text-align:left;background:#fff;border:1px solid #d9e1ef;padding:7px;border-radius:12px}.exerciseListItem.selected{border:2px solid #1e88d7;background:#eef7ff}.exerciseListItem b,.exerciseListItem small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.exerciseListItem small{color:#6b7280;margin-top:5px}.exerciseThumb{height:58px;border-radius:9px;background:#e9eff8;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#0a2b67}.exerciseThumb img{width:100%;height:100%;object-fit:cover}.exerciseDetail{max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box}.exerciseHeader{display:flex;gap:12px;justify-content:space-between;align-items:flex-start}.exerciseTitleFields{flex:1}.exerciseTitle,.exerciseAuthor{display:block;width:100%;box-sizing:border-box;border:0;border-bottom:1px solid #d5dbea;border-radius:0}.exerciseTitle{font-size:24px;font-weight:800;color:#071b55}.exerciseAuthor{color:#667085}.exerciseImage{display:block;position:relative;margin:14px 0;background:#dce7f5;border-radius:14px;overflow:hidden;min-height:260px;cursor:pointer}.exerciseImage>img{width:100%;max-height:520px;object-fit:contain;display:block;background:#09285f}.exerciseImage input{display:none}.imagePlaceholder{min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#54708f}.imageEdit{position:absolute;right:12px;bottom:12px;background:#071b55;color:#fff;border-radius:999px;padding:10px 15px;font-weight:700}.exerciseMetrics{display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin:12px 0}.exerciseMetrics>div{background:#f1f3f6;border-radius:12px;min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center}.exerciseMetrics strong{font-size:28px;color:#071b55}.exerciseMetrics span{color:#8a8f98}.exerciseMetrics b{font-size:20px;color:#071b55}.exerciseForm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.exerciseForm .field:nth-last-child(-n+3){grid-column:1/-1}@media(min-width:768px) and (max-width:1050px) and (orientation:portrait){.exerciseWorkspace{grid-template-columns:1fr}.exerciseLibrary{position:static;max-height:330px}.exerciseList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.exerciseForm{grid-template-columns:1fr}.exerciseForm .field{grid-column:1!important}.exerciseImage{min-height:220px}}
+
+
+/* ===== V11.6 TABLET — QUADRO ⇄ EXERCÍCIOS ⇄ TREINOS ===== */
+.editingBadge{font-size:12px;background:#dbeafe;color:#0b4a8b;padding:6px 10px;border-radius:999px}
+.boardObject{position:absolute;transform:translate(-50%,-50%);z-index:7;touch-action:none;user-select:none;font-weight:900;text-shadow:0 1px 2px #fff}
+.boardObject.cone{font-size:32px;color:#ff8a00}
+.boardObject.minigoal{font-size:42px;color:#fff;border:3px solid #fff;border-radius:4px;line-height:.55;width:38px;height:20px;display:flex;align-items:center;justify-content:center}
+.exerciseActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.exerciseActions button{min-width:145px}
+.trainingWorkspace{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:14px;align-items:start}
+.trainingBuilder{grid-row:span 2}.trainingExercisePicker{position:sticky;top:78px;max-height:55vh;overflow:auto}.savedSessions{grid-column:2}
+.trainingHead{display:grid;grid-template-columns:2fr 1fr;gap:12px}.trainingTotal{display:flex;align-items:center;gap:8px;background:#eaf2ff;padding:9px 13px;border-radius:12px;color:#082a68}.trainingTotal b{font-size:20px}
+.sessionSequence{display:flex;flex-direction:column;gap:8px;margin:10px 0 16px}.sessionExercise{display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:10px;border:1px solid #d8e0ed;background:#fff;border-radius:13px;padding:9px}.sessionExercise small{display:block;color:#707987;margin-top:4px}.orderNo{display:flex;width:38px;height:38px;border-radius:50%;background:#09285f;color:#fff;align-items:center;justify-content:center;font-weight:800}.sessionBtns{display:flex;gap:5px}.sessionBtns button,.dangerLite{min-width:44px!important;width:44px;padding:6px}.dangerLite{background:#fff0f0;color:#b42318;border:1px solid #ffd1d1}.wideAction{width:100%;margin-top:10px}
+.trainingExercisePicker>div{display:flex;flex-direction:column;gap:8px}.pickExercise{display:grid;grid-template-columns:36px 1fr;gap:8px;align-items:center;text-align:left;background:#f7f9fc;border:1px solid #d9e1ef;border-radius:12px;padding:9px}.pickExercise small{display:block;color:#697386;margin-top:4px}
+.savedSessions{display:flex;flex-direction:column;gap:8px}.savedSession{display:grid;grid-template-columns:minmax(0,1fr) auto 46px;align-items:center;gap:10px;padding:10px;border:1px solid #d9e1ef;border-radius:12px}.savedSession small{display:block;color:#697386;margin-top:4px}.savedSession strong{color:#09285f}.muted{color:#7b8490}
+
+@media (min-width:768px) and (max-width:1050px) and (orientation:portrait){
+ .trainingWorkspace{grid-template-columns:1fr}.trainingBuilder{grid-row:auto}.trainingExercisePicker{position:static;max-height:360px}.savedSessions{grid-column:1}.trainingHead{grid-template-columns:1fr 1fr}
+}
