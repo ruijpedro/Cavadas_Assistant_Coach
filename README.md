@@ -1,50 +1,22 @@
-# Cav Assistant Coach v7 Online AI
+# Cavadas Tactical V2
 
-App de competição para futebol/futsal com Coach AI online.
+App Web + Android/Capacitor para criação de exercícios táticos com animação por fases.
 
-## Inclui
-- React + Vite
-- Capacitor Android
-- Coach AI via backend `/api/coach-ai`
-- Google Sheets via Apps Script
-- Relatórios PDF
-- Workflows GitHub para Web e Android
+## V2 inclui
+- Campo tático: futsal, futebol 7, futebol 11 e meio campo.
+- Jogadores arrastáveis.
+- Movimentos por fases/keyframes.
+- Pequenas paragens configuráveis após cada movimento.
+- Narração escrita com texto-para-voz em português.
+- Possibilidade de anexar áudio por fase.
+- Timeline com play/pause e controlo temporal.
+- Biblioteca de exercícios.
+- Exportação PDF.
+- Estrutura pronta para GitHub, Codespaces, Vite e Capacitor Android.
 
-## Instalação local
-```bash
-npm install
-npm run dev
-```
-
-## Build Web
-```bash
-npm run build
-```
-
-## OpenAI
-A chave **não deve ficar no React**. Configura no backend/Vercel/GitHub Secrets:
-
-```env
-OPENAI_API_KEY=sk-proj-...
-```
-
-## Google Sheets
-1. Cria uma Google Sheet.
-2. Abre Extensões > Apps Script.
-3. Cola o conteúdo de `scripts/google-apps-script.js`.
-4. Corre `setup` uma vez.
-5. Publica como Aplicação Web.
-6. Cola o URL no separador Google da app ou em `.env`:
-
-```env
-VITE_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/.../exec
-```
-
-## Android
-```bash
-npm run build
-npx cap add android
-npx cap sync android
-```
-
-Depois usa o workflow `Build Android APK` no GitHub.
+## Como usar
+1. Upload dos ficheiros soltos para o GitHub.
+2. `npm install`
+3. `npm run dev` para testar.
+4. `npm run build` para gerar `dist`.
+5. Actions: correr build web e build android.

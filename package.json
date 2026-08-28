@@ -1,25 +1,26 @@
 {
-  "name": "cav-assistant-coach-online-ai",
-  "version": "7.0.0",
+  "name": "cavadas-manager-gruefwiss",
+  "version": "11.6.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0",
-    "sync:android": "npx cap sync android",
-    "add:android": "npx cap add android"
+    "preview": "vite preview",
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npx cap sync android"
   },
   "dependencies": {
-    "@capacitor/android": "^7.2.0",
-    "@capacitor/cli": "^7.2.0",
-    "@capacitor/core": "^7.2.0",
     "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^6.0.7",
+    "vite": "^6.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "lucide-react": "^0.468.0",
-    "jspdf": "^2.5.2"
+    "jspdf": "^2.5.2",
+    "html2canvas": "^1.4.1",
+    "@capacitor/core": "^7.2.0",
+    "@capacitor/cli": "^7.2.0",
+    "@capacitor/android": "^7.2.0"
   },
   "devDependencies": {}
 }

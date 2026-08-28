@@ -1,0 +1,1 @@
+Cavadas Manager V11.5 Tablet — biblioteca e fichas de exercícios editáveis, imagem/esquema, jogadores, duração, material, categoria, fase, objetivo, descrição e observações. Mantém plantel editável e PT/DE/FR/LB/EN.
