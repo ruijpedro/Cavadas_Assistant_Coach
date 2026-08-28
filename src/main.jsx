@@ -392,13 +392,14 @@ function Board({tr,exercises,setExercises}){
  const [steps,setSteps]=useState(initialSteps)
  const [step,setStep]=useState(0)
  const [players,setPlayers]=useState((initialSteps[0].players||fallbackPlayers).map(p=>({...p})))
- const [ball,setBall]=useState({...initialSteps[0].ball||{x:52,y:42}})
+ const [ball,setBall]=useState({...((initialSteps[0]?.ball)||{x:52,y:42})})
  const [paths,setPaths]=useState((initialSteps[0].paths||[]).map(p=>({...p})))
  const [tool,setTool]=useState('select')
  const [drag,setDrag]=useState(null)
  const [pathStart,setPathStart]=useState(null)
  const [playing,setPlaying]=useState(false)
  const [speed,setSpeed]=useState(1)
+ const [fullscreen,setFullscreen]=useState(false)
  const stopRef=useRef(false)
 
  const snap=()=>({players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p})),duration:steps[step]?.duration||1.15})
@@ -460,6 +461,10 @@ function Board({tr,exercises,setExercises}){
    setPlaying(false)
  }
  const stop=()=>{stopRef.current=true;setPlaying(false)}
+ useEffect(()=>{
+   const esc=e=>{if(e.key==='Escape')setFullscreen(false)}
+   window.addEventListener('keydown',esc);return()=>window.removeEventListener('keydown',esc)
+ },[])
  const setDuration=v=>setSteps(xs=>xs.map((x,i)=>i===step?{...x,duration:Number(v)}:x))
  const saveExercise=()=>{
    const finalSteps=commitSteps(),existing=(exercises||[]).find(x=>x.id===editId)
@@ -470,12 +475,18 @@ function Board({tr,exercises,setExercises}){
  return <div className="simpleBoard">
   <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
   <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('d')}>＋ Adversário</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
-  <div className="card pitchCard"><div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
+  <div className={fullscreen?'pitchFullscreen':'card pitchCard'}>
+   <div className="pitchViewportBar">
+    <button className="viewportBtn" onClick={()=>setFullscreen(v=>!v)}>{fullscreen?'✕ Fechar':'⛶ Ecrã inteiro'}</button>
+    <span>{fullscreen?title:'O campo adapta-se automaticamente ao ecrã'}</span>
+    {fullscreen&&(playing?<button className="viewportPlay" onClick={stop}>■ STOP</button>:<button className="viewportPlay" onClick={play}>▶ PLAY</button>)}
+   </div>
+   <div className="pitchFit"><div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
    <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/><div className="pitchArea left"/><div className="pitchArea right"/><div className="pitchGoal left"/><div className="pitchGoal right"/>
    {!playing&&<svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={p.type} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>}
    {players.map(p=><div key={p.id} className={`coachPiece ${p.team}`} style={{left:`${p.x}%`,top:`${p.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
    <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>
-  </div></div>
+  </div></div></div>
   <div className="card playSteps">
    <div className="steps">{steps.map((x,i)=><button key={x.id} className={i===step?'active':''} onClick={()=>{saveStep();loadStep(i)}}>{i+1}</button>)}<button className="addStep" onClick={nextStep}>＋ Passo</button><button className="addStep" onClick={duplicate}>Duplicar</button></div>
    <div className="animControls"><label>Passo {step+1} <select value={steps[step]?.duration||1.15} onChange={e=>setDuration(e.target.value)}><option value=".7">0,7 s</option><option value=".9">0,9 s</option><option value="1.15">1,15 s</option><option value="1.4">1,4 s</option><option value="1.8">1,8 s</option></select></label><label>Velocidade <select value={speed} onChange={e=>setSpeed(Number(e.target.value))}><option value=".5">0,5×</option><option value="1">1×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label></div>
