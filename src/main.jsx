@@ -71,30 +71,30 @@ function App(){
    <Nav label={tr.athletes} icon={<Users/>} active={page==='athletes'} onClick={()=>go('athletes')}/>
    <Nav label={tr.training} icon={<Dumbbell/>} active={page==='training'} onClick={()=>go('training')}/>
    <Nav label={tr.exercises} icon={<ClipboardList/>} active={page==='exercises'} onClick={()=>go('exercises')}/>
-   <Nav label={tr.board} icon={<Activity/>} active={page==='model'&&<GameModel athletes={athletes}/>}
-    {page==='setpieces'&&<SetPieces exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
-    {page==='opponents'&&<Opponents/>}
-    {page==='postmatch'&&<PostMatch games={games}/>}
-    {page==='board'} onClick={()=>go('board')}/>
+   <Nav label={tr.board} icon={<Activity/>} active={page==='board'} onClick={()=>go('board')}/>
    <Nav label={tr.games} icon={<Trophy/>} active={page==='games'} onClick={()=>go('games')}/>
-   <Nav label={lang==='de'?'Spielmodell':lang==='fr'?'Modèle de jeu':lang==='lb'?'Spillmodell':lang==='en'?'Game Model':'Modelo de Jogo'} icon={<BookOpen/>} active={page==='model'} onClick={()=>setPage('model')}/>
-    <Nav label={lang==='de'?'Standards':lang==='fr'?'Coups de pied arrêtés':lang==='lb'?'Standard-Situatiounen':lang==='en'?'Set Pieces':'Bolas Paradas'} icon={<Flag/>} active={page==='setpieces'} onClick={()=>setPage('setpieces')}/>
-    <Nav label={lang==='de'?'Gegner':lang==='fr'?'Adversaires':lang==='lb'?'Géigner':lang==='en'?'Opponents':'Adversários'} icon={<Search/>} active={page==='opponents'} onClick={()=>setPage('opponents')}/>
-    <Nav label={lang==='de'?'Nachspiel':lang==='fr'?'Après-match':lang==='lb'?'Nom Match':lang==='en'?'Post-match':'Pós-jogo'} icon={<MessageSquare/>} active={page==='postmatch'} onClick={()=>setPage('postmatch')}/>
-    <Nav label={tr.callups} icon={<UserCheck/>} active={page==='callups'} onClick={()=>go('callups')}/>
+   <Nav label={lang==='de'?'Spielmodell':lang==='fr'?'Modèle de jeu':lang==='lb'?'Spillmodell':lang==='en'?'Game Model':'Modelo de Jogo'} icon={<BookOpen/>} active={page==='model'} onClick={()=>go('model')}/>
+   <Nav label={lang==='de'?'Standards':lang==='fr'?'Coups de pied arrêtés':lang==='lb'?'Standard-Situatiounen':lang==='en'?'Set Pieces':'Bolas Paradas'} icon={<Flag/>} active={page==='setpieces'} onClick={()=>go('setpieces')}/>
+   <Nav label={lang==='de'?'Gegner':lang==='fr'?'Adversaires':lang==='lb'?'Géigner':lang==='en'?'Opponents':'Adversários'} icon={<Search/>} active={page==='opponents'} onClick={()=>go('opponents')}/>
+   <Nav label={lang==='de'?'Nachspiel':lang==='fr'?'Après-match':lang==='lb'?'Nom Match':lang==='en'?'Post-match':'Pós-jogo'} icon={<MessageSquare/>} active={page==='postmatch'} onClick={()=>go('postmatch')}/>
+   <Nav label={tr.callups} icon={<UserCheck/>} active={page==='callups'} onClick={()=>go('callups')}/>
    <Nav label={tr.tests} icon={<Activity/>} active={page==='tests'} onClick={()=>go('tests')}/>
    <Nav label={tr.planning} icon={<CalendarDays/>} active={page==='planning'} onClick={()=>go('planning')}/>
   </nav>
   <main>
-   {page==='home'&&<Home tr={tr} athletes={athletes} exercises={exercises} callups={callups} sessions={sessions} games={games} go={go}/>} 
-   {page==='athletes'&&<Athletes tr={tr} athletes={athletes} setAthletes={setAthletes} selected={selectedAthlete} setSelected={setSelectedAthlete} sessions={sessions} callups={callups} games={games}/>} 
-   {page==='training'&&<Training tr={tr} exercises={exercises} athletes={athletes} sessions={sessions} setSessions={setSessions}/>} 
-   {page==='exercises'&&<ExerciseLibrary tr={tr} exercises={exercises} setExercises={setExercises} setPage={setPage}/>} 
-   {page==='board'&&<Board tr={tr} exercises={exercises} setExercises={setExercises}/>} 
-   {page==='games'&&<Games tr={tr} athletes={athletes} games={games} setGames={setGames} callups={callups}/>} 
-   {page==='callups'&&<Callups tr={tr} athletes={athletes} callups={callups} setCallups={setCallups}/>} 
-   {page==='tests'&&<Tests tr={tr} athletes={athletes} setAthletes={setAthletes}/>} 
-   {page==='planning'&&<Planner tr={tr} week={week} setWeek={setWeek}/>} 
+   {page==='home'&&<Home tr={tr} athletes={athletes} exercises={exercises} callups={callups} sessions={sessions} games={games} go={go}/>}
+   {page==='athletes'&&<Athletes tr={tr} athletes={athletes} setAthletes={setAthletes} selected={selectedAthlete} setSelected={setSelectedAthlete} sessions={sessions} callups={callups} games={games}/>}
+   {page==='training'&&<Training tr={tr} exercises={exercises} athletes={athletes} sessions={sessions} setSessions={setSessions}/>}
+   {page==='exercises'&&<ExerciseLibrary tr={tr} exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
+   {page==='board'&&<Board tr={tr} exercises={exercises} setExercises={setExercises}/>}
+   {page==='games'&&<Games tr={tr} athletes={athletes} games={games} setGames={setGames} callups={callups}/>}
+   {page==='model'&&<GameModel athletes={athletes}/>}
+   {page==='setpieces'&&<SetPieces exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
+   {page==='opponents'&&<Opponents/>}
+   {page==='postmatch'&&<PostMatch games={games}/>}
+   {page==='callups'&&<Callups tr={tr} athletes={athletes} callups={callups} setCallups={setCallups}/>}
+   {page==='tests'&&<Tests tr={tr} athletes={athletes} setAthletes={setAthletes}/>}
+   {page==='planning'&&<Planner tr={tr} week={week} setWeek={setWeek}/>}
   </main>
  </div>
 }
@@ -212,86 +212,77 @@ function Board({tr,exercises,setExercises}){
  const [players,setPlayers]=useState(()=>mkPlayers(5,4,1)),[ball,setBall]=useState({x:50,y:50}),[objects,setObjects]=useState([])
  const [mode,setMode]=useState('select'),[drag,setDrag]=useState(null),[start,setStart]=useState(null),[paths,setPaths]=useState([])
  const [phase,setPhase]=useState(0),[phases,setPhases]=useState(['Fase 1']),[editingId,setEditingId]=useState(null)
-
+ const [freehand,setFreehand]=useState(null),[isPlaying,setIsPlaying]=useState(false)
  useEffect(()=>{
-   const id=localStorage.getItem('gw_board_edit_exercise')
-   if(!id)return
+   const id=localStorage.getItem('gw_board_edit_exercise'); if(!id)return
    const ex=exercises.find(x=>x.id===id)
-   if(ex){
-     setEditingId(id)
-     setField(ex.field||ex.diagram?.field||'futsal')
-     setPlayers(ex.players||ex.diagram?.players||mkPlayers(5,4,1))
-     setBall(ex.ball||ex.diagram?.ball||{x:50,y:50})
-     setPaths(ex.paths||ex.diagram?.paths||[])
-     setObjects(ex.objects||ex.diagram?.objects||[])
-     setPhases(ex.phases||ex.diagram?.phases||['Fase 1'])
-     setPhase(0)
-   }
+   if(ex){setEditingId(id);setField(ex.field||ex.diagram?.field||'futsal');setPlayers(ex.players||ex.diagram?.players||mkPlayers(5,4,1));setBall(ex.ball||ex.diagram?.ball||{x:50,y:50});setPaths(ex.paths||ex.diagram?.paths||[]);setObjects(ex.objects||ex.diagram?.objects||[]);setPhases(ex.phases||ex.diagram?.phases||['Fase 1']);setPhase(0)}
    localStorage.removeItem('gw_board_edit_exercise')
  },[])
-
+ useEffect(()=>{
+   if(!isPlaying)return
+   if(phases.length<=1){setIsPlaying(false);return}
+   const id=setInterval(()=>setPhase(v=>{if(v>=phases.length-1){setIsPlaying(false);return 0}return v+1}),1300)
+   return()=>clearInterval(id)
+ },[isPlaying,phases.length])
  function apply(){setPlayers(mkPlayers(a,d,gr))}
- function pxy(e){const r=ref.current.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*100,y:(e.clientY-r.top)/r.height*100}}
+ function pxy(e){const r=ref.current.getBoundingClientRect();return{x:Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100)),y:Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))}}
  function down(e,id,type){e.stopPropagation();if(mode==='select')setDrag({id,type});else if(['move','pass','shot'].includes(mode))setStart(pxy(e))}
  function move(e){
-   if(!drag)return
    const p=pxy(e)
-   if(drag.type==='ball')setBall(p)
-   else if(drag.type==='obj')setObjects(objects.map(x=>x.id===drag.id?{...x,...p}:x))
-   else setPlayers(players.map(x=>x.id===drag.id?{...x,...p}:x))
+   if(freehand&&mode==='curve'){setFreehand([...freehand,p]);return}
+   if(!drag)return
+   if(drag.type==='ball')setBall(p);else if(drag.type==='obj')setObjects(objects.map(x=>x.id===drag.id?{...x,...p}:x));else setPlayers(players.map(x=>x.id===drag.id?{...x,...p}:x))
  }
  function boardDown(e){
    const p=pxy(e)
-   if(['move','pass','shot'].includes(mode)) setStart(p)
-   if(mode==='cone') setObjects([...objects,{id:'o'+Date.now(),type:'cone',...p}])
-   if(mode==='minigoal') setObjects([...objects,{id:'o'+Date.now(),type:'minigoal',...p}])
+   if(['move','pass','shot'].includes(mode))setStart(p)
+   if(mode==='curve')setFreehand([p])
+   if(['cone','minigoal','barrier','ladder','marker'].includes(mode))setObjects([...objects,{id:'o'+Date.now(),type:mode,...p}])
+   if(mode==='zone')setObjects([...objects,{id:'o'+Date.now(),type:'zone',...p,w:18,h:16}])
+   if(mode==='text'){const label=prompt('Texto / indicação:');if(label)setObjects([...objects,{id:'o'+Date.now(),type:'text',label,...p}])}
  }
  function boardUp(e){
    if(start&&['move','pass','shot'].includes(mode)){setPaths([...paths,{from:start,to:pxy(e),type:mode,phase}]);setStart(null)}
+   if(freehand&&mode==='curve'&&freehand.length>1){setPaths([...paths,{points:freehand,type:'curve',phase}]);setFreehand(null)}
    setDrag(null)
  }
  function eraseAt(kind,id){
    if(mode!=='erase')return false
-   if(kind==='player')setPlayers(players.filter(x=>x.id!==id))
-   if(kind==='object')setObjects(objects.filter(x=>x.id!==id))
-   return true
+   if(kind==='player')setPlayers(players.filter(x=>x.id!==id));if(kind==='object')setObjects(objects.filter(x=>x.id!==id));return true
  }
  function save(){
    const diagram={field,players,ball,paths,objects,phases}
-   if(editingId){
-     setExercises(exercises.map(x=>x.id===editingId?{...x,...diagram,diagram}:x))
-     alert('Desenho do exercício atualizado.')
-   }else{
-     const ex={id:'e'+Date.now(),title:`Exercício ${exercises.length+1}`,author:'Cavadas Manager',playersCount:players.length,equipment:'',category:'',phase:'',duration:10,objective:'',description:'',notes:'',image:'',...diagram,diagram}
-     setExercises([...exercises,ex])
-     setEditingId(ex.id)
-     alert('Exercício guardado.')
-   }
+   if(editingId){setExercises(exercises.map(x=>x.id===editingId?{...x,...diagram,diagram}:x));alert('Desenho do exercício atualizado.')}
+   else{const ex={id:'e'+Date.now(),title:`Exercício ${exercises.length+1}`,author:'Cavadas Manager',playersCount:players.length,equipment:'',category:'',phase:'',duration:10,objective:'',description:'',notes:'',image:'',...diagram,diagram};setExercises([...exercises,ex]);setEditingId(ex.id);alert('Exercício guardado.')}
  }
- function newBoard(){
-   setEditingId(null);setField('futsal');setPlayers(mkPlayers(5,4,1));setBall({x:50,y:50});setObjects([]);setPaths([]);setPhases(['Fase 1']);setPhase(0)
- }
- return <div className="boardLayout">
+ function newBoard(){setEditingId(null);setField('futsal');setPlayers(mkPlayers(5,4,1));setBall({x:50,y:50});setObjects([]);setPaths([]);setPhases(['Fase 1']);setPhase(0);setIsPlaying(false)}
+ const icon=o=>o.type==='cone'?'▲':o.type==='minigoal'?'▭':o.type==='barrier'?'▰':o.type==='ladder'?'▥':o.type==='marker'?'●':o.type==='text'?(o.label||'T'):''
+ return <div className="boardLayout v14Board">
   <aside className="card controls">
    <div className="paneTitle"><h2>{tr.board}</h2>{editingId&&<span className="editingBadge">A editar exercício</span>}</div>
    <select value={field} onChange={e=>setField(e.target.value)}><option value="futsal">{tr.futsal}</option><option value="football11">{tr.football11}</option><option value="football7">{tr.football7}</option><option value="football6">{tr.football6}</option></select>
    <Counter label={tr.attackers} v={a} set={setA}/><Counter label={tr.defenders} v={d} set={setD}/><Counter label={tr.goalkeepers} v={gr} set={setGr}/>
    <button className="primary" onClick={apply}>{tr.apply}</button>
-   <div className="toolGrid">
-    {[['select',MousePointer2,tr.select],['move',MoveRight,tr.movement],['pass',ArrowRight,tr.pass],['shot',Goal,tr.shot],['cone',Cone,'Cone'],['minigoal',Goal,'Mini-baliza'],['erase',Trash2,'Apagar']].map(([k,I,l])=><button key={k} className={mode===k?'active':''} onClick={()=>setMode(k)}><I/>{l}</button>)}
+   <div className="toolGrid v14Tools">
+    {[['select',MousePointer2,tr.select],['move',MoveRight,tr.movement],['pass',ArrowRight,tr.pass],['shot',Goal,tr.shot],['curve',Pencil,'Curva'],['cone',Cone,'Cone'],['marker',Target,'Marca'],['barrier',Minus,'Barreira'],['ladder',Activity,'Escada'],['minigoal',Goal,'Mini-baliza'],['zone',ShieldCheck,'Zona'],['text',FileText,'Texto'],['erase',Trash2,'Apagar']].map(([k,I,l])=><button key={k} className={mode===k?'active':''} onClick={()=>setMode(k)}><I/>{l}</button>)}
    </div>
    <button className="primary" onClick={save}><Save/> {editingId?'Atualizar exercício':tr.save}</button>
    <button className="secondary" onClick={newBoard}><Plus/> Novo quadro</button>
   </aside>
   <section>
-   <div className={'pitch '+field} ref={ref} onPointerDown={boardDown} onPointerMove={move} onPointerUp={boardUp}>
+   <div className={'pitch '+field} ref={ref} onPointerDown={boardDown} onPointerMove={move} onPointerUp={boardUp} onPointerLeave={()=>{setDrag(null);setFreehand(null)}}>
     <FieldSvg type={field}/>
-    <svg className="arrows" viewBox="0 0 100 100" preserveAspectRatio="none">{paths.filter(x=>x.phase===phase).map((x,i)=><line key={i} x1={x.from.x} y1={x.from.y} x2={x.to.x} y2={x.to.y} className={x.type}/>)}</svg>
+    <svg className="arrows" viewBox="0 0 100 100" preserveAspectRatio="none">
+     {paths.filter(x=>x.phase===phase).map((x,i)=>x.type==='curve'?<polyline key={i} points={(x.points||[]).map(p=>`${p.x},${p.y}`).join(' ')} className="curve" fill="none"/>:<line key={i} x1={x.from.x} y1={x.from.y} x2={x.to.x} y2={x.to.y} className={x.type}/>)}
+     {freehand&&<polyline points={freehand.map(p=>`${p.x},${p.y}`).join(' ')} className="curve draft" fill="none"/>}
+    </svg>
+    {objects.filter(o=>o.type==='zone').map(o=><div key={o.id} onClick={()=>eraseAt('object',o.id)} className="tacticalZone" style={{left:o.x+'%',top:o.y+'%',width:(o.w||18)+'%',height:(o.h||16)+'%'}}></div>)}
     {players.map(x=><div key={x.id} onClick={()=>eraseAt('player',x.id)} onPointerDown={e=>down(e,x.id,'p')} className={'token '+x.team} style={{left:x.x+'%',top:x.y+'%'}}>{x.n}</div>)}
-    {objects.map(x=><div key={x.id} onClick={()=>eraseAt('object',x.id)} onPointerDown={e=>down(e,x.id,'obj')} className={'boardObject '+x.type} style={{left:x.x+'%',top:x.y+'%'}}>{x.type==='cone'?'▲':'▭'}</div>)}
+    {objects.filter(o=>o.type!=='zone').map(x=><div key={x.id} onClick={()=>eraseAt('object',x.id)} onPointerDown={e=>down(e,x.id,'obj')} className={'boardObject '+x.type} style={{left:x.x+'%',top:x.y+'%'}}>{icon(x)}</div>)}
     <div onClick={()=>{if(mode==='erase')setBall({x:50,y:50})}} onPointerDown={e=>down(e,'ball','ball')} className="ball" style={{left:ball.x+'%',top:ball.y+'%'}}>⚽</div>
    </div>
-   <div className="timeline">{phases.map((x,i)=><button className={phase===i?'active':''} onClick={()=>setPhase(i)} key={i}>{x}</button>)}<button onClick={()=>{setPhases([...phases,`Fase ${phases.length+1}`]);setPhase(phases.length)}}><Plus/>{tr.newPhase}</button></div>
+   <div className="timeline v14Timeline">{phases.map((x,i)=><button className={phase===i?'active':''} onClick={()=>setPhase(i)} key={i}>{x}</button>)}<button onClick={()=>{setPhases([...phases,`Fase ${phases.length+1}`]);setPhase(phases.length)}}><Plus/>{tr.newPhase}</button><button className={isPlaying?'active':''} onClick={()=>{setPhase(0);setIsPlaying(!isPlaying)}}>{isPlaying?'■ Parar':'▶ Reproduzir'}</button></div>
   </section>
  </div>
 }
@@ -345,9 +336,23 @@ function Training({tr,exercises,athletes,sessions,setSessions}){
  <section className="card savedSessions"><div className="paneTitle"><h3>{tr.saved}</h3><small>{sessions.length}</small></div>{sessions.slice().reverse().map(s=><div className="exportItem" key={s.id}><div id={'training-'+s.id} className="brandedExport trainingExport"><div className="exportBrand"><img src="club-crest.jpg"/><div><b>1. FC GRUEFWISS LEIDELENG</b><span>TREINO · 2026/27</span></div></div><h2>{s.title}</h2><p>{s.date||'—'} · {s.time||'—'} · {s.location||'—'} · {s.total||0} min</p>{s.theme&&<h4>{s.theme}</h4>}<ol>{(s.exerciseIds||[]).map(id=>{const x=exercises.find(e=>e.id===id);return <li key={id}><b>{x?.title||'Exercício'}</b> <span>{x?.duration||0} min · {x?.phase||''}</span></li>})}</ol><div className="attendanceSummary">{Object.values(s.attendance||{}).filter(x=>x==='present').length}/{athletes.length} {tr.present.toLowerCase()}</div></div><div className="exportButtons"><button onClick={()=>exportNode('training-'+s.id,'pdf','treino-'+(s.date||s.id))}><FileText/>PDF</button><button onClick={()=>exportNode('training-'+s.id,'png','treino-'+(s.date||s.id))}><ImageIcon/>{tr.exportImage}</button><button className="dangerLite" onClick={()=>setSessions(sessions.filter(x=>x.id!==s.id))}><Trash2/></button></div></div>)}</section></div>
 }
 function Planner({tr,week,setWeek}){
- const days=['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo']; const [draft,setDraft]=useState({day:'Segunda',type:'Treino',title:'',time:''})
+ const days=['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo']
+ const [draft,setDraft]=useState({day:'Segunda',type:'Treino',title:'',time:''})
+ const [cycles,setCycles]=useStore('gw_periodization_v14',[])
+ const [cycle,setCycle]=useState({level:'Macrociclo',title:'Época 2026/27',start:'',end:'',objective:'',load:'Média'})
  const add=()=>{if(!draft.title)return;setWeek([...week,{...draft,id:'w'+Date.now()}]);setDraft({...draft,title:'',time:''})}
- return <div className="plannerPage"><section className="card plannerForm"><div className="paneTitle"><h2>{tr.planning}</h2><CalendarDays/></div><div className="plannerInputs"><select value={draft.day} onChange={e=>setDraft({...draft,day:e.target.value})}>{days.map(x=><option key={x}>{x}</option>)}</select><select value={draft.type} onChange={e=>setDraft({...draft,type:e.target.value})}><option>Treino</option><option>Jogo</option><option>Descanso</option><option>Reunião</option></select><input placeholder="Título" value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/><input type="time" value={draft.time} onChange={e=>setDraft({...draft,time:e.target.value})}/><button className="primary" onClick={add}><Plus/>{tr.add}</button></div></section><section className="weekGrid">{days.map(day=><div className="dayCard card" key={day}><h3>{day}</h3>{week.filter(x=>x.day===day).map(x=><div className={'planItem '+x.type.toLowerCase()} key={x.id}><b>{x.time||'—'} · {x.type}</b><span>{x.title}</span><button onClick={()=>setWeek(week.filter(y=>y.id!==x.id))}><X/></button></div>)}</div>)}</section></div>
+ const addCycle=()=>{if(!cycle.title)return;setCycles([...cycles,{...cycle,id:'cy'+Date.now()}]);setCycle({...cycle,title:'',objective:''})}
+ return <div className="periodizationPage">
+  <section className="card periodHero"><div><small>CAVADAS MANAGER · 2026/27</small><h2>Planeamento da Época</h2><p>Macrociclo → Mesociclo → Microciclo → Unidade de treino</p></div><CalendarDays size={42}/></section>
+  <section className="periodGrid">
+   <div className="card"><div className="paneTitle"><h3>Periodização</h3><Target/></div>
+    <div className="cycleForm"><Field label="Nível"><select value={cycle.level} onChange={e=>setCycle({...cycle,level:e.target.value})}><option>Macrociclo</option><option>Mesociclo</option><option>Microciclo</option><option>Unidade de treino</option></select></Field><Field label="Nome"><input value={cycle.title} onChange={e=>setCycle({...cycle,title:e.target.value})}/></Field><Field label="Início"><input type="date" value={cycle.start} onChange={e=>setCycle({...cycle,start:e.target.value})}/></Field><Field label="Fim"><input type="date" value={cycle.end} onChange={e=>setCycle({...cycle,end:e.target.value})}/></Field><Field label="Carga"><select value={cycle.load} onChange={e=>setCycle({...cycle,load:e.target.value})}><option>Baixa</option><option>Média</option><option>Alta</option><option>Recuperação</option></select></Field></div>
+    <Field label="Objetivo"><textarea rows="3" value={cycle.objective} onChange={e=>setCycle({...cycle,objective:e.target.value})}/></Field><button className="primary wideAction" onClick={addCycle}><Plus/> Adicionar período</button>
+   </div>
+   <div className="card"><h3>Mapa da época</h3><div className="cycleList">{cycles.length?cycles.map(c=><div className={'cycle '+c.level.toLowerCase().replaceAll(' ','-')} key={c.id}><div><b>{c.level} · {c.title}</b><small>{c.start||'—'} → {c.end||'—'} · Carga {c.load}</small><p>{c.objective||'Sem objetivo definido.'}</p></div><button className="dangerLite" onClick={()=>setCycles(cycles.filter(x=>x.id!==c.id))}><Trash2/></button></div>):<p className="muted">Comece pelo macrociclo da época e divida-o progressivamente.</p>}</div></div>
+  </section>
+  <section className="card plannerForm"><div className="paneTitle"><h2>{tr.planning} semanal</h2><CalendarDays/></div><div className="plannerInputs"><select value={draft.day} onChange={e=>setDraft({...draft,day:e.target.value})}>{days.map(x=><option key={x}>{x}</option>)}</select><select value={draft.type} onChange={e=>setDraft({...draft,type:e.target.value})}><option>Treino</option><option>Jogo</option><option>Descanso</option><option>Reunião</option><option>Vídeo</option><option>Recuperação</option></select><input placeholder="Título" value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/><input type="time" value={draft.time} onChange={e=>setDraft({...draft,time:e.target.value})}/><button className="primary" onClick={add}><Plus/>{tr.add}</button></div></section>
+  <section className="weekGrid">{days.map(day=><div className="dayCard card" key={day}><h3>{day}</h3>{week.filter(x=>x.day===day).map(x=><div className={'planItem '+x.type.toLowerCase()} key={x.id}><b>{x.time||'—'} · {x.type}</b><span>{x.title}</span><button onClick={()=>setWeek(week.filter(y=>y.id!==x.id))}><X/></button></div>)}</div>)}</section>
+ </div>
 }
-
 createRoot(document.getElementById('root')).render(<App/>)
