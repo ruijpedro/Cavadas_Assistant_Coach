@@ -3,12 +3,15 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+
 permissions:
   contents: read
+
 jobs:
   build-android:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+
     steps:
       - uses: actions/checkout@v4
 
@@ -36,14 +39,20 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Normalize Capacitor config
+        shell: bash
+        run: |
+          set -euxo pipefail
+          rm -f capacitor.config.ts capacitor.config.mjs capacitor.config.cjs
+          test -f capacitor.config.json
+          node -e "const c=require('./capacitor.config.json'); if(!c.appId||!c.appName||!c.webDir) process.exit(1); console.log('Capacitor config OK:', c.appId, c.appName, c.webDir)"
+
       - name: Prepare Android
         shell: bash
         run: |
           set -euxo pipefail
-          if [ ! -f android/gradlew ]; then
-            rm -rf android
-            ./node_modules/.bin/cap add android
-          fi
+          rm -rf android
+          ./node_modules/.bin/cap add android
           ./node_modules/.bin/cap sync android
           test -f android/gradlew
 
@@ -66,5 +75,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Cavadas-Manager-V13.1-APK
+          name: Cavadas-Manager-V14.4-APK
           path: android/app/build/outputs/apk/debug/*.apk
