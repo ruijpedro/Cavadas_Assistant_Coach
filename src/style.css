@@ -256,3 +256,7 @@ main{max-width:1920px;padding:14px 16px}
 @media (max-width:900px){.pitchFit{width:min(100%,calc((100dvh - 260px)*1.6))}.pitchViewportBar span{display:none}}
 @media (max-width:600px){.pitchCard{padding:6px}.pitchFit{width:100%}.pitchViewportBar{margin-bottom:5px}.viewportBtn{padding:8px 10px}.coachPiece{width:clamp(28px,8vw,38px);height:clamp(28px,8vw,38px);font-size:clamp(12px,3.5vw,16px)}.coachBall{font-size:clamp(16px,5vw,22px)}}
 @media (orientation:landscape) and (max-height:650px){.pitchFit{width:min(100%,calc((100dvh - 150px)*1.6))}.pitchFullscreen .coachPitch{width:min(calc(100vw - 16px),calc((100dvh - 58px)*1.6))}}
+.tacticalAdvice{margin:12px 0;padding:12px;border:1px solid #d7dce5;border-radius:12px;background:#f8fafc}.tacticalAdvice p{margin:6px 0}.tacticalAdvice details{margin:6px 0;padding:7px 9px;background:white;border-radius:8px}.tacticalAdvice summary{font-weight:700;cursor:pointer}.gkTabs{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 12px}.gkTabs button.active{font-weight:800;outline:2px solid currentColor}
+/* V20.0.2 — modelo contextual + feedback de treino */
+.tacticalAdvice{margin:12px 0;padding:14px 16px;border-radius:12px;background:#eef4ff;border:1px solid #c7d7ff;color:#18345f}.tacticalAdvice p{margin:6px 0 0;line-height:1.45}
+.trainingFeedback{margin:10px 0;padding:10px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0}.feedbackBtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.feedbackBtns button.active{background:#123f9c;color:#fff}.trainingFeedback small{display:block;margin-top:7px;color:#475569}

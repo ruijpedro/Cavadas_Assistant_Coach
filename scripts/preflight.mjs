@@ -87,4 +87,10 @@ for (const token of [
 }
 
 for (const token of ['TacticalImporter','analysePdf','analysePptx','analyseVideo','Importar Tática']) if(!s.includes(token)){console.error('PRECHECK FAIL V18:',token);process.exit(1)}
-console.log('Preflight V18.0 OK — navegação, importador e módulos principais validados.');
+
+const engineV2=fs.readFileSync('src/importEngineV2.js','utf8');
+for(const token of ['analyseDocumentV2','PPTX Motion V2','PDF Vision V2','Imagem/Manuscrito V2','Video Tracking V2','p:animMotion']){
+ if(!engineV2.includes(token)){console.error('V19 preflight fail:',token);process.exit(1);}
+}
+if(!s.includes('FOTO / MANUSCRITO')||!s.includes('supportedImportKind')){console.error('V19 importer UI missing');process.exit(1);}
+console.log('Preflight V20.0 OK — navegação, importador e módulos principais validados.');
