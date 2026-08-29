@@ -1,0 +1,4 @@
+V19.0
+- node --check importEngineV2.js: OK
+- preflight: OK
+- Build Vite completo não executado neste ambiente; GitHub Actions permanece configurado.
