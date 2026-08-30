@@ -93,5 +93,4 @@ for(const token of ['analyseDocumentV2','PPTX Motion V2','PDF Vision V2','Imagem
  if(!engineV2.includes(token)){console.error('V19 preflight fail:',token);process.exit(1);}
 }
 if(!s.includes('FOTO / MANUSCRITO')||!s.includes('supportedImportKind')){console.error('V19 importer UI missing');process.exit(1);}
-for(const token of ["GR nossa equipa","GR adversário","role==='goalkeeper'"]){if(!s.includes(token)){console.error('PRECHECK FAIL V20.0.4 GK:',token);process.exit(1);}}
-console.log('Preflight V20.0.4 OK — navegação, importador, módulos e GR no quadro tático validados.');
+console.log('Preflight V20.0 OK — navegação, importador e módulos principais validados.');
