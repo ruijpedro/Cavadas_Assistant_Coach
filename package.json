@@ -1,6 +1,6 @@
 {
   "name": "cavadas-manager-gruefwiss",
-  "version": "22.0.1",
+  "version": "22.1.0",
   "private": true,
   "type": "module",
   "scripts": {
