@@ -1,7 +1,7 @@
 
 import React, {useEffect, useMemo, useRef, useState} from 'react'
 import {createRoot} from 'react-dom/client'
-import {Users, Dumbbell, ClipboardList, CalendarDays, Activity, Languages, Plus, Minus, Save, Trash2, FileText, ChevronLeft, ChevronUp, ChevronDown, ArrowRight, MoveRight, Goal, MousePointer2, Cone, Pencil, X, Clock3, Trophy, BarChart3, CheckCircle2, UserCheck, Image as ImageIcon, BookOpen, Flag, Search, MessageSquare, Target, ShieldCheck, FileUp, Film, Presentation, ScanSearch, Share2, Mail} from 'lucide-react'
+import {Users, Dumbbell, ClipboardList, CalendarDays, Activity, Languages, Plus, Minus, Save, Trash2, FileText, ChevronLeft, ChevronUp, ChevronDown, ArrowRight, MoveRight, Goal, MousePointer2, Cone, Pencil, X, Clock3, Trophy, BarChart3, CheckCircle2, UserCheck, Image as ImageIcon, BookOpen, Flag, Search, MessageSquare, Target, ShieldCheck, FileUp, Film, Presentation, ScanSearch, Share2, Mail, CircleHelp} from 'lucide-react'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import './style.css'
@@ -187,6 +187,38 @@ function useStore(key,initial){
  return [v,setV]
 }
 
+
+function HelpCenter({lang,go}){
+ const [q,setQ]=useState('')
+ const items=[
+  ['Primeiros passos','Use o menu principal para entrar em Atletas, Treinos, Exercícios, Importar Tática, Quadro Tático, Jogos, Modelo de Jogo, Bolas Paradas, Convocatórias e Planeamento. Os dados são guardados localmente no dispositivo.'],
+  ['Atletas','Em Atletas consulte e edite o plantel: dados pessoais, posição, processo defensivo e ofensivo, velocidade e observações. Confirme sempre os dados antes de os usar em relatórios ou convocatórias.'],
+  ['Preparar um treino','Treinos → novo treino. Defina data, duração e objetivo; adicione exercícios da biblioteca e, quando necessário, exercícios específicos de guarda-redes. Depois do treino registe Funcionou, Ajustar ou Não funcionou e acrescente uma nota.'],
+  ['Exercícios e biblioteca','A Biblioteca reúne exercícios e jogadas guardadas. Abra um exercício para consultar objetivo, organização e notas. Uma jogada tática pode ser editada no quadro e reutilizada em sessões futuras.'],
+  ['Quadro Tático e animação','No Quadro Tático escolha o campo de futsal, coloque jogadores, adversários e bola e construa a sequência por passos. Use Movimento, Passe e Remate para representar a ação. PLAY reproduz a sequência. Reveja posições e trajetórias antes de guardar.'],
+  ['Importar desenho, PDF, PPTX ou vídeo','Importar Tática → escolha o ficheiro. A aplicação tenta identificar campo, jogadores, bola e movimentos e cria uma reconstrução. A interpretação é uma ajuda: confirme e corrija sempre o resultado antes de o guardar como exercício ou jogada.'],
+  ['Bolas Paradas','Use Bolas Paradas para cantos, foras, livres e outras situações estudadas. Pode abrir a jogada, ajustar posições e movimentos, reproduzir a animação, guardar uma variante e associá-la a um treino.'],
+  ['Modelo de Jogo','Registe o sistema e a intenção que pretende trabalhar. No 3:1, por exemplo, a altura do pivô influencia os comportamentos pedidos aos alas e ao fixo. As indicações da aplicação servem como apoio; a decisão tática pertence sempre ao treinador.'],
+  ['Jogos','Em Jogos registe adversário, competição, data, hora, local e informação relevante. Estes dados podem depois ser relacionados com convocatórias e análise pós-jogo.'],
+  ['Convocatórias','Convocatórias → nova convocatória → indique o jogo → selecione os atletas → confirme. O PDF inclui a lista de convocados e espaço para tomada de conhecimento/assinatura. Pode exportar o PDF e usar a partilha do dispositivo para WhatsApp ou e-mail.'],
+  ['Planeamento da época','Organize o trabalho pela sequência Época 26/27 → Planeamento anual → Macrociclo → Mesociclo → Microciclo → Sessão → Exercício. A finalidade é conseguir relacionar cada sessão com os objetivos do período em que foi realizada.'],
+  ['Documentos e partilha','Os documentos seguem a identidade do Cavadas Manager e do 1. FC Gruefwiss Leideleng. Nos documentos exportados, RJP surge apenas discretamente no final. Para partilhar, gere primeiro o PDF e depois escolha WhatsApp, e-mail ou outra aplicação disponível no dispositivo.'],
+  ['Depois do treino e do jogo','Registe o feedback enquanto a informação está fresca. Nos treinos indique o que funcionou e o que deve ser ajustado. No pós-jogo guarde as observações que possam influenciar os microciclos, exercícios e bolas paradas seguintes.'],
+  ['Se algo não funcionar','Primeiro confirme se guardou os dados e se o ficheiro foi realmente gerado. Em importações, teste um ficheiro de cada vez e valide a reconstrução. Se um PDF ou partilha falhar, anote o ecrã, a ação realizada e a mensagem apresentada para a correção ser objetiva.']
+ ]
+ const quick=[
+  ['Fazer uma convocatória','callups'],['Preparar um treino','training'],['Criar uma animação','board'],['Importar uma jogada','importer'],['Abrir bolas paradas','setpieces'],['Planear a época','planning']
+ ]
+ const filtered=items.filter(([a,b])=>(a+' '+b).toLowerCase().includes(q.toLowerCase()))
+ return <section className="helpCenter">
+  <div className="helpHero"><div><small>GUIA DO TREINADOR · V22</small><h2>❓ Ajuda Cavadas Manager</h2><p>Guia operacional para encontrar rapidamente cada função da aplicação.</p></div><div className="helpVersion">ÉPOCA 26/27</div></div>
+  <div className="helpSearch"><Search size={20}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Procurar: convocatória, PDF, 3:1, microciclo, vídeo..."/></div>
+  {!q&&<><h3>Quero fazer…</h3><div className="helpQuick">{quick.map(([label,p])=><button key={p} onClick={()=>go(p)}><ArrowRight size={18}/>{label}</button>)}</div></>}
+  <div className="helpGrid">{filtered.map(([title,text],i)=><details key={title} className="helpCard" open={i===0&&!q}><summary><span>{i+1}</span>{title}</summary><p>{text}</p></details>)}</div>
+  <div className="helpNote"><b>Regra importante</b><p>O Cavadas Manager organiza, representa e ajuda a analisar o trabalho. Importações e sugestões táticas devem ser sempre confirmadas pelo treinador.</p></div>
+ </section>
+}
+
 function App(){
  const [lang,setLang]=useStore('gw_lang','pt'); const tr={...T[lang],...U[lang]}
  const [page,setPage]=useState('home')
@@ -209,7 +241,7 @@ function App(){
  const [selectedAthlete,setSelectedAthlete]=useState(athletes[0]?.id||null)
  const go=p=>setPage(p)
  return <div className="app">
-  <header className="topbar"><div className="brand"><img src="club-crest.jpg"/><div><b>CAVADAS MANAGER</b><span>ÉPOCA 26/27</span><span>Autor RJP</span></div></div><div className="languages"><Languages size={18}/>{['pt','de','fr','lb','en'].map(l=><button key={l} className={lang===l?'active':''} onClick={()=>setLang(l)}>{l.toUpperCase()}</button>)}</div></header>
+  <header className="topbar"><div className="brand"><img src="club-crest.jpg"/><div><b>CAVADAS MANAGER</b><span>ÉPOCA 26/27</span><span className="authorLine">Autor RJP</span></div></div><div className="languages"><Languages size={18}/>{['pt','de','fr','lb','en'].map(l=><button key={l} className={lang===l?'active':''} onClick={()=>setLang(l)}>{l.toUpperCase()}</button>)}</div></header>
   <nav className="nav">
    <Nav label={tr.home} icon={<BarChart3/>} active={page==='home'} onClick={()=>go('home')}/>
    <Nav label={tr.athletes} icon={<Users/>} active={page==='athletes'} onClick={()=>go('athletes')}/>
@@ -225,6 +257,7 @@ function App(){
    <Nav label={tr.callups} icon={<UserCheck/>} active={page==='callups'} onClick={()=>go('callups')}/>
    <Nav label={tr.tests} icon={<Activity/>} active={page==='tests'} onClick={()=>go('tests')}/>
    <Nav label={tr.planning} icon={<CalendarDays/>} active={page==='planning'} onClick={()=>go('planning')}/>
+   <Nav label={lang==='de'?'Hilfe':lang==='fr'?'Aide':lang==='lb'?'Hëllef':lang==='en'?'Help':'Ajuda'} icon={<CircleHelp/>} active={page==='help'} onClick={()=>go('help')}/>
   </nav>
   <main>
    {page==='home'&&<Home tr={tr} athletes={athletes} exercises={exercises} callups={callups} sessions={sessions} games={games} go={go}/>}
@@ -241,6 +274,7 @@ function App(){
    {page==='callups'&&<Callups tr={tr} athletes={athletes} callups={callups} setCallups={setCallups}/>}
    {page==='tests'&&<Tests tr={tr} athletes={athletes} setAthletes={setAthletes}/>}
    {page==='planning'&&<Planner tr={tr} week={week} setWeek={setWeek}/>}
+   {page==='help'&&<HelpCenter lang={lang} go={go}/>}
   </main>
  </div>
 }
@@ -334,7 +368,7 @@ function GameModel({athletes}){
 function SetPieces({exercises,setExercises,setPage}){
  const kinds=['Canto ofensivo','Canto defensivo','Lateral ofensivo','Lateral defensivo','Livre direto','Livre indireto','5x4 / GR avançado','Defesa 4x5']
  const setpieces=exercises.filter(x=>x.isSetPiece)
- const create=k=>{const ex={id:'sp'+Date.now(),title:k,author:'Cavadas Manager',category:'Bola parada',phase:'Aplicação em jogo',duration:10,objective:'',description:'',notes:'',isSetPiece:true,gkMode:'both',field:'futsal',players:mkPlayers(5,4,2),ball:{x:50,y:50},paths:[],objects:[],phases:['Fase 1']};setExercises([...exercises,ex]);localStorage.setItem('gw_board_edit_exercise',ex.id);setPage('board')}
+ const create=k=>{const ex={id:'sp'+Date.now(),title:k,author:'Cavadas Manager',category:'Bola parada',phase:'Aplicação em jogo',duration:10,objective:'',description:'',notes:'',isSetPiece:true,field:'futsal',players:mkPlayers(5,4,1),ball:{x:50,y:50},paths:[],objects:[],phases:['Fase 1']};setExercises([...exercises,ex]);localStorage.setItem('gw_board_edit_exercise',ex.id);setPage('board')}
  return <div className="card"><div className="paneTitle"><div><h2>Bolas Paradas</h2><small>Biblioteca ligada ao Quadro Tático</small></div><Flag/></div><div className="setPieceTypes">{kinds.map(k=><button onClick={()=>create(k)} key={k}><Plus/><b>{k}</b><small>Criar e desenhar</small></button>)}</div><h3>Jogadas guardadas</h3><div className="setPieceSaved">{setpieces.map(x=><button key={x.id} onClick={()=>{localStorage.setItem('gw_board_edit_exercise',x.id);setPage('board')}}><Flag/><span><b>{x.title}</b><small>{x.description||'Abrir no quadro tático'}</small></span><Pencil/></button>)}</div></div>
 }
 
@@ -455,8 +489,6 @@ function Board({tr,exercises,setExercises}){
  const move=e=>{if(!drag||playing)return;const p=point(e);if(drag.kind==='ball')setBall(p);else setPlayers(v=>v.map(x=>x.id===drag.id?{...x,...p}:x))}
  const up=e=>{if(playing)return;if(pathStart){const q=point(e);setPaths(v=>[...v,{id:Date.now()+Math.random(),type:tool,x1:pathStart.x,y1:pathStart.y,x2:q.x,y2:q.y}]);setPathStart(null)}setDrag(null)}
  const addPlayer=team=>{const n=players.filter(p=>p.team===team).length+1;setPlayers(v=>[...v,{id:team+Date.now(),team,x:team==='a'?30:70,y:50,label:String(n)}])}
- const setGoalkeepers=mode=>{setPlayers(v=>{const base=v.filter(p=>p.team!=='gkOur'&&p.team!=='gkOpp');if(mode==='our'||mode==='both')base.push({id:'gko'+Date.now(),team:'gkOur',x:7,y:50,label:'GR'});if(mode==='opp'||mode==='both')base.push({id:'gka'+Date.now(),team:'gkOpp',x:93,y:50,label:'GR'});return base})}
- const currentGkMode=players.some(p=>p.team==='gkOur')?(players.some(p=>p.team==='gkOpp')?'both':'our'):(players.some(p=>p.team==='gkOpp')?'opp':'none')
  const nextStep=()=>{const now=commitSteps();const n={id:Date.now(),name:`Passo ${now.length+1}`,players:players.map(p=>({...p})),ball:{...ball},paths:[],duration:1.15};setSteps([...now,n]);setPaths([]);setStep(now.length)}
  const duplicate=()=>{const now=commitSteps(),n={...now[step],id:Date.now(),name:`Passo ${now.length+1}`,players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p}))};setSteps([...now,n]);setStep(now.length)}
  const lerp=(a,b,t)=>a+(b-a)*t
@@ -512,13 +544,13 @@ function Board({tr,exercises,setExercises}){
  const setDuration=v=>setSteps(xs=>xs.map((x,i)=>i===step?{...x,duration:Number(v)}:x))
  const saveExercise=()=>{
    const finalSteps=commitSteps(),existing=(exercises||[]).find(x=>x.id===editId)
-   if(existing){setExercises(exercises.map(x=>x.id===editId?{...x,title,field:sport,gkMode:currentGkMode,playersCount:players.length,board:{players,ball,steps:finalSteps},updatedAt:new Date().toISOString()}:x));alert('Jogada atualizada na biblioteca.')}
-   else{const item={id:'play'+Date.now(),title,author:'Cavadas Manager',category:'Jogada',phase:'Aplicação em jogo',duration:10,objective:'',description:'',gkMode:currentGkMode,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);alert('Jogada guardada na biblioteca.')}
+   if(existing){setExercises(exercises.map(x=>x.id===editId?{...x,title,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},updatedAt:new Date().toISOString()}:x));alert('Jogada atualizada na biblioteca.')}
+   else{const item={id:'play'+Date.now(),title,author:'Cavadas Manager',category:'Jogada',phase:'Aplicação em jogo',duration:10,objective:'',description:'',field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);alert('Jogada guardada na biblioteca.')}
  }
- const saveVariant=()=>{const finalSteps=commitSteps(),item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,gkMode:currentGkMode,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')}
+ const saveVariant=()=>{const finalSteps=commitSteps(),item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')}
  return <div className="simpleBoard">
   <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
-  <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('d')}>＋ Adversário</button><label className="gkQuick">🧤 GR <select value={currentGkMode} onChange={e=>setGoalkeepers(e.target.value)}><option value="none">Sem GR</option><option value="our">GR nosso</option><option value="opp">GR adversário</option><option value="both">Ambos os GR</option></select></label><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
+  <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('d')}>＋ Adversário</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
   <div className={fullscreen?'pitchFullscreen':'card pitchCard'}>
    <div className="pitchViewportBar">
     <button className="viewportBtn" onClick={()=>setFullscreen(v=>!v)}>{fullscreen?'✕ Fechar':'⛶ Ecrã inteiro'}</button>
@@ -541,14 +573,14 @@ function Board({tr,exercises,setExercises}){
 }
 
 function Counter({label,v,set}){return <div className="counter"><span>{label}</span><div><button onClick={()=>set(Math.max(0,v-1))}><Minus/></button><b>{v}</b><button onClick={()=>set(v+1)}><Plus/></button></div></div>}
-function mkPlayers(a,d,gr){const out=[];for(let i=0;i<a;i++)out.push({id:'a'+i,n:i+1,team:'blue',x:25+(i%3)*15,y:25+Math.floor(i/3)*20});for(let i=0;i<d;i++)out.push({id:'d'+i,n:'X',team:'red',x:65+(i%2)*12,y:28+Math.floor(i/2)*18});if(gr>0)out.push({id:'gko',n:'GR',team:'gkOur',x:8,y:50});if(gr>1)out.push({id:'gka',n:'GR',team:'gkOpp',x:92,y:50});return out}
+function mkPlayers(a,d,gr){const out=[];for(let i=0;i<a;i++)out.push({id:'a'+i,n:i+1,team:'blue',x:25+(i%3)*15,y:25+Math.floor(i/3)*20});for(let i=0;i<d;i++)out.push({id:'d'+i,n:'X',team:'red',x:65+(i%2)*12,y:28+Math.floor(i/2)*18});for(let i=0;i<gr;i++)out.push({id:'g'+i,n:'GR',team:'yellow',x:i?92:8,y:50});return out}
 function FieldSvg({type}){if(type==='futsal')return <svg className="fieldSvg" viewBox="0 0 120 78" preserveAspectRatio="none"><rect x="4" y="4" width="112" height="70" rx="1.5" fill="none" stroke="white"/><line x1="60" y1="4" x2="60" y2="74" stroke="white"/><circle cx="60" cy="39" r="6" fill="none" stroke="white"/><path d="M4 24 C19 24 19 54 4 54" fill="none" stroke="white"/><path d="M116 24 C101 24 101 54 116 54" fill="none" stroke="white"/><circle cx="16" cy="39" r=".8" fill="white"/><circle cx="28" cy="39" r=".8" fill="white"/><circle cx="104" cy="39" r=".8" fill="white"/><circle cx="92" cy="39" r=".8" fill="white"/></svg>;return <svg className="fieldSvg" viewBox="0 0 120 78" preserveAspectRatio="none"><rect x="4" y="4" width="112" height="70" fill="none" stroke="white"/><line x1="60" y1="4" x2="60" y2="74" stroke="white"/><circle cx="60" cy="39" r="9" fill="none" stroke="white"/><rect x="4" y="18" width="18" height="42" fill="none" stroke="white"/><rect x="98" y="18" width="18" height="42" fill="none" stroke="white"/><rect x="4" y="29" width="7" height="20" fill="none" stroke="white"/><rect x="109" y="29" width="7" height="20" fill="none" stroke="white"/></svg>}
 function ExerciseLibrary({tr,exercises,setExercises,setPage}){
  const items=exercises,setItems=setExercises
  const [sel,setSel]=useState(items[0]?.id||null),[q,setQ]=useState('')
  const cur=items.find(x=>x.id===sel)||null
  useEffect(()=>{if(items.length&&!items.some(x=>x.id===sel))setSel(items[0].id);if(!items.length)setSel(null)},[items,sel])
- const add=()=>{const x={id:'ex'+Date.now(),title:'',author:'Cavadas Manager',playersCount:8,equipment:'',category:'',phase:'',duration:10,objective:'',description:'',image:'',notes:'',gkMode:'none',field:'futsal',players:mkPlayers(4,4,0),ball:{x:50,y:50},paths:[],objects:[],phases:['Fase 1']};setItems([...items,x]);setSel(x.id)}
+ const add=()=>{const x={id:'ex'+Date.now(),title:'',author:'Cavadas Manager',playersCount:8,equipment:'',category:'',phase:'',duration:10,objective:'',description:'',image:'',notes:'',field:'futsal',players:mkPlayers(4,4,0),ball:{x:50,y:50},paths:[],objects:[],phases:['Fase 1']};setItems([...items,x]);setSel(x.id)}
  const upd=(k,v)=>setItems(items.map(x=>x.id===sel?{...x,[k]:v}:x))
  const del=()=>{if(cur&&confirm('Eliminar este exercício?')){const n=items.filter(x=>x.id!==sel);setItems(n);setSel(n[0]?.id||null)}}
  const photo=e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>upd('image',r.result);r.readAsDataURL(f)}
@@ -558,7 +590,7 @@ function ExerciseLibrary({tr,exercises,setExercises,setPage}){
  return <div className="exerciseWorkspace">
   <aside className="exerciseLibrary card"><div className="paneTitle"><div><h2>{tr.exercises}</h2><small>{items.length} exercícios</small></div><button className="primary" onClick={add}><Plus/> {tr.add}</button></div>
    <input placeholder="Pesquisar exercício" value={q} onChange={e=>setQ(e.target.value)}/>
-   <div className="exerciseList">{list.map(x=><button key={x.id} className={'exerciseListItem '+(x.id===sel?'selected':'')} onClick={()=>setSel(x.id)}><div className="exerciseThumb">{x.image?<img src={x.image}/>:<Activity/>}</div><div><b>{x.title||x.name||'Novo exercício'}</b><small>{x.libraryBase?'★ Biblioteca Base · ':''}{x.category||'Sem categoria'} · {x.playersCount??x.players?.length??0} jogadores · 🧤 {({none:'Sem GR',our:'GR nosso',opp:'GR adversário',both:'Ambos GR'}[x.gkMode||'none'])}</small></div></button>)}</div>
+   <div className="exerciseList">{list.map(x=><button key={x.id} className={'exerciseListItem '+(x.id===sel?'selected':'')} onClick={()=>setSel(x.id)}><div className="exerciseThumb">{x.image?<img src={x.image}/>:<Activity/>}</div><div><b>{x.title||x.name||'Novo exercício'}</b><small>{x.libraryBase?'★ Biblioteca Base · ':''}{x.category||'Sem categoria'} · {x.playersCount??x.players?.length??0} jogadores</small></div></button>)}</div>
   </aside>
   <section className="exerciseDetail card">{cur?<>
    <div className="exerciseHeader"><div className="exerciseTitleFields"><input className="exerciseTitle" placeholder="Nome do exercício" value={cur.title||cur.name||''} onChange={e=>upd('title',e.target.value)}/><input className="exerciseAuthor" placeholder="Autor" value={cur.author||''} onChange={e=>upd('author',e.target.value)}/></div><div className="exerciseActions"><button className="primary" onClick={editBoard}><Activity/> ▶ Abrir animação</button><button className="danger" onClick={del}><Trash2/> {tr.delete}</button></div></div>
@@ -566,7 +598,6 @@ function ExerciseLibrary({tr,exercises,setExercises,setPage}){
    <div className="exerciseMetrics"><div><strong>{pcount}</strong><span>Número de jogadores</span></div><div><span>Duração</span><b>{cur.duration||0} min</b></div></div>
    <div className="exerciseForm">
     <Field label="Número de jogadores"><input type="number" min="1" value={pcount} onChange={e=>upd('playersCount',Number(e.target.value))}/></Field>
-    <Field label="Guarda-redes"><select value={cur.gkMode||'none'} onChange={e=>upd('gkMode',e.target.value)}><option value="none">Sem GR</option><option value="our">GR nosso</option><option value="opp">GR adversário</option><option value="both">Ambos os GR</option></select></Field>
     <Field label="Duração (min)"><input type="number" min="1" value={cur.duration||10} onChange={e=>upd('duration',Number(e.target.value))}/></Field>
     <Field label="Material"><input value={cur.equipment||''} onChange={e=>upd('equipment',e.target.value)}/></Field>
     <Field label="Categoria"><select value={cur.category||''} onChange={e=>upd('category',e.target.value)}><option value="">—</option><option>Tática ofensiva</option><option>Tática defensiva</option><option>Técnica</option><option>Físico</option><option>Guarda-redes</option><option>Bola parada</option><option>Jogo reduzido</option></select></Field>
