@@ -607,7 +607,17 @@ function Board({tr,exercises,setExercises}){
  const down=e=>{if(playing)return;const p=point(e);if(tool==='move'||tool==='pass')setPathStart(p)}
  const move=e=>{if(!drag||playing)return;const p=point(e);if(drag.kind==='ball')setBall(p);else setPlayers(v=>v.map(x=>x.id===drag.id?{...x,...p}:x))}
  const up=e=>{if(playing)return;if(pathStart){const q=point(e);setPaths(v=>[...v,{id:Date.now()+Math.random(),type:tool,x1:pathStart.x,y1:pathStart.y,x2:q.x,y2:q.y}]);setPathStart(null)}setDrag(null)}
- const addPlayer=team=>{const n=players.filter(p=>p.team===team).length+1;setPlayers(v=>[...v,{id:team+Date.now(),team,x:team==='a'?30:70,y:50,label:String(n)}])}
+ const addPlayer=(team,role='field')=>{
+  const own=team==='a'
+  if(role==='gk'){
+    const exists=players.some(p=>p.team===team&&String(p.label).toUpperCase()==='GR')
+    if(exists)return alert(own?'Já existe um GR da nossa equipa no campo.':'Já existe um GR adversário no campo.')
+    setPlayers(v=>[...v,{id:team+'gk'+Date.now(),team,role:'gk',x:own?8:92,y:50,label:'GR'}])
+    return
+  }
+  const n=players.filter(p=>p.team===team&&String(p.label).toUpperCase()!=='GR').length+1
+  setPlayers(v=>[...v,{id:team+Date.now(),team,role:'field',x:own?30:70,y:50,label:String(n)}])
+}
  const nextStep=()=>{const now=commitSteps();const n={id:Date.now(),name:`Passo ${now.length+1}`,players:players.map(p=>({...p})),ball:{...ball},paths:[],duration:1.15};setSteps([...now,n]);setPaths([]);setStep(now.length)}
  const duplicate=()=>{const now=commitSteps(),n={...now[step],id:Date.now(),name:`Passo ${now.length+1}`,players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p}))};setSteps([...now,n]);setStep(now.length)}
  const lerp=(a,b,t)=>a+(b-a)*t
@@ -669,7 +679,7 @@ function Board({tr,exercises,setExercises}){
  const saveVariant=()=>{const finalSteps=commitSteps(),item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')}
  return <div className="simpleBoard">
   <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
-  <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('d')}>＋ Adversário</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
+  <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a','field')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('a','gk')}>🧤 GR nossa equipa</button><button onClick={()=>addPlayer('d','field')}>＋ Adversário</button><button onClick={()=>addPlayer('d','gk')}>🧤 GR adversário</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
   <div className={fullscreen?'pitchFullscreen':'card pitchCard'}>
    <div className="pitchViewportBar">
     <button className="viewportBtn" onClick={()=>setFullscreen(v=>!v)}>{fullscreen?'✕ Fechar':'⛶ Ecrã inteiro'}</button>
@@ -679,7 +689,7 @@ function Board({tr,exercises,setExercises}){
    <div className="pitchFit"><div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
    <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/><div className="pitchArea left"/><div className="pitchArea right"/><div className="pitchGoal left"/><div className="pitchGoal right"/>
    {!playing&&<svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={p.type} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>}
-   {players.map(p=><div key={p.id} className={`coachPiece ${p.team}`} style={{left:`${p.x}%`,top:`${p.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
+   {players.map(p=><div key={p.id} className={`coachPiece ${p.team} ${String(p.label).toUpperCase()==='GR'?'gk':''}`} style={{left:`${p.x}%`,top:`${p.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
    <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>
   </div></div></div>
   <div className="card playSteps">

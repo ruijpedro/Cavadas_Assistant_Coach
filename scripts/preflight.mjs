@@ -94,7 +94,15 @@ for(const token of ['analyseDocumentV2','PPTX Motion V2','PDF Vision V2','Imagem
 }
 if(!s.includes('FOTO / MANUSCRITO')||!s.includes('supportedImportKind')){console.error('V19 importer UI missing');process.exit(1);}
 
-for(const token of ['GR nossa equipa','GR adversário',"addPlayer('a','gk')","addPlayer('d','gk')"]){
- if(!s.includes(token)){console.error('PRECHECK FAIL V22.2.1 GK:',token);process.exit(1);}
+
+// V22.2.2 — validate goalkeeper support without depending on one fragile label string.
+const gkChecks=[
+  /addPlayer\(\s*['"]a['"]\s*,\s*['"]gk['"]\s*\)/,
+  /addPlayer\(\s*['"]d['"]\s*,\s*['"]gk['"]\s*\)/,
+  /role\s*===\s*['"]gk['"]/,
+  /label\s*:\s*['"]GR['"]/
+];
+for(const rx of gkChecks){
+  if(!rx.test(s)){console.error('PRECHECK FAIL V22.2.2 GK:',String(rx));process.exit(1);}
 }
-console.log('Preflight V22.2.1 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
+console.log('Preflight V22.2.2 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
