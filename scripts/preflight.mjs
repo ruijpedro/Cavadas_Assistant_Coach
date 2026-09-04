@@ -93,4 +93,8 @@ for(const token of ['analyseDocumentV2','PPTX Motion V2','PDF Vision V2','Imagem
  if(!engineV2.includes(token)){console.error('V19 preflight fail:',token);process.exit(1);}
 }
 if(!s.includes('FOTO / MANUSCRITO')||!s.includes('supportedImportKind')){console.error('V19 importer UI missing');process.exit(1);}
-console.log('Preflight V22.2 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
+
+for(const token of ['GR nossa equipa','GR adversário',"addPlayer('a','gk')","addPlayer('d','gk')"]){
+ if(!s.includes(token)){console.error('PRECHECK FAIL V22.2.1 GK:',token);process.exit(1);}
+}
+console.log('Preflight V22.2.1 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
