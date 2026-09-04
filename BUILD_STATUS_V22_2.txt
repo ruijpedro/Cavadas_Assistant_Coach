@@ -1,0 +1,6 @@
+Cavadas Manager V22.2
+Preflight: PASSED
+Library check: 5 Cantos + 5 Faltas + 5 Saídas de Pressão + 5 Foras + 5 Exercícios GR: PASSED
+GR material fields: PASSED
+Existing user-created exercises/variants/imports are preserved by migration.
+Full Vite/Android build: to be executed by GitHub Actions.
