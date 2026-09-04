@@ -45,8 +45,8 @@ if(s.includes("setPaths((x.paths||[]).map(p=>({...p}));")){
 
 
 
-const v17Required=['TACTICAL_LIBRARY','addCorner(5','addPress(5','lib-off31','lib-off40','▶ Abrir animação','Guardar variante','curvePoint','animControls','gw_tactical_library_v17_1'];
-for(const token of v17Required){if(!s.includes(token)){console.error('PRECHECK FAIL V17:',token);process.exit(1);}}
+const v22LibraryRequired=['TACTICAL_LIBRARY','v22-corner-5','v22-free-5','v22-press-5','v22-kickin-5','gw_library_clean_v22_2','🧤 Específico GR · 5'];
+for(const token of v22LibraryRequired){if(!s.includes(token)){console.error('PRECHECK FAIL V22.2 LIBRARY:',token);process.exit(1);}}
 
 const required=[
   "<Nav label={tr.board}",
@@ -93,4 +93,4 @@ for(const token of ['analyseDocumentV2','PPTX Motion V2','PDF Vision V2','Imagem
  if(!engineV2.includes(token)){console.error('V19 preflight fail:',token);process.exit(1);}
 }
 if(!s.includes('FOTO / MANUSCRITO')||!s.includes('supportedImportKind')){console.error('V19 importer UI missing');process.exit(1);}
-console.log('Preflight V22.1 OK — navegação, importador e módulos principais validados.');
+console.log('Preflight V22.2 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
