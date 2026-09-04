@@ -44,103 +44,209 @@ async function sharePdf(id,filename,title){
 
 
 
-// V17 — Biblioteca tática base. Conteúdos adaptados à mecânica da app a partir
-// da estrutura de treino do PPT do treinador: sistemas, bolas de saída, cantos,
-// livres/foras e saídas de pressão. A biblioteca é deliberadamente curta.
-const tp=(id,title,category,objective,description,steps,duration=10)=>({
- id,title,author:'RJP / Cavadas Manager',category,phase:'Aquisição de competências',
- duration,objective,description,notes:'Biblioteca Base V17 · repetir e consolidar antes de introduzir variantes.',
+
+// V22.2 — Biblioteca tática limpa e animada.
+// 20 situações: 5 cantos + 5 faltas + 5 saídas de pressão + 5 foras.
+// Cada entrada usa passos reais do motor de animação e permanece editável.
+const tp=(id,title,category,objective,description,steps,duration=8,whenUse='',keyPoints='')=>({
+ id,title,author:'Cavadas Manager',category,phase:'Aplicação em jogo',
+ duration,objective,description,
+ notes:[whenUse&&`Quando usar: ${whenUse}`,keyPoints&&`Pontos-chave: ${keyPoints}`].filter(Boolean).join(' · '),
  playersCount:steps[0]?.players?.length||0,field:'futsal',
  board:{players:steps[0]?.players||[],ball:steps[0]?.ball||{x:50,y:50},steps},
- source:'PPT Treino / adaptação Cavadas Manager',libraryBase:true
+ source:'Biblioteca Tática V22.2 · adaptação técnico-tática',libraryBase:true,animated:true
 })
 const P=(id,team,x,y,label)=>({id,team,x,y,label:String(label)})
-const S=(name,players,ball,paths=[],duration=1.15)=>({id:name,name,players,ball,paths,duration})
+const S=(name,players,ball,paths=[],duration=1.05)=>({id:name,name,players,ball,paths,duration})
 const A=(x,y,n)=>P('a'+n,'a',x,y,n), D=(x,y,n)=>P('d'+n,'d',x,y,n)
+const M=(type,x1,y1,x2,y2)=>({id:'p'+Math.random().toString(36).slice(2),type,x1,y1,x2,y2})
+
 const TACTICAL_LIBRARY=[
- tp('lib-3x1','3x1 · Conservar e sair','Jogo reduzido','Criar linhas de passe e decidir com vantagem numérica.','3 atacantes contra 1 defensor. Máximo 2 toques; após 6 passes procurar saída/finalização.',[
-  S('Passo 1',[A(24,25,1),A(24,58,2),A(48,42,3),D(38,42,1)],{x:24,y:25}),
-  S('Passo 2',[A(24,25,1),A(30,64,2),A(54,34,3),D(40,46,1)],{x:54,y:34}),
-  S('Passo 3',[A(28,22,1),A(35,64,2),A(68,42,3),D(49,45,1)],{x:68,y:42})
- ],8),
- tp('lib-3x2','3x2 · Progressão e finalização','Jogo reduzido','Atacar rapidamente uma superioridade 3x2.','Três atacantes progridem contra dois defensores. Fixar, soltar no momento certo e atacar segundo poste.',[
-  S('Passo 1',[A(25,25,1),A(25,58,2),A(42,42,3),D(59,30,1),D(59,55,2)],{x:42,y:42}),
-  S('Passo 2',[A(38,20,1),A(38,64,2),A(56,42,3),D(64,28,1),D(64,54,2)],{x:38,y:20}),
-  S('Passo 3',[A(58,24,1),A(73,62,2),A(68,40,3),D(73,31,1),D(72,49,2)],{x:73,y:62})
- ],10),
- tp('lib-gr1x2','1 + GR x 2 · Saída curta','Tática ofensiva','Usar o guarda-redes para criar superioridade na primeira linha.','Progressão simples do PPT: GR + 1 jogador contra 2 opositores.',[
-  S('Passo 1',[A(10,42,'GR'),A(28,42,1),D(42,28,1),D(42,56,2)],{x:10,y:42}),
-  S('Passo 2',[A(10,42,'GR'),A(34,25,1),D(38,31,1),D(45,53,2)],{x:34,y:25}),
-  S('Passo 3',[A(13,42,'GR'),A(55,30,1),D(46,34,1),D(48,55,2)],{x:55,y:30})
- ],8),
- tp('lib-gr2x3','2 + GR x 3 · Construção','Tática ofensiva','Dar continuidade à saída sob pressão com apoio e largura.','Progressão do PPT: GR + 2 jogadores contra 3 opositores.',[
-  S('Passo 1',[A(9,42,'GR'),A(26,23,1),A(26,61,2),D(42,21,1),D(45,42,2),D(42,63,3)],{x:9,y:42}),
-  S('Passo 2',[A(10,42,'GR'),A(34,18,1),A(31,66,2),D(43,24,1),D(46,42,2),D(42,59,3)],{x:34,y:18}),
-  S('Passo 3',[A(13,42,'GR'),A(55,25,1),A(39,65,2),D(48,27,1),D(51,43,2),D(45,58,3)],{x:55,y:25})
- ],10),
- tp('lib-gr4x5','4 + GR x 5 · Saída coletiva','Tática ofensiva','Reconhecer apoios, coberturas ofensivas e homem livre.','Progressão do PPT para contexto próximo do jogo: GR + 4 contra 5.',[
-  S('Passo 1',[A(8,42,'GR'),A(24,18,1),A(24,66,2),A(38,30,3),A(38,54,4),D(48,18,1),D(50,32,2),D(53,46,3),D(49,62,4),D(65,42,5)],{x:8,y:42}),
-  S('Passo 2',[A(9,42,'GR'),A(31,16,1),A(28,68,2),A(45,26,3),A(43,57,4),D(50,20,1),D(53,34,2),D(56,46,3),D(51,61,4),D(68,43,5)],{x:31,y:16}),
-  S('Passo 3',[A(12,42,'GR'),A(50,18,1),A(36,68,2),A(58,31,3),A(49,57,4),D(55,22,1),D(60,36,2),D(62,48,3),D(56,61,4),D(72,43,5)],{x:58,y:31})
- ],12),
- tp('lib-def-lines','Defensivo · Linhas e coberturas','Tática defensiva','Manter linhas compactas, cobertura e equilíbrio.','Modelo defensivo base: deslocamento conjunto da primeira e segunda linhas em função da bola.',[
-  S('Passo 1',[A(55,20,1),A(55,63,2),A(68,31,3),A(68,53,4),D(34,22,1),D(34,62,2),D(43,42,3)],{x:34,y:22}),
-  S('Passo 2',[A(51,18,1),A(58,59,2),A(64,30,3),A(70,51,4),D(40,18,1),D(34,58,2),D(46,39,3)],{x:40,y:18}),
-  S('Passo 3',[A(56,27,1),A(60,64,2),A(68,38,3),A(72,56,4),D(43,27,1),D(39,65,2),D(51,46,3)],{x:43,y:27})
- ],10),
- tp('lib-def-trocas','Defensivo · Trocas','Tática defensiva','Realizar trocas defensivas sem perder cobertura central.','Dois defensores coordenam troca perante cruzamento dos atacantes; restantes fecham profundidade.',[
-  S('Passo 1',[A(54,25,1),A(54,58,2),A(69,34,3),A(69,52,4),D(39,25,1),D(39,58,2),D(48,41,3)],{x:39,y:25}),
-  S('Passo 2',[A(58,39,1),A(56,45,2),A(70,29,3),A(70,57,4),D(47,55,1),D(47,29,2),D(52,42,3)],{x:47,y:55}),
-  S('Passo 3',[A(56,57,1),A(58,25,2),A(69,31,3),A(69,54,4),D(50,59,1),D(50,24,2),D(57,42,3)],{x:50,y:59})
- ],10),
- tp('lib-off31','Modelo Ofensivo 3:1','Tática ofensiva','Fixar profundidade com pivô e criar linhas de passe em triângulo.','Estrutura 3:1: fixo + alas + pivô. Circular sem destruir distâncias úteis.',[
-  S('Passo 1',[A(27,42,1),A(43,20,2),A(43,64,3),A(73,42,4),D(57,25,1),D(57,58,2),D(66,42,3)],{x:27,y:42}),
-  S('Passo 2',[A(36,33,1),A(50,16,2),A(47,64,3),A(76,48,4),D(59,27,1),D(58,57,2),D(68,43,3)],{x:50,y:16}),
-  S('Passo 3',[A(45,38,1),A(63,22,2),A(54,66,3),A(78,46,4),D(65,29,1),D(62,57,2),D(71,43,3)],{x:78,y:46})
- ],12),
- tp('lib-off40','Modelo Ofensivo 4:0','Tática ofensiva','Criar mobilidade e espaço através de rotações coordenadas.','Estrutura 4:0: quatro jogadores em duas alturas, com troca e ataque ao espaço libertado.',[
-  S('Passo 1',[A(31,22,1),A(31,62,2),A(54,25,3),A(54,59,4),D(65,23,1),D(65,61,2),D(74,35,3),D(74,50,4)],{x:31,y:22}),
-  S('Passo 2',[A(43,31,1),A(43,53,2),A(61,17,3),A(61,67,4),D(67,25,1),D(67,59,2),D(75,36,3),D(75,49,4)],{x:43,y:31}),
-  S('Passo 3',[A(57,48,1),A(57,36,2),A(76,20,3),A(76,64,4),D(69,27,1),D(69,57,2),D(77,37,3),D(77,48,4)],{x:76,y:20})
- ],12),
- tp('lib-kickoff1','Bola de saída 1 · Abertura lateral','Bola parada','Sair da bola de saída com largura e apoio atrás.','Primeiro passe lateral, apoio central e progressão pelo corredor contrário.',[
-  S('Passo 1',[A(48,42,1),A(52,42,2),A(38,20,3),A(38,64,4),D(63,27,1),D(63,57,2)],{x:50,y:42}),
-  S('Passo 2',[A(45,42,1),A(57,42,2),A(48,18,3),A(35,64,4),D(65,28,1),D(65,56,2)],{x:48,y:18}),
-  S('Passo 3',[A(49,45,1),A(65,35,2),A(63,20,3),A(48,66,4),D(68,29,1),D(68,55,2)],{x:65,y:35})
- ],6),
- tp('lib-kickoff2','Bola de saída 2 · Diagonal','Bola parada','Atacar rapidamente o espaço contrário à primeira aproximação.','Movimento de engano junto à bola e diagonal do ala para receber em progressão.',[
-  S('Passo 1',[A(48,42,1),A(52,42,2),A(36,22,3),A(36,62,4),D(63,26,1),D(63,58,2)],{x:50,y:42}),
-  S('Passo 2',[A(43,42,1),A(57,36,2),A(50,28,3),A(46,63,4),D(65,27,1),D(66,56,2)],{x:57,y:36}),
-  S('Passo 3',[A(48,48,1),A(72,24,2),A(61,33,3),A(56,65,4),D(69,29,1),D(69,54,2)],{x:72,y:24})
- ],6),
+ // CANTOS
+ tp('v22-corner-1','Canto 1 · Curto + 1.º poste','Canto',
+ 'Criar uma finalização rápida no primeiro poste após apoio curto.',
+ 'O executante joga curto, recebe devolução/apoio e procura a entrada agressiva no primeiro poste.',[
+  S('Posição inicial',[A(92,78,1),A(78,66,2),A(72,39,3),A(60,52,4),D(85,58,1),D(81,43,2),D(73,52,3),D(88,49,'GR')],{x:95,y:80}),
+  S('Apoio curto',[A(92,78,1),A(82,61,2),A(76,35,3),A(66,50,4),D(85,57,1),D(81,43,2),D(74,52,3),D(88,49,'GR')],{x:82,y:61},[M('pass',95,80,82,61)]),
+  S('Ataque ao poste',[A(86,69,1),A(84,55,2),A(87,39,3),A(73,47,4),D(87,56,1),D(82,43,2),D(77,50,3),D(89,49,'GR')],{x:84,y:55},[M('move',76,35,87,39),M('move',66,50,73,47)]),
+  S('Finalização',[A(88,65,1),A(86,53,2),A(91,42,3),A(79,46,4),D(88,56,1),D(84,44,2),D(79,50,3),D(90,49,'GR')],{x:91,y:42},[M('pass',86,53,91,42)])
+ ],7,'Contra defesa que protege muito a zona central.','Entrada forte no 1.º poste e cobertura exterior para segunda bola.'),
+
+ tp('v22-corner-2','Canto 2 · Bloqueio + remate frontal','Canto',
+ 'Libertar o finalizador frontal através de bloqueio legal e timing coordenado.',
+ 'Um jogador fixa/bloqueia a linha defensiva enquanto o rematador entra de frente.',[
+  S('Posição inicial',[A(93,77,1),A(79,57,2),A(70,31,3),A(61,48,4),D(85,57,1),D(81,42,2),D(74,49,3),D(90,49,'GR')],{x:95,y:79}),
+  S('Bloqueio',[A(93,77,1),A(82,51,2),A(75,31,3),A(67,48,4),D(86,56,1),D(82,42,2),D(76,49,3),D(90,49,'GR')],{x:95,y:79},[M('move',79,57,82,51)]),
+  S('Entrada frontal',[A(92,74,1),A(84,51,2),A(82,34,3),A(71,49,4),D(87,56,1),D(83,42,2),D(78,49,3),D(90,49,'GR')],{x:82,y:34},[M('pass',95,79,82,34),M('move',75,31,82,34)]),
+  S('Remate',[A(89,68,1),A(85,51,2),A(86,39,3),A(74,50,4),D(88,56,1),D(84,43,2),D(79,50,3),D(91,49,'GR')],{x:90,y:48},[M('shot',86,39,90,48)])
+ ],7,'Contra individual ou zona com defensores muito próximos da baliza.','Bloqueio sem falta; rematador deve chegar de frente e equilibrado.'),
+
+ tp('v22-corner-3','Canto 3 · 2.º poste','Canto',
+ 'Atrair a defesa ao lado da bola e finalizar no poste contrário.',
+ 'A circulação curta desloca a defesa e liberta o jogador do segundo poste.',[
+  S('Posição inicial',[A(94,78,1),A(80,62,2),A(76,30,3),A(65,52,4),D(86,59,1),D(83,43,2),D(76,50,3),D(90,49,'GR')],{x:96,y:80}),
+  S('Atração',[A(94,78,1),A(83,61,2),A(77,28,3),A(70,51,4),D(87,58,1),D(84,44,2),D(78,50,3),D(90,49,'GR')],{x:83,y:61},[M('pass',96,80,83,61)]),
+  S('Mudança de corredor',[A(91,72,1),A(85,58,2),A(86,29,3),A(76,47,4),D(88,57,1),D(85,44,2),D(80,50,3),D(90,49,'GR')],{x:86,y:29},[M('pass',83,61,86,29)]),
+  S('2.º poste',[A(89,70,1),A(87,55,2),A(90,32,3),A(91,58,4),D(89,56,1),D(86,45,2),D(82,50,3),D(91,49,'GR')],{x:91,y:58},[M('pass',90,32,91,58)])
+ ],7,'Contra defesa que bascula agressivamente para a bola.','Atacar o poste contrário apenas quando a defesa fecha o lado da bola.'),
+
+ tp('v22-corner-4','Canto 4 · Falso curto + diagonal','Canto',
+ 'Enganar a defesa com ameaça curta e atacar o espaço diagonal.',
+ 'O apoio curto arrasta um defensor; o terceiro homem entra diagonalmente para receber.',[
+  S('Posição inicial',[A(94,77,1),A(81,64,2),A(74,32,3),A(62,49,4),D(86,59,1),D(82,43,2),D(75,51,3),D(90,49,'GR')],{x:96,y:79}),
+  S('Falso curto',[A(94,77,1),A(86,65,2),A(76,30,3),A(68,49,4),D(88,60,1),D(83,43,2),D(77,51,3),D(90,49,'GR')],{x:96,y:79},[M('move',81,64,86,65)]),
+  S('Diagonal',[A(92,73,1),A(86,63,2),A(85,38,3),A(74,48,4),D(89,59,1),D(84,44,2),D(79,51,3),D(90,49,'GR')],{x:85,y:38},[M('pass',96,79,85,38)]),
+  S('Finalização/último passe',[A(90,70,1),A(88,59,2),A(89,42,3),A(88,56,4),D(90,58,1),D(85,45,2),D(81,51,3),D(91,49,'GR')],{x:88,y:56},[M('pass',89,42,88,56)])
+ ],7,'Contra marcação individual que reage ao primeiro movimento.','O falso curto deve ser credível; diagonal só entra depois do defensor sair.'),
+
+ tp('v22-corner-5','Canto 5 · Saída frontal + segunda bola','Canto',
+ 'Criar remate exterior mantendo cobertura para ressalto e transição defensiva.',
+ 'A bola sai da zona congestionada para um finalizador frontal, com um jogador preparado para a segunda bola.',[
+  S('Posição inicial',[A(94,78,1),A(83,55,2),A(74,38,3),A(60,49,4),D(87,58,1),D(83,43,2),D(76,50,3),D(90,49,'GR')],{x:96,y:80}),
+  S('Abertura frontal',[A(94,78,1),A(85,56,2),A(78,39,3),A(67,48,4),D(88,58,1),D(84,44,2),D(78,50,3),D(90,49,'GR')],{x:78,y:39},[M('pass',96,80,78,39)]),
+  S('Preparar remate',[A(92,74,1),A(87,55,2),A(83,41,3),A(71,48,4),D(89,57,1),D(85,44,2),D(79,50,3),D(90,49,'GR')],{x:83,y:41},[M('move',78,39,83,41)]),
+  S('Remate + equilíbrio',[A(90,71,1),A(88,55,2),A(87,43,3),A(74,49,4),D(90,57,1),D(86,45,2),D(80,50,3),D(91,49,'GR')],{x:91,y:49},[M('shot',87,43,91,49)])
+ ],7,'Contra bloco baixo/zonal.','Um jogador fica fora da zona de finalização para controlar ressalto e contra-ataque.'),
+
+ // FALTAS
+ tp('v22-free-1','Falta 1 · Remate direto preparado','Falta',
+ 'Criar linha limpa para remate frontal.',
+ 'Dois jogadores ameaçam a bola, um abre a barreira e o finalizador ataca a trajetória.',[
+  S('Posição inicial',[A(73,42,1),A(70,52,2),A(61,33,3),A(61,61,4),D(82,39,1),D(82,47,2),D(88,49,'GR')],{x:72,y:47}),
+  S('Ameaça dupla',[A(75,41,1),A(74,53,2),A(64,32,3),A(64,61,4),D(82,39,1),D(82,47,2),D(88,49,'GR')],{x:72,y:47}),
+  S('Toque curto',[A(78,41,1),A(73,51,2),A(69,34,3),A(66,61,4),D(83,39,1),D(83,47,2),D(88,49,'GR')],{x:78,y:41},[M('pass',72,47,78,41)]),
+  S('Remate',[A(80,42,1),A(75,51,2),A(71,35,3),A(67,61,4),D(84,39,1),D(84,47,2),D(89,49,'GR')],{x:89,y:49},[M('shot',80,42,89,49)])
+ ],7,'Falta frontal com ângulo de remate.','Execução rápida após toque legal; atacar espaço exterior da barreira.'),
+
+ tp('v22-free-2','Falta 2 · Bloqueio + passe lateral','Falta',
+ 'Libertar um rematador lateral retirando-o da linha direta da barreira.',
+ 'Um jogador bloqueia/condiciona a saída defensiva e a bola é deslocada lateralmente.',[
+  S('Inicial',[A(72,42,1),A(69,52,2),A(63,28,3),A(64,62,4),D(82,40,1),D(82,48,2),D(88,49,'GR')],{x:72,y:47}),
+  S('Bloqueio',[A(74,42,1),A(76,50,2),A(66,27,3),A(67,62,4),D(82,40,1),D(83,48,2),D(88,49,'GR')],{x:72,y:47},[M('move',69,52,76,50)]),
+  S('Passe lateral',[A(77,42,1),A(77,50,2),A(78,29,3),A(69,62,4),D(83,40,1),D(84,48,2),D(88,49,'GR')],{x:78,y:29},[M('pass',72,47,78,29)]),
+  S('Remate cruzado',[A(79,42,1),A(78,50,2),A(82,32,3),A(71,61,4),D(84,40,1),D(85,48,2),D(89,49,'GR')],{x:89,y:49},[M('shot',82,32,89,49)])
+ ],7,'Quando a barreira fecha o remate frontal.','Passar fora da barreira e rematar antes da recuperação defensiva.'),
+
+ tp('v22-free-3','Falta 3 · Simulação + entrada interior','Falta',
+ 'Usar uma simulação para deslocar a barreira e atacar o corredor interior.',
+ 'O primeiro jogador ameaça remate; o segundo recebe no espaço criado por dentro.',[
+  S('Inicial',[A(71,44,1),A(68,54,2),A(60,35,3),A(60,61,4),D(82,40,1),D(82,48,2),D(88,49,'GR')],{x:71,y:47}),
+  S('Simulação',[A(77,44,1),A(69,54,2),A(64,35,3),A(63,60,4),D(83,40,1),D(83,48,2),D(88,49,'GR')],{x:71,y:47},[M('move',71,44,77,44)]),
+  S('Entrada interior',[A(79,44,1),A(77,51,2),A(69,36,3),A(66,59,4),D(84,40,1),D(84,48,2),D(88,49,'GR')],{x:77,y:51},[M('pass',71,47,77,51)]),
+  S('Finalização',[A(80,44,1),A(84,49,2),A(71,36,3),A(68,59,4),D(85,40,1),D(85,48,2),D(89,49,'GR')],{x:89,y:49},[M('shot',84,49,89,49)])
+ ],7,'Contra barreira agressiva ao primeiro rematador.','A simulação deve obrigar a barreira a reagir; entrada interior no instante seguinte.'),
+
+ tp('v22-free-4','Falta 4 · Passe diagonal + 2.º poste','Falta',
+ 'Criar finalização no lado contrário da baliza.',
+ 'A bola sai diagonalmente para um apoio e o jogador oposto ataca o segundo poste.',[
+  S('Inicial',[A(70,42,1),A(68,52,2),A(60,27,3),A(60,65,4),D(82,40,1),D(82,48,2),D(88,49,'GR')],{x:70,y:47}),
+  S('Passe diagonal',[A(73,42,1),A(71,52,2),A(77,29,3),A(64,64,4),D(83,40,1),D(83,48,2),D(88,49,'GR')],{x:77,y:29},[M('pass',70,47,77,29)]),
+  S('Ataque ao poste',[A(76,43,1),A(73,52,2),A(82,31,3),A(86,62,4),D(84,40,1),D(84,48,2),D(88,49,'GR')],{x:82,y:31},[M('move',64,64,86,62)]),
+  S('Último passe',[A(78,43,1),A(75,52,2),A(86,34,3),A(91,59,4),D(85,40,1),D(85,48,2),D(89,49,'GR')],{x:91,y:59},[M('pass',86,34,91,59)])
+ ],7,'Quando a defesa protege excessivamente a zona frontal.','Passe diagonal rápido e chegada tardia ao segundo poste.'),
+
+ tp('v22-free-5','Falta 5 · Segunda opção / reciclar','Falta',
+ 'Manter posse quando a solução principal é anulada.',
+ 'A primeira ameaça fixa a barreira; sem vantagem, a equipa recicla e reinicia com largura.',[
+  S('Inicial',[A(72,43,1),A(69,53,2),A(60,29,3),A(58,63,4),D(82,40,1),D(82,48,2),D(88,49,'GR')],{x:72,y:47}),
+  S('Ameaça',[A(77,43,1),A(70,53,2),A(64,29,3),A(62,63,4),D(83,40,1),D(83,48,2),D(88,49,'GR')],{x:72,y:47}),
+  S('Reciclar',[A(75,43,1),A(72,53,2),A(58,24,3),A(54,68,4),D(83,40,1),D(83,48,2),D(88,49,'GR')],{x:58,y:24},[M('pass',72,47,58,24)]),
+  S('Reorganizar',[A(66,42,1),A(62,55,2),A(50,20,3),A(50,69,4),D(80,39,1),D(80,49,2),D(88,49,'GR')],{x:50,y:20},[M('move',58,24,50,20)])
+ ],7,'Quando a defesa lê a jogada ensaiada.','Não forçar a finalização; preservar posse e equilíbrio.'),
+
+ // SAÍDAS DE PRESSÃO
+ tp('v22-press-1','Saída de pressão 1 · GR + ala','Saída de pressão',
+ 'Criar superioridade na primeira linha e sair pelo corredor lateral.',
+ 'GR fixa a primeira pressão, ala abre, fixo dá apoio por baixo e pivô mantém profundidade.',[
+  S('Inicial',[A(8,49,'GR'),A(24,22,1),A(24,72,2),A(43,35,3),A(66,49,4),D(35,22,1),D(38,46,2),D(36,70,3),D(58,49,4)],{x:8,y:49}),
+  S('Atrair pressão',[A(10,49,'GR'),A(28,18,1),A(27,75,2),A(45,34,3),A(68,49,4),D(31,23,1),D(34,47,2),D(33,69,3),D(59,49,4)],{x:10,y:49}),
+  S('Passe no ala',[A(11,49,'GR'),A(39,17,1),A(28,76,2),A(48,37,3),A(69,49,4),D(38,22,1),D(40,47,2),D(35,68,3),D(60,49,4)],{x:39,y:17},[M('pass',10,49,39,17)]),
+  S('3.º homem',[A(12,49,'GR'),A(50,19,1),A(35,75,2),A(58,35,3),A(73,49,4),D(45,23,1),D(47,47,2),D(41,67,3),D(64,49,4)],{x:58,y:35},[M('pass',50,19,58,35)])
+ ],9,'Contra pressão alta com marcação à primeira linha.','Atrair antes de soltar; ala recebe aberto e terceiro homem acelera.'),
+
+ tp('v22-press-2','Saída de pressão 2 · Pivô de apoio','Saída de pressão',
+ 'Usar o pivô como referência para superar a primeira linha de pressão.',
+ 'Pivô baixa/apoia, fixa um defensor e devolve de primeira para a progressão de um terceiro jogador.',[
+  S('Inicial',[A(8,49,'GR'),A(25,24,1),A(25,72,2),A(44,49,3),A(70,49,4),D(35,23,1),D(38,47,2),D(35,71,3),D(60,49,4)],{x:8,y:49}),
+  S('Pivô baixa',[A(10,49,'GR'),A(28,22,1),A(28,74,2),A(45,49,3),A(61,49,4),D(35,24,1),D(40,47,2),D(36,70,3),D(58,49,4)],{x:10,y:49},[M('move',70,49,61,49)]),
+  S('Passe vertical',[A(11,49,'GR'),A(31,20,1),A(31,75,2),A(49,47,3),A(59,49,4),D(39,24,1),D(43,47,2),D(40,69,3),D(57,49,4)],{x:59,y:49},[M('pass',10,49,59,49)]),
+  S('Devolução 3.º homem',[A(12,49,'GR'),A(45,19,1),A(34,74,2),A(60,42,3),A(63,51,4),D(45,24,1),D(49,47,2),D(44,68,3),D(60,49,4)],{x:60,y:42},[M('pass',59,49,60,42)])
+ ],9,'Quando o pivô consegue receber entre linhas ou de costas.','Pivô não deve ficar isolado; apoio próximo e chegada de ala/fixo.'),
+
+ tp('v22-press-3','Saída de pressão 3 · Troca de alas','Saída de pressão',
+ 'Desorganizar referências individuais com troca coordenada dos alas.',
+ 'Os alas cruzam alturas/lados enquanto o fixo oferece apoio central e o GR mantém solução de segurança.',[
+  S('Inicial',[A(8,49,'GR'),A(25,20,1),A(25,76,2),A(43,49,3),A(68,49,4),D(35,20,1),D(36,49,2),D(35,76,3),D(59,49,4)],{x:8,y:49}),
+  S('Troca começa',[A(10,49,'GR'),A(32,32,1),A(32,64,2),A(45,49,3),A(69,49,4),D(38,23,1),D(39,49,2),D(38,73,3),D(60,49,4)],{x:10,y:49},[M('move',25,20,32,32),M('move',25,76,32,64)]),
+  S('Saída no lado livre',[A(11,49,'GR'),A(44,60,1),A(39,35,2),A(51,49,3),A(70,49,4),D(43,26,1),D(43,49,2),D(43,70,3),D(61,49,4)],{x:44,y:60},[M('pass',10,49,44,60)]),
+  S('Progressão',[A(12,49,'GR'),A(57,65,1),A(45,31,2),A(60,49,3),A(72,49,4),D(49,28,1),D(50,49,2),D(49,68,3),D(65,49,4)],{x:60,y:49},[M('pass',57,65,60,49)])
+ ],9,'Contra marcação individual que segue referências.','Troca com timing; não aproximar jogadores em excesso.'),
+
+ tp('v22-press-4','Saída de pressão 4 · Lado contrário','Saída de pressão',
+ 'Atrair pressão a um corredor e sair no lado oposto.',
+ 'A equipa sobrecarrega um lado, atrai adversários e muda rapidamente para o ala contrário.',[
+  S('Inicial',[A(8,49,'GR'),A(25,18,1),A(25,78,2),A(43,32,3),A(67,49,4),D(35,19,1),D(38,42,2),D(35,73,3),D(58,49,4)],{x:8,y:49}),
+  S('Sobrecarga',[A(10,49,'GR'),A(31,18,1),A(28,78,2),A(36,28,3),A(65,49,4),D(32,19,1),D(35,37,2),D(36,69,3),D(57,49,4)],{x:31,y:18},[M('pass',10,49,31,18)]),
+  S('Atrair',[A(11,49,'GR'),A(39,20,1),A(31,78,2),A(43,29,3),A(66,49,4),D(38,20,1),D(41,35,2),D(39,66,3),D(58,49,4)],{x:43,y:29},[M('pass',39,20,43,29)]),
+  S('Mudança de lado',[A(12,49,'GR'),A(46,22,1),A(52,75,2),A(49,31,3),A(70,49,4),D(45,22,1),D(46,36,2),D(44,64,3),D(61,49,4)],{x:52,y:75},[M('pass',49,31,52,75)])
+ ],9,'Contra pressão basculante/agressiva ao lado da bola.','Fixar o lado antes da mudança; passe contrário deve ser tenso e seguro.'),
+
+ tp('v22-press-5','Saída de pressão 5 · Rotação 4:0','Saída de pressão',
+ 'Superar pressão com mobilidade contínua e troca de corredores.',
+ 'Quatro jogadores de campo rodam sem referência fixa, mantendo sempre largura, profundidade e cobertura.',[
+  S('Inicial',[A(8,49,'GR'),A(27,21,1),A(27,75,2),A(47,26,3),A(47,70,4),D(38,22,1),D(40,48,2),D(38,74,3),D(58,49,4)],{x:8,y:49}),
+  S('Rotação 1',[A(10,49,'GR'),A(37,31,1),A(35,66,2),A(56,18,3),A(55,78,4),D(42,23,1),D(44,48,2),D(42,72,3),D(60,49,4)],{x:37,y:31},[M('pass',10,49,37,31)]),
+  S('Rotação 2',[A(11,49,'GR'),A(50,43,1),A(47,55,2),A(64,20,3),A(64,76,4),D(48,25,1),D(49,48,2),D(48,70,3),D(64,49,4)],{x:50,y:43},[M('move',37,31,50,43),M('move',35,66,47,55)]),
+  S('Quebra de linha',[A(12,49,'GR'),A(61,50,1),A(55,48,2),A(74,23,3),A(73,73,4),D(54,27,1),D(55,48,2),D(54,68,3),D(67,49,4)],{x:74,y:23},[M('pass',61,50,74,23)])
+ ],9,'Contra pressão individual ou mista, quando a equipa domina o 4:0.','Distâncias equilibradas; só acelerar quando aparecer homem livre.'),
+
+ // FORAS
+ tp('v22-kickin-1','Fora 1 · Paralela','Fora',
+ 'Explorar o corredor exterior com corrida paralela.',
+ 'O apoio vem curto e arrasta o marcador; outro jogador ataca a linha paralela.',[
+  S('Inicial',[A(57,5,1),A(49,23,2),A(68,28,3),A(76,55,4),D(61,22,1),D(70,38,2),D(78,54,3),D(89,49,'GR')],{x:57,y:5}),
+  S('Apoio arrasta',[A(57,5,1),A(55,20,2),A(70,29,3),A(78,55,4),D(63,22,1),D(71,38,2),D(79,54,3),D(89,49,'GR')],{x:57,y:5}),
+  S('Paralela',[A(61,12,1),A(60,26,2),A(82,17,3),A(80,55,4),D(66,23,1),D(74,38,2),D(81,54,3),D(89,49,'GR')],{x:82,y:17},[M('pass',57,5,82,17)]),
+  S('Finalização/último passe',[A(66,16,1),A(65,30,2),A(88,24,3),A(89,58,4),D(71,25,1),D(78,39,2),D(83,53,3),D(90,49,'GR')],{x:89,y:58},[M('pass',88,24,89,58)])
+ ],7,'Contra defesa que fecha o interior.','Corrida paralela deve começar depois de o defensor olhar para a bola.'),
+
+ tp('v22-kickin-2','Fora 2 · Diagonal','Fora',
+ 'Atacar o espaço interior nas costas do defensor.',
+ 'O jogador exterior ameaça receber curto e o companheiro entra diagonalmente por dentro.',[
+  S('Inicial',[A(56,5,1),A(49,24,2),A(67,31,3),A(77,57,4),D(61,23,1),D(70,39,2),D(79,54,3),D(89,49,'GR')],{x:56,y:5}),
+  S('Ameaça curta',[A(56,5,1),A(55,21,2),A(69,31,3),A(79,57,4),D(63,23,1),D(71,39,2),D(80,54,3),D(89,49,'GR')],{x:56,y:5}),
+  S('Diagonal',[A(61,13,1),A(61,26,2),A(78,41,3),A(81,57,4),D(67,24,1),D(75,39,2),D(82,53,3),D(89,49,'GR')],{x:78,y:41},[M('pass',56,5,78,41)]),
+  S('Finalizar',[A(66,17,1),A(66,29,2),A(85,45,3),A(89,58,4),D(72,25,1),D(79,40,2),D(84,52,3),D(90,49,'GR')],{x:90,y:49},[M('shot',85,45,90,49)])
+ ],7,'Contra individual que acompanha o apoio curto.','Diagonal curta e agressiva, com cobertura exterior.'),
+
+ tp('v22-kickin-3','Fora 3 · Apoio + devolução','Fora',
+ 'Progredir com tabela curta e terceiro homem.',
+ 'Reposição no apoio, devolução imediata e entrada do terceiro jogador no espaço.',[
+  S('Inicial',[A(58,5,1),A(50,23,2),A(68,30,3),A(78,56,4),D(62,23,1),D(71,38,2),D(80,54,3),D(89,49,'GR')],{x:58,y:5}),
+  S('Passe curto',[A(58,5,1),A(56,20,2),A(70,30,3),A(79,56,4),D(64,23,1),D(72,38,2),D(81,54,3),D(89,49,'GR')],{x:56,y:20},[M('pass',58,5,56,20)]),
+  S('Devolução',[A(64,13,1),A(59,23,2),A(76,32,3),A(81,56,4),D(68,24,1),D(75,39,2),D(82,53,3),D(89,49,'GR')],{x:64,y:13},[M('pass',59,23,64,13)]),
+  S('3.º homem',[A(68,16,1),A(64,26,2),A(84,35,3),A(88,58,4),D(73,25,1),D(79,40,2),D(84,52,3),D(90,49,'GR')],{x:84,y:35},[M('pass',68,16,84,35)])
+ ],7,'Quando há espaço para combinar junto à linha.','Tabela rápida e terceiro homem não deve entrar cedo.'),
+
+ tp('v22-kickin-4','Fora 4 · Bloqueio + 2.º poste','Fora',
+ 'Libertar corredor interior e atacar o poste contrário.',
+ 'Um jogador faz bloqueio posicional enquanto o finalizador entra ao segundo poste.',[
+  S('Inicial',[A(61,5,1),A(55,25,2),A(72,33,3),A(78,61,4),D(65,24,1),D(74,40,2),D(81,54,3),D(89,49,'GR')],{x:61,y:5}),
+  S('Bloqueio',[A(61,5,1),A(64,25,2),A(74,33,3),A(80,61,4),D(67,25,1),D(75,40,2),D(82,54,3),D(89,49,'GR')],{x:61,y:5},[M('move',55,25,64,25)]),
+  S('Passe interior',[A(65,13,1),A(66,28,2),A(82,35,3),A(86,60,4),D(71,26,1),D(79,40,2),D(84,53,3),D(89,49,'GR')],{x:82,y:35},[M('pass',61,5,82,35)]),
+  S('2.º poste',[A(69,16,1),A(69,30,2),A(87,38,3),A(91,58,4),D(75,27,1),D(82,41,2),D(86,52,3),D(90,49,'GR')],{x:91,y:58},[M('pass',87,38,91,58)])
+ ],7,'Contra defesa que protege a linha exterior.','Bloqueio sem contacto ilegal; ataque tardio ao 2.º poste.'),
+
+ tp('v22-kickin-5','Fora 5 · Reset no GR','Fora',
+ 'Conservar posse e reorganizar quando a jogada rápida não está disponível.',
+ 'A bola volta ao guarda-redes e a equipa reabre o campo para iniciar nova construção.',[
+  S('Inicial',[A(58,5,1),A(51,24,2),A(69,31,3),A(79,57,4),A(18,49,'GR'),D(62,23,1),D(71,39,2),D(80,54,3)],{x:58,y:5}),
+  S('Sem solução',[A(58,5,1),A(55,23,2),A(70,31,3),A(80,57,4),A(18,49,'GR'),D(64,23,1),D(73,39,2),D(81,54,3)],{x:58,y:5}),
+  S('Reset GR',[A(53,12,1),A(46,20,2),A(64,32,3),A(76,58,4),A(20,49,'GR'),D(60,23,1),D(69,39,2),D(79,54,3)],{x:20,y:49},[M('pass',58,5,20,49)]),
+  S('Reabrir campo',[A(38,17,1),A(36,77,2),A(52,29,3),A(63,68,4),A(22,49,'GR'),D(51,24,1),D(55,48,2),D(55,70,3)],{x:38,y:17},[M('pass',22,49,38,17)])
+ ],7,'Quando a defesa já anulou a reposição curta/rápida.','Não forçar; usar GR para recuperar largura e estrutura.')
 ]
 
-const addCorner=(n,variant)=>TACTICAL_LIBRARY.push(tp('lib-corner'+n,'Canto '+n+' · '+variant,'Bola parada','Criar finalização organizada a partir do canto.','Canto adaptado à biblioteca base do PPT. Ensaiar primeiro sem oposição e depois com defesa ativa.',[
- S('Passo 1',[A(90,77,1),A(75,64,2),A(70,35,3),A(56,51,4),D(84,55,1),D(79,39,2),D(67,49,3)],{x:94,y:76}),
- S('Passo 2',[A(90,77,1),A(79-n,55,2),A(76,29+n*2,3),A(62+n,47,4),D(84,53,1),D(78,40,2),D(70,49,3)],{x:79-n,y:55}),
- S('Passo 3',[A(84,67,1),A(85-n,48,2),A(82,25+n*2,3),A(72+n,42,4),D(86,51,1),D(80,39,2),D(74,47,3)],{x:82,y:25+n*2})
-],7))
-addCorner(1,'Curto / 1.º poste'); addCorner(2,'Bloqueio central'); addCorner(3,'2.º poste'); addCorner(4,'Remate frontal'); addCorner(5,'Troca e finalização')
-
-const addPress=(n,side)=>TACTICAL_LIBRARY.push(tp('lib-press'+n,'Saída de pressão '+n,'Saída de pressão','Sair da pressão mantendo apoios e ocupação racional do espaço.','Uma das cinco soluções-base de saída de pressão do PPT, adaptada à animação por passos.',[
- S('Passo 1',[A(9,42,'GR'),A(24,18,1),A(24,66,2),A(42,31,3),A(42,54,4),D(35,20,1),D(37,38,2),D(37,60,3),D(54,43,4)],{x:9,y:42}),
- S('Passo 2',[A(10,42,'GR'),A(31,15+n,1),A(28,68-n,2),A(49,27+n,3),A(47,57-n,4),D(39,22,1),D(42,39,2),D(40,59,3),D(57,44,4)],{x:side==='top'?31:28,y:side==='top'?15+n:68-n}),
- S('Passo 3',[A(12,42,'GR'),A(52,18+n,1),A(42,66-n,2),A(63,28+n,3),A(57,56-n,4),D(45,23,1),D(48,39,2),D(46,58,3),D(64,44,4)],{x:side==='top'?63:57,y:side==='top'?28+n:56-n})
-],9))
-addPress(1,'top');addPress(2,'bottom');addPress(3,'top');addPress(4,'bottom');addPress(5,'top')
-
-TACTICAL_LIBRARY.push(
- tp('lib-kickin1','Fora/Livre lateral 1 · Apoio curto','Bola parada','Dar linha curta e criar continuação interior.','Reposição lateral com apoio frontal, devolução e entrada no espaço.',[
-  S('Passo 1',[A(58,7,1),A(49,24,2),A(67,31,3),A(77,55,4),D(61,23,1),D(70,38,2),D(75,54,3)],{x:58,y:7}),
-  S('Passo 2',[A(58,7,1),A(55,22,2),A(71,25,3),A(79,57,4),D(63,23,1),D(71,39,2),D(76,53,3)],{x:55,y:22}),
-  S('Passo 3',[A(65,18,1),A(63,37,2),A(79,26,3),A(84,59,4),D(68,25,1),D(74,40,2),D(79,52,3)],{x:79,y:26})
- ],7),
- tp('lib-kickin2','Fora/Livre lateral 2 · 2.º poste','Bola parada','Criar finalização no segundo poste.','Reposição lateral com movimento de arrastamento e ataque ao poste contrário.',[
-  S('Passo 1',[A(62,7,1),A(56,28,2),A(72,35,3),A(78,61,4),D(65,25,1),D(73,39,2),D(80,54,3)],{x:62,y:7}),
-  S('Passo 2',[A(62,7,1),A(65,24,2),A(78,32,3),A(86,61,4),D(67,26,1),D(76,39,2),D(82,53,3)],{x:65,y:24}),
-  S('Passo 3',[A(69,18,1),A(76,35,2),A(85,29,3),A(91,58,4),D(72,27,1),D(80,40,2),D(85,51,3)],{x:91,y:58})
- ],7)
-)
 
 const initialAthletes=[
  {id:'a7',name:'Denys Zamula',dob:'1984-12-20',height:181,currentWeight:80,idealWeight:71,position:'Universal / Pivô Móvel',defensive:'Misto',offensive:['2-2'],speed:{m5:'',m10:'',m20:'',m30:'',max:''},notes:'Posição preferida: Universal / Pivô Móvel'}, 
@@ -152,16 +258,11 @@ const initialAthletes=[
  {id:'a6',name:'Thomas Da Silva Vaz',dob:'2008-12-29',height:187,currentWeight:74,idealWeight:'',position:'Guarda-redes',defensive:'',offensive:[],captain:false,speed:{m5:'',m10:'',m20:'',m30:'',max:''},notes:'Peso ideal e preferências táticas ainda por preencher.'}
 ]
 const GK_EXERCISES=[
- {id:'gk01',title:'GR 1 · Deslocamento + enquadramento',category:'🧤 Específico GR',phase:'Técnica',duration:8,objective:'Ajustar posição à bola e manter enquadramento.',description:'GR desloca-se entre referências da baliza e enquadra sucessivos portadores. Corrigir base, distância e alinhamento.',notes:'Progressão: aumentar velocidade e incluir remate final.',gkSpecific:true},
- {id:'gk02',title:'GR 2 · Defesa de remate frontal',category:'🧤 Específico GR',phase:'Técnica',duration:8,objective:'Defender remates a diferentes alturas e controlar a segunda ação.',description:'Série curta de remates frontais com reposicionamento entre ações.',notes:'Valorizar controlo da bola ou desvio seguro.',gkSpecific:true},
- {id:'gk03',title:'GR 3 · Remate lateral + redução do ângulo',category:'🧤 Específico GR',phase:'Técnico-tática',duration:9,objective:'Reduzir ângulo sem perder equilíbrio.',description:'Finalizador recebe lateralmente; GR ajusta, avança quando adequado e reage ao remate.',notes:'Progressão: permitir passe ao segundo poste.',gkSpecific:true},
- {id:'gk04',title:'GR 4 · 1x1 — temporização e intervenção',category:'🧤 Específico GR',phase:'Decisão',duration:10,objective:'Escolher quando temporizar, atacar a bola ou bloquear.',description:'Atacante conduz para 1x1. GR lê distância, toque e apoio do atacante.',notes:'Evitar saída automática; decisão depende do estímulo.',gkSpecific:true},
- {id:'gk05',title:'GR 5 · Defesa baixa / bloqueio',category:'🧤 Específico GR',phase:'Técnica',duration:8,objective:'Responder a finalização curta e baixa.',description:'Finalizações próximas alternadas; GR trabalha base, bloqueio e recuperação.',notes:'Qualidade antes de volume.',gkSpecific:true},
- {id:'gk06',title:'GR 6 · Duas ações consecutivas',category:'🧤 Específico GR',phase:'Reação',duration:9,objective:'Defender, recuperar posição e responder novamente.',description:'Primeira finalização gera segunda bola deliberada noutra zona.',notes:'Observar velocidade de recuperação e orientação.',gkSpecific:true},
- {id:'gk07',title:'GR 7 · Reposição rápida com a mão',category:'🧤 Específico GR',phase:'Transição ofensiva',duration:8,objective:'Iniciar transição com precisão e decisão.',description:'Após defesa controlada, GR identifica alvo livre e repõe rapidamente.',notes:'Variar distância, lado e pressão temporal.',gkSpecific:true},
- {id:'gk08',title:'GR 8 · Jogo com os pés sob pressão',category:'🧤 Específico GR',phase:'Construção',duration:10,objective:'Receber orientado e escolher linha de passe segura.',description:'GR participa na primeira fase contra pressão condicionada.',notes:'Criar solução curta e alternativa de segurança.',gkSpecific:true},
- {id:'gk09',title:'GR 9 · Inferioridade 2x1 / 3x2 + GR',category:'🧤 Específico GR',phase:'Tática',duration:12,objective:'Coordenar GR e defensores em inferioridade.',description:'Alternar 2x1 e 3x2. GR orienta cobertura, temporiza e decide intervenção.',notes:'Trabalhar comunicação e proteção do segundo poste.',gkSpecific:true},
- {id:'gk10',title:'GR 10 · Situação real integrada',category:'🧤 Específico GR',phase:'Jogo',duration:12,objective:'Ligar construção, perda, defesa, recuperação e transição.',description:'Sequência contínua com GR integrado no jogo e decisões não pré-programadas.',notes:'Usar regras SE/ENTÃO e variar estímulos.',gkSpecific:true}
+ {id:'gk01',title:'GR 1 · Deslocamento + enquadramento',category:'🧤 Específico GR',phase:'Técnica',duration:8,objective:'Ajustar posição à bola e manter enquadramento.',description:'O GR desloca-se lateralmente entre referências da baliza e enquadra sucessivos portadores antes do remate.',equipment:'1 baliza, 6–8 bolas, 4 cones, 2 marcadores/estacas',notes:'Progressão: aumentar a velocidade da circulação e terminar sempre com remate. Corrigir base, alinhamento bola-baliza e distância.',gkSpecific:true},
+ {id:'gk02',title:'GR 2 · Remate frontal + segunda ação',category:'🧤 Específico GR',phase:'Técnica / reação',duration:9,objective:'Defender o primeiro remate, recuperar posição e responder à segunda bola.',description:'Sequência de dois remates de zonas diferentes. O GR deve controlar/desviar e recuperar rapidamente a posição.',equipment:'1 baliza, 8–10 bolas, 3 cones, 2 finalizadores',notes:'Valorizar controlo da primeira bola, recuperação curta e orientação corporal antes da segunda ação.',gkSpecific:true},
+ {id:'gk03',title:'GR 3 · 1x1 — temporização e bloqueio',category:'🧤 Específico GR',phase:'Decisão',duration:10,objective:'Decidir quando temporizar, reduzir ângulo ou atacar a bola.',description:'Atacante parte em condução para 1x1. O GR lê distância, qualidade do toque e ângulo antes de intervir.',equipment:'1 baliza, 6–8 bolas, 4 cones, 2 atacantes',notes:'Evitar saída automática. Progressão: permitir passe lateral para um segundo atacante.',gkSpecific:true},
+ {id:'gk04',title:'GR 4 · Jogo com os pés sob pressão',category:'🧤 Específico GR',phase:'Construção',duration:10,objective:'Receber orientado e escolher uma linha de passe segura sob pressão.',description:'GR participa na primeira fase de construção com dois apoios e um ou dois pressionantes.',equipment:'1 baliza, 6 bolas, 6 cones, 2 coletes de cor diferente',notes:'Trabalhar receção orientada, passe de primeira quando possível e solução de segurança.',gkSpecific:true},
+ {id:'gk05',title:'GR 5 · Inferioridade 2x1 / 3x2 + GR',category:'🧤 Específico GR',phase:'Tática',duration:12,objective:'Coordenar GR e defensores em inferioridade e proteger o segundo poste.',description:'Alternar ondas de 2x1 e 3x2 para a baliza. O GR comunica, temporiza e decide entre cobertura e intervenção.',equipment:'1 baliza, 8–10 bolas, 8 cones, 5–6 coletes, 4–6 jogadores de campo',notes:'Trabalhar comunicação, proteção do centro/segundo poste e reinício rápido após cada ação.',gkSpecific:true}
 ]
 
 function tacticalAssessment(x){
@@ -227,14 +328,13 @@ function App(){
  const [callups,setCallups]=useStore('gw_callups_v12',[])
  const [exercises,setExercises]=useStore('gw_exercises',[])
  useEffect(()=>{
-  const k='gw_tactical_library_v17_1'
+  const k='gw_library_clean_v22_2'
   if(localStorage.getItem(k))return
-  const baseIds=new Set(TACTICAL_LIBRARY.map(x=>x.id))
-  const userItems=(exercises||[]).filter(x=>!baseIds.has(x.id))
-  setExercises([...userItems,...TACTICAL_LIBRARY])
+  // Remove apenas bibliotecas pré-carregadas antigas; mantém exercícios/jogadas criados pelo utilizador.
+  const userItems=(exercises||[]).filter(x=>!x.libraryBase&&!x.gkSpecific)
+  setExercises([...userItems,...TACTICAL_LIBRARY,...GK_EXERCISES])
   localStorage.setItem(k,'1')
  },[])
- useEffect(()=>{const k='gw_gk_library_v20';if(localStorage.getItem(k))return;const ids=new Set((exercises||[]).map(x=>x.id));setExercises([...(exercises||[]),...GK_EXERCISES.filter(x=>!ids.has(x.id))]);localStorage.setItem(k,'1')},[])
  const [sessions,setSessions]=useStore('gw_training_sessions_v12',[])
  const [games,setGames]=useStore('gw_games_v12',[])
  const [week,setWeek]=useStore('gw_week_plan_v12',[])
@@ -639,7 +739,7 @@ function Training({tr,exercises,athletes,sessions,setSessions}){
  return <div className="trainingWorkspace"><section className="card trainingBuilder"><div className="paneTitle"><div><h2>{tr.training}</h2><small>2026/27</small></div><div className="trainingTotal"><Clock3/><b>{total} min</b></div></div><div className="trainingHead"><Field label="Nome"><input value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/></Field><Field label={tr.date}><input type="date" value={draft.date} onChange={e=>setDraft({...draft,date:e.target.value})}/></Field><Field label={tr.time}><input type="time" value={draft.time} onChange={e=>setDraft({...draft,time:e.target.value})}/></Field><Field label={tr.location}><input value={draft.location} onChange={e=>setDraft({...draft,location:e.target.value})}/></Field><Field label="Tema"><input value={draft.theme} onChange={e=>setDraft({...draft,theme:e.target.value})}/></Field></div>
  <h3>Sequência</h3><div className="sessionSequence">{draft.exerciseIds.map((id,i)=>{const x=exercises.find(e=>e.id===id);return <div className="sessionExercise" key={id+'-'+i}><span className="orderNo">{i+1}</span><div><b>{x?.title||'Exercício'}</b><small>{x?.phase||'—'} · {x?.duration||0} min</small></div><div className="sessionBtns"><button onClick={()=>move(i,-1)}><ChevronUp/></button><button onClick={()=>move(i,1)}><ChevronDown/></button><button className="dangerLite" onClick={()=>setDraft({...draft,exerciseIds:draft.exerciseIds.filter((_,n)=>n!==i)})}><X/></button></div></div>})}</div>
  <h3>{tr.attendance}</h3><div className="attendanceGrid">{athletes.map(a=><div className="attendanceRow" key={a.id}><b>{a.name}</b><div>{[['present',tr.present],['absent',tr.absent],['justified',tr.justified],['unavailable',tr.unavailable]].map(([k,l])=><button key={k} className={draft.attendance[a.id]===k?k:''} onClick={()=>setAtt(a.id,k)}>{l}</button>)}</div></div>)}</div><Field label={tr.notes}><textarea rows="3" value={draft.notes} onChange={e=>setDraft({...draft,notes:e.target.value})}/></Field><button className="primary wideAction" onClick={save}><Save/>{tr.save} · {total} min</button></section>
- <aside className="card trainingExercisePicker"><h3>{tr.library}</h3><div className="gkTabs"><button className={picker==='all'?'active':''} onClick={()=>setPicker('all')}>Todos</button><button className={picker==='gk'?'active':''} onClick={()=>setPicker('gk')}>🧤 Específico GR · 10</button></div><div>{exercises.filter(x=>picker==='all'||x.gkSpecific).map(x=><button className="pickExercise" onClick={()=>setDraft({...draft,exerciseIds:[...draft.exerciseIds,x.id]})} key={x.id}><Plus/><div><b>{x.title||'Exercício'}</b><small>{x.category||'—'} · {x.duration||0} min</small></div></button>)}</div></aside>
+ <aside className="card trainingExercisePicker"><h3>{tr.library}</h3><div className="gkTabs"><button className={picker==='all'?'active':''} onClick={()=>setPicker('all')}>Todos</button><button className={picker==='gk'?'active':''} onClick={()=>setPicker('gk')}>🧤 Específico GR · 5</button></div><div>{exercises.filter(x=>picker==='all'||x.gkSpecific).map(x=><button className="pickExercise" onClick={()=>setDraft({...draft,exerciseIds:[...draft.exerciseIds,x.id]})} key={x.id}><Plus/><div><b>{x.title||'Exercício'}</b><small>{x.category||'—'} · {x.duration||0} min{x.equipment?' · Material: '+x.equipment:''}</small></div></button>)}</div></aside>
  <section className="card savedSessions"><div className="paneTitle"><h3>{tr.saved}</h3><small>{sessions.length}</small></div>{sessions.slice().reverse().map(s=><div className="exportItem" key={s.id}><div id={'training-'+s.id} className="brandedExport trainingExport"><div className="exportBrand"><img src="club-crest.jpg"/><div><b>1. FC GRUEFWISS LEIDELENG</b><span>TREINO · 2026/27</span></div></div><h2>{s.title}</h2><p>{s.date||'—'} · {s.time||'—'} · {s.location||'—'} · {s.total||0} min</p>{s.theme&&<h4>{s.theme}</h4>}<ol>{(s.exerciseIds||[]).map(id=>{const x=exercises.find(e=>e.id===id);return <li key={id}><b>{x?.title||'Exercício'}</b> <span>{x?.duration||0} min · {x?.phase||''}</span></li>})}</ol><div className="docWatermark">RJP</div><div className="attendanceSummary">{Object.values(s.attendance||{}).filter(x=>x==='present').length}/{athletes.length} {tr.present.toLowerCase()}</div></div><div className="trainingFeedback"><b>Feedback pós-treino</b><div className="feedbackBtns">{[['worked','⭐ Funcionou'],['adjust','⚠️ Ajustar'],['failed','❌ Não funcionou']].map(([k,l])=><button key={k} className={feedback.find(f=>f.sessionId===s.id)?.status===k?'active':''} onClick={()=>{const note=prompt('Nota curta (opcional):',feedback.find(f=>f.sessionId===s.id)?.note||'')??'';setFeedback([...feedback.filter(f=>f.sessionId!==s.id),{sessionId:s.id,status:k,note,date:new Date().toISOString()}])}}>{l}</button>)}</div>{feedback.find(f=>f.sessionId===s.id)?.note&&<small>{feedback.find(f=>f.sessionId===s.id).note}</small>}</div><div className="exportButtons"><button onClick={()=>exportNode('training-'+s.id,'pdf','treino-'+(s.date||s.id))}><FileText/>PDF</button><button onClick={()=>sharePdf('training-'+s.id,'treino-'+(s.date||s.id),'Plano de treino · '+s.title)}><Share2/>Partilhar</button><button onClick={()=>exportNode('training-'+s.id,'png','treino-'+(s.date||s.id))}><ImageIcon/>{tr.exportImage}</button><button className="dangerLite" onClick={()=>setSessions(sessions.filter(x=>x.id!==s.id))}><Trash2/></button></div></div>)}</section></div>
 }
 function Planner({tr,week,setWeek}){
