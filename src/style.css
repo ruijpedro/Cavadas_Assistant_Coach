@@ -281,3 +281,21 @@ main{max-width:1920px;padding:14px 16px}
 
 /* V22.2.1 — GR no quadro */
 .coachPiece.gk{font-weight:900;outline:3px solid rgba(255,255,255,.95);box-shadow:0 0 0 2px rgba(15,23,42,.35),0 4px 10px rgba(0,0,0,.28)}
+
+/* V22.3 — Comandos táticos por voz */
+.voiceTacticBtn{font-weight:900}
+.voiceTacticPanel{margin:10px 0;padding:14px;display:grid;gap:10px}
+.voiceTacticHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.voiceTacticHead>div{display:grid;gap:3px}.voiceTacticHead small{opacity:.75}
+.voiceTacticPanel textarea{width:100%;resize:vertical;min-height:76px;border:1px solid #cbd5e1;border-radius:12px;padding:11px;font:inherit;background:#fff;color:#111827}
+.voiceTacticActions,.voiceConfirm{display:flex;gap:8px;flex-wrap:wrap}
+.voiceInterpretation{display:grid;gap:7px;border-top:1px solid rgba(148,163,184,.3);padding-top:10px}
+.voiceLine,.voiceWarn{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:10px;background:rgba(15,23,42,.06)}
+.voiceLine span,.voiceWarn span{min-width:24px;height:24px;border-radius:999px;display:grid;place-items:center;font-weight:900;background:#facc15;color:#111827}
+.voiceWarn{background:rgba(239,68,68,.10)}
+.voiceExamples{font-size:12px;opacity:.8}
+@media(max-width:700px){.voiceTacticPanel{padding:10px}.voiceTacticActions button,.voiceConfirm button{flex:1 1 150px}}
+
+.coachLines .pass.aerial{stroke-dasharray:3 2;stroke-width:1.2}.coachLines .pass.cutback{stroke-width:1.4}
+/* V22.4 — Léxico tático */
+.lexiconPage{display:grid;gap:14px}.lexiconTools{display:grid;grid-template-columns:1fr minmax(180px,260px);gap:10px}.lexiconTools input,.lexiconTools select{padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#111827;font:inherit}.lexiconGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}.lexiconEntry{border:1px solid rgba(148,163,184,.35);border-radius:13px;padding:12px;display:grid;gap:7px;background:rgba(255,255,255,.04)}.lexiconEntry>div{display:flex;justify-content:space-between;gap:8px}.lexiconEntry>div span{font-size:11px;opacity:.7}.lexiconEntry p{margin:0;line-height:1.35}.lexiconEntry small{opacity:.78}.lexiconEntry code{font-size:10px;opacity:.6}@media(max-width:700px){.lexiconTools{grid-template-columns:1fr}.lexiconGrid{grid-template-columns:1fr}}

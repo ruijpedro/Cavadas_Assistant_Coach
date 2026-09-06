@@ -6,6 +6,7 @@ import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import './style.css'
 import {analyseDocumentV2, supportedImportKind} from './importEngineV2.js'
+import {FUTSAL_LEXICON,lexiconMatches} from './futsalLexicon.js'
 
 const T={
  pt:{home:'Início',training:'Treinos',exercises:'Exercícios',board:'Quadro Tático',athletes:'Atletas',tests:'Avaliações',callups:'Convocatórias',newAthlete:'Novo atleta',fullName:'Nome completo',dob:'Data de nascimento',height:'Altura',currentWeight:'Peso atual',idealWeight:'Peso ideal',position:'Posição preferida',def:'Processo defensivo',off:'Processo ofensivo',save:'Guardar',delete:'Eliminar',add:'Adicionar',speed:'Velocidade',history:'Histórico',notes:'Notas',search:'Procurar atleta',selected:'Selecionado',game:'Jogo',opponent:'Adversário',date:'Data',time:'Hora',meeting:'Concentração',location:'Local',selectedPlayers:'Convocados',exportPdf:'PDF',selectAll:'Selecionar todos',clear:'Limpar',language:'Idioma',field:'Campo',futsal:'Futsal',football11:'Futebol 11',football7:'Futebol 7',football6:'Futebol 6',attackers:'Atacantes',defenders:'Defensores',goalkeepers:'Guarda-redes',apply:'Aplicar',pass:'Passe',movement:'Movimento',shot:'Remate',select:'Selecionar',phase:'Fase',newPhase:'Nova fase',library:'Biblioteca',classification:'Classificação',maxSpeed:'Velocidade máx.',ageGroup:'Escalão',current:'Atual',ideal:'Ideal',captain:'Capitão',confirmDelete:'Eliminar este atleta?',emptyRoster:'Ainda não existem atletas no plantel.',tapAdd:'Toque em Adicionar para criar o primeiro atleta.',playerAdded:'Novo atleta',kg:'kg',cm:'cm'},
@@ -348,7 +349,7 @@ function App(){
    <Nav label={tr.training} icon={<Dumbbell/>} active={page==='training'} onClick={()=>go('training')}/>
    <Nav label={tr.exercises} icon={<ClipboardList/>} active={page==='exercises'} onClick={()=>go('exercises')}/>
    <Nav label={lang==='de'?'Taktik-Import':lang==='fr'?'Import tactique':lang==='lb'?'Taktik-Import':lang==='en'?'Tactical Import':'Importar Tática'} icon={<FileUp/>} active={page==='importer'} onClick={()=>go('importer')}/>
-   <Nav label={tr.board} icon={<Activity/>} active={page==='board'} onClick={()=>go('board')}/>
+   <Nav label={tr.board} icon={<Activity/>} active={page==='board'} onClick={()=>go('board')}/><Nav label={lang==='en'?'Futsal Lexicon':'Léxico Futsal'} icon={<BookOpen/>} active={page==='lexicon'} onClick={()=>go('lexicon')}/>
    <Nav label={tr.games} icon={<Trophy/>} active={page==='games'} onClick={()=>go('games')}/>
    <Nav label={lang==='de'?'Spielmodell':lang==='fr'?'Modèle de jeu':lang==='lb'?'Spillmodell':lang==='en'?'Game Model':'Modelo de Jogo'} icon={<BookOpen/>} active={page==='model'} onClick={()=>go('model')}/>
    <Nav label={lang==='de'?'Standards':lang==='fr'?'Coups de pied arrêtés':lang==='lb'?'Standard-Situatiounen':lang==='en'?'Set Pieces':'Bolas Paradas'} icon={<Flag/>} active={page==='setpieces'} onClick={()=>go('setpieces')}/>
@@ -366,6 +367,7 @@ function App(){
    {page==='exercises'&&<ExerciseLibrary tr={tr} exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
    {page==='importer'&&<TacticalImporter lang={lang} exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
    {page==='board'&&<Board tr={tr} exercises={exercises} setExercises={setExercises}/>}
+   {page==='lexicon'&&<FutsalLexicon/>}
    {page==='games'&&<Games tr={tr} athletes={athletes} games={games} setGames={setGames} callups={callups}/>}
    {page==='model'&&<GameModel athletes={athletes}/>}
    {page==='setpieces'&&<SetPieces exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
@@ -570,6 +572,16 @@ function TacticalImporter({lang,exercises,setExercises,setPage}){
   <section className="importResults">{items.length?<><div className="resultsTitle"><h3>{items.length} {t.found}</h3><small>{file?.name}</small></div>{items.map(x=><article className="card importCard" key={x.id}><div className="importBadge">{x.category}</div><h3>{x.title}</h3><p>{x.description}</p><div className="importMeta"><span><b>{x.board?.steps?.length||0}</b> {t.steps}</span><span><b>{x.playersCount||0}</b> {t.players}</span><span><b>{x.confidence||0}%</b> {t.confidence}</span></div><div className="miniTactic"><div className="miniHalf"/>{(x.board?.steps?.[0]?.players||[]).map(p=><i key={p.id} className={p.team==='d'?'opp':''} style={{left:p.x+'%',top:p.y+'%'}}>{p.label}</i>)}</div><small><b>{x.importEngine}</b> · {t.source}: {x.source}</small>{x.reviewRequired&&<div className="importError">⚠ Rever/corrigir antes de usar — confiança abaixo do nível automático.</div>}<div className="tacticalAdvice"><b>🧠 Diagnóstico tático</b>{tacticalAssessment(x).findings.map((f,i)=><p key={i}>{f}</p>)}<b>Propostas válidas para revisão do treinador</b>{tacticalAssessment(x).proposals.map((p,i)=><details key={i}><summary>{p.name}</summary><p>{p.text}</p></details>)}<small>Base de princípios: ocupação de espaço, linhas de passe, equilíbrio, cobertura, superioridade e reação à perda. A proposta é apoio à decisão, não substitui a opção do treinador.</small></div><div className="importActions"><button onClick={()=>save(x)} disabled={saved.has(x.id)}><Save/>{saved.has(x.id)?t.saved:t.save}</button><button className="primary" onClick={()=>open(x)}><Activity/>{t.open}</button></div></article>)}</>:<div className="card importEmpty"><ScanSearch size={54}/><p>{t.no}</p><small>Também podes fotografar um esquema desenhado à mão e importar a imagem.</small></div>}</section>
  </div>
 }
+function FutsalLexicon(){
+ const [q,setQ]=useState(''); const [cat,setCat]=useState('Todos')
+ const cats=['Todos',...new Set(FUTSAL_LEXICON.map(x=>x.cat))]
+ const n=q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+ const rows=FUTSAL_LEXICON.filter(x=>(cat==='Todos'||x.cat===cat)&&(!n||[x.term,x.cat,x.meaning,...x.aliases].join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(n)))
+ return <div className="card lexiconPage"><div className="paneTitle"><div><h2>📖 Léxico Tático de Futsal</h2><small>{FUTSAL_LEXICON.length} conceitos ligados ao motor de voz · PT-PT + variantes PT-BR/ES de uso corrente</small></div></div>
+  <div className="lexiconTools"><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Procurar: diagonal, paralela, segundo poste, cobertura…"/><select value={cat} onChange={e=>setCat(e.target.value)}>{cats.map(c=><option key={c}>{c}</option>)}</select></div>
+  <div className="lexiconGrid">{rows.map(x=><article key={x.term} className="lexiconEntry"><div><b>{x.term}</b><span>{x.cat}</span></div><p>{x.meaning}</p><small><strong>Voz:</strong> {x.aliases.join(' · ')}</small><code>{x.intent}</code></article>)}</div>
+ </div>
+}
 function Board({tr,exercises,setExercises}){
  const editId=localStorage.getItem('gw_board_edit_exercise')
  const editEx=(exercises||[]).find(x=>x.id===editId)
@@ -595,6 +607,171 @@ function Board({tr,exercises,setExercises}){
  const [speed,setSpeed]=useState(1)
  const [fullscreen,setFullscreen]=useState(false)
  const stopRef=useRef(false)
+ const [voiceText,setVoiceText]=useState('')
+ const [voicePlan,setVoicePlan]=useState([])
+ const [voiceOpen,setVoiceOpen]=useState(false)
+ const [listening,setListening]=useState(false)
+ const speechRef=useRef(null)
+
+ const normVoice=t=>(t||'').toLowerCase()
+   .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+   .replace(/\bnumero\b/g,'').replace(/\bnº\b/g,'').replace(/\s+/g,' ').trim()
+ const ownPlayer=n=>players.find(p=>p.team==='a'&&String(p.label)===String(n))
+ const goalTarget=(side='center')=>{
+   // A nossa equipa ataca a baliza da direita no quadro.
+   if(side==='far')return{x:91,y:62}
+   if(side==='near')return{x:91,y:38}
+   if(side==='right')return{x:88,y:35}
+   if(side==='left')return{x:88,y:65}
+   if(side==='cutback')return{x:79,y:50}
+   if(side==='deepRight')return{x:90,y:22}
+   if(side==='deepLeft')return{x:90,y:78}
+   return{x:92,y:50}
+ }
+ const playerTarget=(p,clause)=>{
+   const c=normVoice(clause),base={x:p.x,y:p.y}
+   if(/segundo poste|2 poste|poste contrario/.test(c))return goalTarget('far')
+   if(/primeiro poste|1 poste/.test(c))return goalTarget('near')
+   if(/afundar|afunda|vai ao fundo|linha de fundo|fundo do campo|ganha fundo/.test(c))return base.y<=50?goalTarget('deepRight'):goalTarget('deepLeft')
+   if(/entra no meio|ataca o meio|zona central/.test(c))return{x:80,y:50}
+   if(/lado direito da baliza|direita da baliza|diagonal direita/.test(c))return{x:84,y:34}
+   if(/lado esquerdo da baliza|esquerda da baliza|diagonal esquerda/.test(c))return{x:84,y:66}
+   if(/paralela/.test(c))return{x:Math.min(90,base.x+22),y:base.y}
+   if(/diagonal/.test(c)){
+     const towardTop=/direita|cima/.test(c),ny=towardTop?Math.max(18,base.y-22):Math.min(82,base.y+22)
+     return{x:Math.min(86,base.x+24),y:ny}
+   }
+   if(/pivo|pivot/.test(c))return{x:72,y:50}
+   if(/apoio|aproxima/.test(c))return{x:Math.min(68,base.x+12),y:50}
+   return{x:Math.min(88,base.x+16),y:base.y}
+ }
+ const parseVoiceCommand=text=>{
+   const raw=(text||'').trim()
+   if(!raw)return[]
+   // Divide por pontuação e por conectores apenas quando inicia nova referência de jogador.
+   const chunks=raw
+     .replace(/\s+e\s+(?=(?:o\s+)?(?:jogador|atleta)\s*(?:numero\s*)?\d+)/gi,'|')
+     .split(/[|.;]+/).map(x=>x.trim()).filter(Boolean)
+   const actions=[]
+   let lastPlayer=null
+   for(const original of chunks){
+     const c=normVoice(original)
+     const pm=c.match(/(?:jogador|atleta)\s*(\d+)/)
+     if(pm)lastPlayer=pm[1]
+     const num=pm?.[1]||lastPlayer
+     if(!num)continue
+     const p=ownPlayer(num)
+     if(!p){actions.push({kind:'warning',player:num,label:`Jogador ${num} não está no campo.`});continue}
+     const aerial=/bola aerea|passe aereo|pelo ar|bola pelo ar|cruzamento aereo/.test(c)
+     const deep=/afundar|afunda|vai ao fundo|linha de fundo|fundo do campo|ganha fundo/.test(c)
+     const cutback=/bola no meio|mete no meio|da no meio|dar no meio|passe atras|passe para tras|cruza atras|bola atras/.test(c)
+     if(deep){
+       const target=playerTarget(p,c)
+       actions.push({kind:'move',player:num,target,semantic:'deep',label:`Jogador ${num}: afundar até à linha de fundo.`})
+     }
+     if(cutback){
+       actions.push({kind:'cutback',player:num,aerial,label:`Jogador ${num}: bola ${aerial?'aérea ':''}para o meio após ganhar o fundo.`})
+     }
+     const finRef=c.match(/(?:entra|aparece|chega)(?:\s+o)?\s+(?:jogador|atleta)\s*(\d+).*?(?:finaliza|finalizar|golo)/)
+     if(finRef){
+       const fn=finRef[1],fp=ownPlayer(fn)
+       if(fp){
+         actions.push({kind:'move',player:fn,target:{x:82,y:50},semantic:'centralRun',label:`Jogador ${fn}: entrada na zona central para finalizar.`})
+         actions.push({kind:'finish',player:fn,label:`Jogador ${fn}: finalização para golo.`})
+       }else actions.push({kind:'warning',player:fn,label:`Jogador ${fn} não está no campo.`})
+       continue
+     }
+     if(deep||cutback)continue
+     if(/finaliza|finalizar|finalizacao|faz golo|para golo|pra golo/.test(c)){
+       actions.push({kind:'finish',player:num,label:`Jogador ${num}: atacar a zona de finalização e finalizar.`})
+       continue
+     }
+     if(/remata|remate|chuta|finaliza cruzado/.test(c)){
+       const target=/segundo poste|poste contrario/.test(c)?'far':(/primeiro poste/.test(c)?'near':'center')
+       actions.push({kind:'shot',player:num,target,label:`Jogador ${num}: remate${/cruzad/.test(c)?' cruzado':''}${target==='far'?' para o 2.º poste':target==='near'?' para o 1.º poste':''}.`})
+       continue
+     }
+     if(/passa|passe|toca|cruza/.test(c)){
+       const tm=c.match(/(?:jogador|atleta)\s*(\d+)\s*$/)
+       actions.push({kind:'pass',player:num,to:tm?.[1]||null,target:/segundo poste/.test(c)?'far':/primeiro poste/.test(c)?'near':null,aerial,label:`Jogador ${num}: passe${aerial?' aéreo':''}${tm?.[1]?` para o jogador ${tm[1]}`:/segundo poste/.test(c)?' para o 2.º poste':''}.`})
+       continue
+     }
+     if(/diagonal|paralela|segundo poste|primeiro poste|lado direito|lado esquerdo|pivo|pivot|apoio|aproxima|desmarca|movimenta/.test(c)){
+       const target=playerTarget(p,c)
+       actions.push({kind:'move',player:num,target,label:`Jogador ${num}: ${/diagonal/.test(c)?'diagonal':/paralela/.test(c)?'paralela':/segundo poste/.test(c)?'ataque ao 2.º poste':/primeiro poste/.test(c)?'ataque ao 1.º poste':'movimento'}${/direita/.test(c)?' para a direita':/esquerda/.test(c)?' para a esquerda':''}.`})
+       continue
+     }
+     actions.push({kind:'note',player:num,label:`Jogador ${num}: comando reconhecido, movimento por confirmar.`})
+   }
+   return actions
+ }
+ const interpretVoice=()=>{
+   const plan=parseVoiceCommand(voiceText)
+   const known=lexiconMatches(voiceText)
+   setVoicePlan(plan)
+   if(known.length)console.info('Léxico futsal reconhecido:',known.map(x=>x.term).join(', '))
+   if(!plan.length)alert('Não consegui identificar comandos táticos. Experimenta: "Jogador 2 faz diagonal para a direita..."')
+ }
+ const applyVoicePlan=()=>{
+   const valid=voicePlan.filter(a=>!['warning','note'].includes(a.kind))
+   if(!valid.length)return alert('Não existem ações confirmáveis.')
+   let baseSteps=commitSteps()
+   let cur={...baseSteps[step],players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p})),duration:1.0}
+   const generated=[]
+   for(let i=0;i<valid.length;i++){
+     const a=valid[i],next={id:Date.now()+i+Math.random(),name:`Voz ${i+1}`,players:cur.players.map(p=>({...p})),ball:{...cur.ball},paths:[],duration:1.05}
+     const p=next.players.find(x=>x.team==='a'&&String(x.label)===String(a.player))
+     const prev=cur.players.find(x=>x.team==='a'&&String(x.label)===String(a.player))
+     if(!p||!prev)continue
+     if(a.kind==='move'){
+       p.x=a.target.x;p.y=a.target.y
+       next.paths.push({id:'vm'+Date.now()+i,type:'move',x1:prev.x,y1:prev.y,x2:p.x,y2:p.y})
+     }else if(a.kind==='pass'){
+       let dest=null
+       if(a.to){const q=next.players.find(x=>x.team==='a'&&String(x.label)===String(a.to));if(q)dest={x:q.x,y:q.y}}
+       if(!dest&&a.target)dest=goalTarget(a.target)
+       if(!dest)dest={x:Math.min(90,p.x+18),y:p.y}
+       next.ball={...dest}
+       next.paths.push({id:'vp'+Date.now()+i,type:'pass',aerial:!!a.aerial,x1:cur.ball.x,y1:cur.ball.y,x2:dest.x,y2:dest.y})
+     }else if(a.kind==='cutback'){
+       const dest=goalTarget('cutback')
+       next.ball={...dest}
+       next.paths.push({id:'vc'+Date.now()+i,type:'pass',aerial:!!a.aerial,cutback:true,x1:p.x,y1:p.y,x2:dest.x,y2:dest.y})
+     }else if(a.kind==='shot'){
+       const dest=goalTarget(a.target)
+       next.ball={...dest}
+       next.paths.push({id:'vs'+Date.now()+i,type:'pass',x1:p.x,y1:p.y,x2:dest.x,y2:dest.y})
+     }else if(a.kind==='finish'){
+       const dest=goalTarget('far')
+       p.x=dest.x-3;p.y=dest.y
+       next.ball={x:94,y:50}
+       next.paths.push({id:'vf1'+Date.now()+i,type:'move',x1:prev.x,y1:prev.y,x2:p.x,y2:p.y})
+       next.paths.push({id:'vf2'+Date.now()+i,type:'pass',x1:cur.ball.x,y1:cur.ball.y,x2:94,y2:50})
+     }
+     generated.push(next);cur=next
+   }
+   const prefix=baseSteps.slice(0,step+1)
+   const merged=[...prefix,...generated]
+   setSteps(merged)
+   const last=merged[merged.length-1]
+   setPlayers(last.players.map(p=>({...p})));setBall({...last.ball});setPaths((last.paths||[]).map(p=>({...p})));setStep(merged.length-1)
+   setVoiceOpen(false);setVoicePlan([])
+   alert(`${generated.length} ações de voz adicionadas à animação. Revê e carrega em PLAY.`)
+ }
+ const startVoice=()=>{
+   const SR=window.SpeechRecognition||window.webkitSpeechRecognition
+   if(!SR){setVoiceOpen(true);return alert('O reconhecimento de voz não está disponível neste navegador/WebView. Podes escrever o comando no mesmo painel.')}
+   try{
+     speechRef.current?.stop?.()
+     const rec=new SR();speechRef.current=rec
+     rec.lang='pt-PT';rec.continuous=false;rec.interimResults=false
+     rec.onstart=()=>setListening(true)
+     rec.onend=()=>setListening(false)
+     rec.onerror=e=>{setListening(false);console.warn('Speech recognition',e)}
+     rec.onresult=e=>{const txt=[...e.results].map(r=>r[0]?.transcript||'').join(' ');setVoiceText(txt);setVoiceOpen(true)}
+     rec.start()
+   }catch(e){setListening(false);setVoiceOpen(true);alert('Não foi possível iniciar o microfone. Usa o comando escrito.')}
+ }
 
  const snap=()=>({players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p})),duration:steps[step]?.duration||1.15})
  const commitSteps=()=>steps.map((x,i)=>i===step?{...x,...snap()}:x)
@@ -679,7 +856,14 @@ function Board({tr,exercises,setExercises}){
  const saveVariant=()=>{const finalSteps=commitSteps(),item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')}
  return <div className="simpleBoard">
   <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
-  <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a','field')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('a','gk')}>🧤 GR nossa equipa</button><button onClick={()=>addPlayer('d','field')}>＋ Adversário</button><button onClick={()=>addPlayer('d','gk')}>🧤 GR adversário</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
+  <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a','field')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('a','gk')}>🧤 GR nossa equipa</button><button onClick={()=>addPlayer('d','field')}>＋ Adversário</button><button onClick={()=>addPlayer('d','gk')}>🧤 GR adversário</button><button className="voiceTacticBtn" onClick={startVoice}>{listening?'🎙️ A ouvir…':'🎙️ Comando de voz'}</button><button onClick={()=>setVoiceOpen(v=>!v)}>⌨️ Comando escrito</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
+  {voiceOpen&&<div className="card voiceTacticPanel">
+   <div className="voiceTacticHead"><div><b>🎙️ Comandos táticos por voz/texto</b><small>Diz a jogada como falarias no treino. A APP interpreta primeiro; só altera o quadro depois de confirmares.</small></div><button onClick={()=>setVoiceOpen(false)}>✕</button></div>
+   <textarea rows="3" value={voiceText} onChange={e=>setVoiceText(e.target.value)} placeholder="Ex.: Jogador 2 afunda até à linha de fundo e dá a bola no meio. Entra o jogador 3 para finalizar. Ou: jogador 4 mete bola aérea no 2.º poste."/>
+   <div className="voiceTacticActions"><button onClick={startVoice}>{listening?'🎙️ A ouvir…':'🎙️ Dizer novamente'}</button><button className="primary" onClick={interpretVoice}>🧠 Interpretar</button><button onClick={()=>{setVoiceText('');setVoicePlan([])}}>Limpar</button></div>
+   {!!voicePlan.length&&<div className="voiceInterpretation"><b>Interpretei assim:</b>{voicePlan.map((a,i)=><div key={i} className={a.kind==='warning'?'voiceWarn':'voiceLine'}><span>{i+1}</span>{a.label}</div>)}<div className="voiceConfirm"><button className="primary" onClick={applyVoicePlan}>✓ Confirmar e criar animação</button><button onClick={()=>setVoicePlan([])}>✏️ Corrigir texto</button></div></div>}
+   <div className="voiceExamples"><b>Léxico V22.4 ativo:</b> diagonal · paralela · apoio · ruptura · rotação · sobreposição · entrelinhas · linha defensiva · cobertura · pressão · bloco · pivô · 1.º/2.º poste · bola aérea · afundar · bola no meio · transições · sistemas 3:1/4:0/2:2 e restantes termos do dicionário.</div>
+  </div>}
   <div className={fullscreen?'pitchFullscreen':'card pitchCard'}>
    <div className="pitchViewportBar">
     <button className="viewportBtn" onClick={()=>setFullscreen(v=>!v)}>{fullscreen?'✕ Fechar':'⛶ Ecrã inteiro'}</button>
@@ -688,7 +872,7 @@ function Board({tr,exercises,setExercises}){
    </div>
    <div className="pitchFit"><div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
    <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/><div className="pitchArea left"/><div className="pitchArea right"/><div className="pitchGoal left"/><div className="pitchGoal right"/>
-   {!playing&&<svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={p.type} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>}
+   {!playing&&<svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={`${p.type}${p.aerial?' aerial':''}${p.cutback?' cutback':''}`} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>}
    {players.map(p=><div key={p.id} className={`coachPiece ${p.team} ${String(p.label).toUpperCase()==='GR'?'gk':''}`} style={{left:`${p.x}%`,top:`${p.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
    <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>
   </div></div></div>
