@@ -1,0 +1,4 @@
+Cavadas Manager V22.3
+Preflight: PASSED
+Voice/text parser static checks: PASSED
+Full Vite/Android build: execute in GitHub Actions.
