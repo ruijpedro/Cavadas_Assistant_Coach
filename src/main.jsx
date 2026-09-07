@@ -6,7 +6,6 @@ import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import './style.css'
 import {analyseDocumentV2, supportedImportKind} from './importEngineV2.js'
-import {FUTSAL_LEXICON,lexiconMatches} from './futsalLexicon.js'
 
 const T={
  pt:{home:'Início',training:'Treinos',exercises:'Exercícios',board:'Quadro Tático',athletes:'Atletas',tests:'Avaliações',callups:'Convocatórias',newAthlete:'Novo atleta',fullName:'Nome completo',dob:'Data de nascimento',height:'Altura',currentWeight:'Peso atual',idealWeight:'Peso ideal',position:'Posição preferida',def:'Processo defensivo',off:'Processo ofensivo',save:'Guardar',delete:'Eliminar',add:'Adicionar',speed:'Velocidade',history:'Histórico',notes:'Notas',search:'Procurar atleta',selected:'Selecionado',game:'Jogo',opponent:'Adversário',date:'Data',time:'Hora',meeting:'Concentração',location:'Local',selectedPlayers:'Convocados',exportPdf:'PDF',selectAll:'Selecionar todos',clear:'Limpar',language:'Idioma',field:'Campo',futsal:'Futsal',football11:'Futebol 11',football7:'Futebol 7',football6:'Futebol 6',attackers:'Atacantes',defenders:'Defensores',goalkeepers:'Guarda-redes',apply:'Aplicar',pass:'Passe',movement:'Movimento',shot:'Remate',select:'Selecionar',phase:'Fase',newPhase:'Nova fase',library:'Biblioteca',classification:'Classificação',maxSpeed:'Velocidade máx.',ageGroup:'Escalão',current:'Atual',ideal:'Ideal',captain:'Capitão',confirmDelete:'Eliminar este atleta?',emptyRoster:'Ainda não existem atletas no plantel.',tapAdd:'Toque em Adicionar para criar o primeiro atleta.',playerAdded:'Novo atleta',kg:'kg',cm:'cm'},
@@ -349,7 +348,7 @@ function App(){
    <Nav label={tr.training} icon={<Dumbbell/>} active={page==='training'} onClick={()=>go('training')}/>
    <Nav label={tr.exercises} icon={<ClipboardList/>} active={page==='exercises'} onClick={()=>go('exercises')}/>
    <Nav label={lang==='de'?'Taktik-Import':lang==='fr'?'Import tactique':lang==='lb'?'Taktik-Import':lang==='en'?'Tactical Import':'Importar Tática'} icon={<FileUp/>} active={page==='importer'} onClick={()=>go('importer')}/>
-   <Nav label={tr.board} icon={<Activity/>} active={page==='board'} onClick={()=>go('board')}/><Nav label={lang==='en'?'Futsal Lexicon':'Léxico Futsal'} icon={<BookOpen/>} active={page==='lexicon'} onClick={()=>go('lexicon')}/>
+   <Nav label={tr.board} icon={<Activity/>} active={page==='board'} onClick={()=>go('board')}/>
    <Nav label={tr.games} icon={<Trophy/>} active={page==='games'} onClick={()=>go('games')}/>
    <Nav label={lang==='de'?'Spielmodell':lang==='fr'?'Modèle de jeu':lang==='lb'?'Spillmodell':lang==='en'?'Game Model':'Modelo de Jogo'} icon={<BookOpen/>} active={page==='model'} onClick={()=>go('model')}/>
    <Nav label={lang==='de'?'Standards':lang==='fr'?'Coups de pied arrêtés':lang==='lb'?'Standard-Situatiounen':lang==='en'?'Set Pieces':'Bolas Paradas'} icon={<Flag/>} active={page==='setpieces'} onClick={()=>go('setpieces')}/>
@@ -367,7 +366,6 @@ function App(){
    {page==='exercises'&&<ExerciseLibrary tr={tr} exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
    {page==='importer'&&<TacticalImporter lang={lang} exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
    {page==='board'&&<Board tr={tr} exercises={exercises} setExercises={setExercises}/>}
-   {page==='lexicon'&&<FutsalLexicon/>}
    {page==='games'&&<Games tr={tr} athletes={athletes} games={games} setGames={setGames} callups={callups}/>}
    {page==='model'&&<GameModel athletes={athletes}/>}
    {page==='setpieces'&&<SetPieces exercises={exercises} setExercises={setExercises} setPage={setPage}/>}
@@ -572,16 +570,6 @@ function TacticalImporter({lang,exercises,setExercises,setPage}){
   <section className="importResults">{items.length?<><div className="resultsTitle"><h3>{items.length} {t.found}</h3><small>{file?.name}</small></div>{items.map(x=><article className="card importCard" key={x.id}><div className="importBadge">{x.category}</div><h3>{x.title}</h3><p>{x.description}</p><div className="importMeta"><span><b>{x.board?.steps?.length||0}</b> {t.steps}</span><span><b>{x.playersCount||0}</b> {t.players}</span><span><b>{x.confidence||0}%</b> {t.confidence}</span></div><div className="miniTactic"><div className="miniHalf"/>{(x.board?.steps?.[0]?.players||[]).map(p=><i key={p.id} className={p.team==='d'?'opp':''} style={{left:p.x+'%',top:p.y+'%'}}>{p.label}</i>)}</div><small><b>{x.importEngine}</b> · {t.source}: {x.source}</small>{x.reviewRequired&&<div className="importError">⚠ Rever/corrigir antes de usar — confiança abaixo do nível automático.</div>}<div className="tacticalAdvice"><b>🧠 Diagnóstico tático</b>{tacticalAssessment(x).findings.map((f,i)=><p key={i}>{f}</p>)}<b>Propostas válidas para revisão do treinador</b>{tacticalAssessment(x).proposals.map((p,i)=><details key={i}><summary>{p.name}</summary><p>{p.text}</p></details>)}<small>Base de princípios: ocupação de espaço, linhas de passe, equilíbrio, cobertura, superioridade e reação à perda. A proposta é apoio à decisão, não substitui a opção do treinador.</small></div><div className="importActions"><button onClick={()=>save(x)} disabled={saved.has(x.id)}><Save/>{saved.has(x.id)?t.saved:t.save}</button><button className="primary" onClick={()=>open(x)}><Activity/>{t.open}</button></div></article>)}</>:<div className="card importEmpty"><ScanSearch size={54}/><p>{t.no}</p><small>Também podes fotografar um esquema desenhado à mão e importar a imagem.</small></div>}</section>
  </div>
 }
-function FutsalLexicon(){
- const [q,setQ]=useState(''); const [cat,setCat]=useState('Todos')
- const cats=['Todos',...new Set(FUTSAL_LEXICON.map(x=>x.cat))]
- const n=q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
- const rows=FUTSAL_LEXICON.filter(x=>(cat==='Todos'||x.cat===cat)&&(!n||[x.term,x.cat,x.meaning,...x.aliases].join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(n)))
- return <div className="card lexiconPage"><div className="paneTitle"><div><h2>📖 Léxico Tático de Futsal</h2><small>{FUTSAL_LEXICON.length} conceitos ligados ao motor de voz · PT-PT + variantes PT-BR/ES de uso corrente</small></div></div>
-  <div className="lexiconTools"><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Procurar: diagonal, paralela, segundo poste, cobertura…"/><select value={cat} onChange={e=>setCat(e.target.value)}>{cats.map(c=><option key={c}>{c}</option>)}</select></div>
-  <div className="lexiconGrid">{rows.map(x=><article key={x.term} className="lexiconEntry"><div><b>{x.term}</b><span>{x.cat}</span></div><p>{x.meaning}</p><small><strong>Voz:</strong> {x.aliases.join(' · ')}</small><code>{x.intent}</code></article>)}</div>
- </div>
-}
 function Board({tr,exercises,setExercises}){
  const editId=localStorage.getItem('gw_board_edit_exercise')
  const editEx=(exercises||[]).find(x=>x.id===editId)
@@ -612,6 +600,15 @@ function Board({tr,exercises,setExercises}){
  const [voiceOpen,setVoiceOpen]=useState(false)
  const [listening,setListening]=useState(false)
  const speechRef=useRef(null)
+ const [voiceMode,setVoiceMode]=useState('quick')
+ const [voiceStatus,setVoiceStatus]=useState('ready')
+ const voiceExamples=[
+  'Jogador 2 faz diagonal para a direita.',
+  'Jogador 3 faz paralela e jogador 4 ataca o segundo poste.',
+  'Jogador 2 afunda até à linha de fundo e dá a bola no meio. Entra o jogador 3 para finalizar.',
+  'Jogador 4 mete bola aérea no segundo poste e jogador 2 finaliza.',
+  'Jogador 1 apoia no pivô e jogador 3 faz diagonal nas costas.'
+ ]
 
  const normVoice=t=>(t||'').toLowerCase()
    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -707,9 +704,7 @@ function Board({tr,exercises,setExercises}){
  }
  const interpretVoice=()=>{
    const plan=parseVoiceCommand(voiceText)
-   const known=lexiconMatches(voiceText)
    setVoicePlan(plan)
-   if(known.length)console.info('Léxico futsal reconhecido:',known.map(x=>x.term).join(', '))
    if(!plan.length)alert('Não consegui identificar comandos táticos. Experimenta: "Jogador 2 faz diagonal para a direita..."')
  }
  const applyVoicePlan=()=>{
@@ -758,21 +753,71 @@ function Board({tr,exercises,setExercises}){
    setVoiceOpen(false);setVoicePlan([])
    alert(`${generated.length} ações de voz adicionadas à animação. Revê e carrega em PLAY.`)
  }
- const startVoice=()=>{
+ const startVoice=async()=>{
+   setVoiceOpen(true)
+   setListening(true);setVoiceStatus('listening')
+   try{
+     const {Capacitor}=await import('@capacitor/core')
+     if(Capacitor.isNativePlatform()){
+       const {SpeechRecognition}=await import('@capacitor-community/speech-recognition')
+       const perm=await SpeechRecognition.checkPermissions()
+       if(perm?.speechRecognition!=='granted'){
+         const asked=await SpeechRecognition.requestPermissions()
+         if(asked?.speechRecognition!=='granted'){
+           setListening(false);setVoiceStatus('permission')
+           return alert('É necessário autorizar o microfone para usar os comandos de voz.')
+         }
+       }
+       const avail=await SpeechRecognition.available()
+       if(!avail?.available){
+         setListening(false);setVoiceStatus('unavailable')
+         return alert('O reconhecimento de voz não está disponível neste dispositivo. Usa o comando escrito.')
+       }
+       try{await SpeechRecognition.removeAllListeners()}catch{}
+       const stateListener=await SpeechRecognition.addListener('listeningState',e=>{
+         setListening(e?.status==='started')
+       })
+       const result=await SpeechRecognition.start({
+         language:'pt-PT',
+         maxResults:5,
+         prompt:'Diz a instrução tática',
+         popup:true,
+         partialResults:false
+       })
+       const txt=(result?.matches||[])[0]||''
+       try{await stateListener.remove()}catch{}
+       try{await SpeechRecognition.removeAllListeners()}catch{}
+       setListening(false);setVoiceStatus(txt?'heard':'ready')
+       if(txt){setVoiceText(txt);setVoicePlan([])}
+       else alert('Não foi reconhecida nenhuma instrução. Experimenta novamente.')
+       return
+     }
+   }catch(e){
+     console.warn('Native speech fallback:',e)
+   }
+
    const SR=window.SpeechRecognition||window.webkitSpeechRecognition
-   if(!SR){setVoiceOpen(true);return alert('O reconhecimento de voz não está disponível neste navegador/WebView. Podes escrever o comando no mesmo painel.')}
+   if(!SR){
+     setListening(false);setVoiceStatus('unavailable')
+     return alert('O reconhecimento de voz não está disponível neste navegador. Usa o comando escrito.')
+   }
    try{
      speechRef.current?.stop?.()
      const rec=new SR();speechRef.current=rec
      rec.lang='pt-PT';rec.continuous=false;rec.interimResults=false
-     rec.onstart=()=>setListening(true)
-     rec.onend=()=>setListening(false)
+     rec.onstart=()=>{setListening(true);setVoiceStatus('listening')}
+     rec.onend=()=>{setListening(false);setVoiceStatus('ready')}
      rec.onerror=e=>{setListening(false);console.warn('Speech recognition',e)}
-     rec.onresult=e=>{const txt=[...e.results].map(r=>r[0]?.transcript||'').join(' ');setVoiceText(txt);setVoiceOpen(true)}
+     rec.onresult=e=>{
+       const txt=[...e.results].map(r=>r[0]?.transcript||'').join(' ')
+       setVoiceText(txt);setVoicePlan([])
+     }
      rec.start()
-   }catch(e){setListening(false);setVoiceOpen(true);alert('Não foi possível iniciar o microfone. Usa o comando escrito.')}
+   }catch(e){
+     setListening(false)
+     alert('Não foi possível iniciar o microfone. Usa o comando escrito.')
+   }
  }
-
  const snap=()=>({players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p})),duration:steps[step]?.duration||1.15})
  const commitSteps=()=>steps.map((x,i)=>i===step?{...x,...snap()}:x)
  const saveStep=()=>setSteps(commitSteps())
@@ -856,15 +901,17 @@ function Board({tr,exercises,setExercises}){
  const saveVariant=()=>{const finalSteps=commitSteps(),item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')}
  return <div className="simpleBoard">
   <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
-  <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a','field')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('a','gk')}>🧤 GR nossa equipa</button><button onClick={()=>addPlayer('d','field')}>＋ Adversário</button><button onClick={()=>addPlayer('d','gk')}>🧤 GR adversário</button><button className="voiceTacticBtn" onClick={startVoice}>{listening?'🎙️ A ouvir…':'🎙️ Comando de voz'}</button><button onClick={()=>setVoiceOpen(v=>!v)}>⌨️ Comando escrito</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
-  {voiceOpen&&<div className="card voiceTacticPanel">
-   <div className="voiceTacticHead"><div><b>🎙️ Comandos táticos por voz/texto</b><small>Diz a jogada como falarias no treino. A APP interpreta primeiro; só altera o quadro depois de confirmares.</small></div><button onClick={()=>setVoiceOpen(false)}>✕</button></div>
-   <textarea rows="3" value={voiceText} onChange={e=>setVoiceText(e.target.value)} placeholder="Ex.: Jogador 2 afunda até à linha de fundo e dá a bola no meio. Entra o jogador 3 para finalizar. Ou: jogador 4 mete bola aérea no 2.º poste."/>
-   <div className="voiceTacticActions"><button onClick={startVoice}>{listening?'🎙️ A ouvir…':'🎙️ Dizer novamente'}</button><button className="primary" onClick={interpretVoice}>🧠 Interpretar</button><button onClick={()=>{setVoiceText('');setVoicePlan([])}}>Limpar</button></div>
-   {!!voicePlan.length&&<div className="voiceInterpretation"><b>Interpretei assim:</b>{voicePlan.map((a,i)=><div key={i} className={a.kind==='warning'?'voiceWarn':'voiceLine'}><span>{i+1}</span>{a.label}</div>)}<div className="voiceConfirm"><button className="primary" onClick={applyVoicePlan}>✓ Confirmar e criar animação</button><button onClick={()=>setVoicePlan([])}>✏️ Corrigir texto</button></div></div>}
-   <div className="voiceExamples"><b>Léxico V22.4 ativo:</b> diagonal · paralela · apoio · ruptura · rotação · sobreposição · entrelinhas · linha defensiva · cobertura · pressão · bloco · pivô · 1.º/2.º poste · bola aérea · afundar · bola no meio · transições · sistemas 3:1/4:0/2:2 e restantes termos do dicionário.</div>
-  </div>}
-  <div className={fullscreen?'pitchFullscreen':'card pitchCard'}>
+  <div className={`voiceQuickBar ${listening?'isListening':''}`}><button className="voiceBigMic" onClick={startVoice}><span className="voiceMicIcon">{listening?'◉':'🎙️'}</span><span><b>{listening?'A ouvir…':'Dizer jogada'}</b><small>{listening?'Fala normalmente':'Toca e fala como no treino'}</small></span></button><button className="voiceKeyboardBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('text')}}>⌨️ Escrever</button><button className="voiceHelpBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('examples')}}>?</button></div>
+  <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a','field')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('a','gk')}>🧤 GR nossa equipa</button><button onClick={()=>addPlayer('d','field')}>＋ Adversário</button><button onClick={()=>addPlayer('d','gk')}>🧤 GR adversário</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
+  {voiceOpen&&<div className="voiceOverlay"><div className="card voiceTacticPanel voiceTacticPanelV2">
+   <div className="voicePanelTop"><div><small>COMANDOS TÁTICOS</small><h3>🎙️ Criar animação por voz</h3><p>Fala como no treino. A app interpreta primeiro e só cria movimentos depois da tua confirmação.</p></div><button className="voiceClose" onClick={()=>setVoiceOpen(false)}>✕</button></div>
+   <div className="voiceTabs"><button className={voiceMode==='quick'?'active':''} onClick={()=>setVoiceMode('quick')}>🎙️ Voz</button><button className={voiceMode==='text'?'active':''} onClick={()=>setVoiceMode('text')}>⌨️ Texto</button><button className={voiceMode==='examples'?'active':''} onClick={()=>setVoiceMode('examples')}>💡 Exemplos</button></div>
+   {voiceMode==='quick'&&<div className="voiceListenArea"><button className={`voicePulseButton ${listening?'listening':''}`} onClick={startVoice}><span>{listening?'◉':'🎙️'}</span><b>{listening?'Estou a ouvir':'Tocar para falar'}</b><small>{listening?'Diz a instrução completa':'Português · PT-PT'}</small></button><div className="voiceStatusText">{voiceStatus==='permission'?'⚠ Autoriza o microfone nas permissões da app':voiceStatus==='unavailable'?'⚠ Voz indisponível — usa o comando escrito':voiceStatus==='heard'?'✓ Comando recebido. Revê abaixo.':listening?'Fala agora…':'Ex.: “2 afunda, bola no meio, 3 entra e finaliza.”'}</div></div>}
+   {voiceMode==='examples'&&<div className="voiceExampleGrid">{voiceExamples.map((x,i)=><button key={i} onClick={()=>{setVoiceText(x);setVoiceMode('text')}}><span>{i+1}</span>{x}</button>)}</div>}
+   {(voiceMode==='text'||voiceText)&&<div className="voiceTextArea"><label>Instrução reconhecida / escrita</label><textarea rows="4" value={voiceText} onChange={e=>setVoiceText(e.target.value)} placeholder="Ex.: Jogador 2 afunda até à linha de fundo e dá a bola no meio. Entra o jogador 3 para finalizar."/><div className="voiceTacticActions"><button onClick={startVoice}>{listening?'🎙️ A ouvir…':'🎙️ Ditar novamente'}</button><button className="primary" disabled={!voiceText.trim()} onClick={interpretVoice}>Interpretar jogada →</button><button onClick={()=>{setVoiceText('');setVoicePlan([]);setVoiceStatus('ready')}}>Limpar</button></div></div>}
+   {!!voicePlan.length&&<div className="voiceInterpretation voiceInterpretationV2"><div className="voiceInterpretTitle"><b>Interpretei assim</b><small>Confirma antes de criar a animação.</small></div>{voicePlan.map((a,i)=><div key={i} className={a.kind==='warning'?'voiceWarn':'voiceLine'}><span>{i+1}</span><div><b>{a.kind==='move'?'MOVIMENTO':a.kind==='pass'?'PASSE':a.kind==='shot'?'REMATE':a.kind==='finish'?'FINALIZAÇÃO':a.kind==='cutback'?'BOLA NO MEIO':'AÇÃO'}</b><small>{a.label}</small></div></div>)}<div className="voiceConfirm"><button className="primary voiceConfirmMain" onClick={applyVoicePlan}>✓ Criar animação</button><button onClick={()=>{setVoiceMode('text');setVoicePlan([])}}>✏️ Corrigir frase</button><button onClick={startVoice}>🎙️ Dizer novamente</button></div></div>}
+   <div className="voiceLexiconMini"><b>A app já entende:</b><span>Diagonal</span><span>Paralela</span><span>2.º poste</span><span>Bola aérea</span><span>Afundar</span><span>Linha de fundo</span><span>Bola no meio</span><span>Pivô</span><span>Apoio</span><span>Remate cruzado</span></div>
+  </div></div>}\n  <div className={fullscreen?'pitchFullscreen':'card pitchCard'}>
    <div className="pitchViewportBar">
     <button className="viewportBtn" onClick={()=>setFullscreen(v=>!v)}>{fullscreen?'✕ Fechar':'⛶ Ecrã inteiro'}</button>
     <span>{fullscreen?title:'O campo adapta-se automaticamente ao ecrã'}</span>

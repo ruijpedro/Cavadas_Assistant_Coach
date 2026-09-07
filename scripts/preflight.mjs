@@ -107,14 +107,18 @@ for(const rx of gkChecks){
 }
 
 // V22.3 — tactical voice/text commands
-for(const token of ['Comando de voz','Comando escrito','parseVoiceCommand','applyVoicePlan','SpeechRecognition','Interpretei assim:']){
- if(!s.includes(token)){console.error('PRECHECK FAIL V22.3 VOICE:',token);process.exit(1);}
+for(const token of ['Dizer jogada','Escrever','parseVoiceCommand','applyVoicePlan','SpeechRecognition','Interpretei assim']){
+ if(!s.includes(token)){console.error('PRECHECK FAIL V22.4.1 VOICE UI:',token);process.exit(1);}
 }
 
 for(const token of ['bola aerea','afundar',"kind:'cutback'","goalTarget('cutback')",'segundo poste']){
  if(!s.includes(token)){console.error('PRECHECK FAIL V22.3.1:',token);process.exit(1);}
 }
 
-// V22.4 — tactical futsal lexicon
-for(const token of ['FUTSAL_LEXICON','Léxico Futsal','lexiconMatches']){if(!s.includes(token)){console.error('PRECHECK FAIL V22.4 LEXICON:',token);process.exit(1);}}
-console.log('Preflight V22.4 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
+// V22.4 — native Android speech recognition
+for(const token of ["@capacitor-community/speech-recognition","Capacitor.isNativePlatform","SpeechRecognition.requestPermissions","language:'pt-PT'"]){
+ if(!s.includes(token)){console.error('PRECHECK FAIL V22.4 NATIVE VOICE:',token);process.exit(1);}
+}
+
+for(const token of ['Dizer jogada','voiceQuickBar','voicePulseButton','Interpretei assim','Criar animação','voiceExamples']){if(!s.includes(token)){console.error('PRECHECK FAIL V22.4.1 VOICE UI:',token);process.exit(1);}}
+console.log('Preflight V22.4.1 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
