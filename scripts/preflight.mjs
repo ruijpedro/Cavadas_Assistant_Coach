@@ -134,7 +134,7 @@ for(const token of ['fsEditorBar','fsStepStrip','Compactar','viewportTools']){
  if(!s.includes(token)){console.error('PRECHECK FAIL V22.7 FULLSCREEN EDITOR:',token);process.exit(1);}
 }
 
-for(const token of ['footballPenaltyArea','footballGoalArea','footballPenaltySpot','footballCorner','Futebol 11 · campo completo']){
- if(!s.includes(token)){console.error('PRECHECK FAIL V22.8 FOOTBALL FIELD:',token);process.exit(1);}
+for(const token of ['footballPitchSvg','football-pitch.svg']){
+ if(!s.includes(token)){console.error('PRECHECK FAIL V22.8.1 FOOTBALL SVG:',token);process.exit(1);}
 }
 console.log('Preflight V22.8 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 680" preserveAspectRatio="none">
+<defs><pattern id="g" width="150" height="680" patternUnits="userSpaceOnUse"><rect width="75" height="680" fill="#167a42"/><rect x="75" width="75" height="680" fill="#1d8649"/></pattern></defs>
+<rect width="1050" height="680" fill="url(#g)"/>
+<g fill="none" stroke="#fff" stroke-width="4" vector-effect="non-scaling-stroke">
+<rect x="20" y="20" width="1010" height="640"/><line x1="525" y1="20" x2="525" y2="660"/><circle cx="525" cy="340" r="91.5"/>
+<rect x="20" y="138.4" width="165" height="403.2"/><rect x="865" y="138.4" width="165" height="403.2"/>
+<rect x="20" y="248.4" width="55" height="183.2"/><rect x="975" y="248.4" width="55" height="183.2"/>
+<rect x="0" y="303.4" width="20" height="73.2"/><rect x="1030" y="303.4" width="20" height="73.2"/>
+<path d="M185 278.4 A91.5 91.5 0 0 1 185 401.6"/><path d="M865 278.4 A91.5 91.5 0 0 0 865 401.6"/>
+<path d="M20 30 A10 10 0 0 0 30 20"/><path d="M1020 20 A10 10 0 0 0 1030 30"/><path d="M20 650 A10 10 0 0 1 30 660"/><path d="M1020 660 A10 10 0 0 1 1030 650"/>
+</g><g fill="#fff"><circle cx="525" cy="340" r="4"/><circle cx="130" cy="340" r="4"/><circle cx="920" cy="340" r="4"/></g></svg>

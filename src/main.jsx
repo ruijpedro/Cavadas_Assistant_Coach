@@ -5,6 +5,7 @@ import {Users, Dumbbell, ClipboardList, CalendarDays, Activity, Languages, Plus,
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import './style.css'
+import footballPitchSvg from './assets/football-pitch.svg'
 import {analyseDocumentV2, supportedImportKind} from './importEngineV2.js'
 
 const T={
@@ -1038,17 +1039,10 @@ function Board({tr,exercises,setExercises}){
     <button className="fsStepAdd" onClick={nextStep}>＋ Passo</button>
    </div>}
    <div className="pitchFit"><div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
-   <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/>
-   {isFootball?<>
-    <div className="footballPenaltyArea left"/><div className="footballPenaltyArea right"/>
-    <div className="footballGoalArea left"/><div className="footballGoalArea right"/>
-    <div className="footballPenaltySpot left"/><div className="footballPenaltySpot right"/>
-    <div className="footballPenaltyArc left"/><div className="footballPenaltyArc right"/>
-    <div className="footballCorner tl"/><div className="footballCorner tr"/><div className="footballCorner bl"/><div className="footballCorner br"/>
-   </>:<>
-    <div className="pitchArea left"/><div className="pitchArea right"/>
+   {isFootball?<img className="footballPitchSvg" src={footballPitchSvg} alt="" draggable="false"/>:<>
+    <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/>
+    <div className="pitchArea left"/><div className="pitchArea right"/><div className="pitchGoal left"/><div className="pitchGoal right"/>
    </>}
-   <div className="pitchGoal left"/><div className="pitchGoal right"/>
    {!playing&&<svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={`${p.type}${p.aerial?' aerial':''}${p.cutback?' cutback':''}`} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>}
    {players.map(p=><div key={p.id} className={`coachPiece ${p.team} ${String(p.label).toUpperCase()==='GR'?'gk':''}`} style={{left:`${p.x}%`,top:`${p.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
    <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>
