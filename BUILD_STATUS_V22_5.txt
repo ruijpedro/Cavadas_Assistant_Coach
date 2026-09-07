@@ -1,0 +1,4 @@
+Cavadas Manager V22.5
+Preflight: PASSED
+Voice Coach static checks: PASSED
+Full Vite/Android build: execute in GitHub Actions.
