@@ -125,4 +125,16 @@ for(const token of ['Dizer jogada','voiceQuickBar','voicePulseButton','Interpret
 for(const token of ['voiceConfidence','voiceRecent','voicePhraseChips','2 diagonal, 3 segundo poste','rememberVoice']){
  if(!s.includes(token)){console.error('PRECHECK FAIL V22.5 VOICE COACH:',token);process.exit(1);}
 }
-console.log('Preflight V22.5 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
+
+for(const token of ['voiceAttackDir','undoVoicePlan','removeVoiceAction','moveVoiceAction','bloqueio/cortina','tabela','ATACAMOS']){
+ if(!s.includes(token)){console.error('PRECHECK FAIL V22.6 VOICE DIRECTOR:',token);process.exit(1);}
+}
+
+for(const token of ['fsEditorBar','fsStepStrip','Compactar','viewportTools']){
+ if(!s.includes(token)){console.error('PRECHECK FAIL V22.7 FULLSCREEN EDITOR:',token);process.exit(1);}
+}
+
+for(const token of ['footballPenaltyArea','footballGoalArea','footballPenaltySpot','footballCorner','Futebol 11 · campo completo']){
+ if(!s.includes(token)){console.error('PRECHECK FAIL V22.8 FOOTBALL FIELD:',token);process.exit(1);}
+}
+console.log('Preflight V22.8 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');

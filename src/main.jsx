@@ -583,6 +583,7 @@ function Board({tr,exercises,setExercises}){
  const initialSteps=storedSteps?.length?storedSteps:[{id:Date.now(),name:'Passo 1',players:fallbackPlayers.map(p=>({...p})),ball:{x:52,y:42},paths:[],duration:1.15}]
  const [title,setTitle]=useState(editEx?.title||'Nova jogada')
  const [sport,setSport]=useState(editEx?.field||'futsal')
+ const isFootball=sport==='football11'||sport==='football7'||sport==='football6'
  const [steps,setSteps]=useState(initialSteps)
  const [step,setStep]=useState(0)
  const [players,setPlayers]=useState((initialSteps[0].players||fallbackPlayers).map(p=>({...p})))
@@ -594,6 +595,8 @@ function Board({tr,exercises,setExercises}){
  const [playing,setPlaying]=useState(false)
  const [speed,setSpeed]=useState(1)
  const [fullscreen,setFullscreen]=useState(false)
+ const [fsToolsOpen,setFsToolsOpen]=useState(true)
+ const [fsCompact,setFsCompact]=useState(false)
  const stopRef=useRef(false)
  const [voiceText,setVoiceText]=useState('')
  const [voicePlan,setVoicePlan]=useState([])
@@ -603,6 +606,8 @@ function Board({tr,exercises,setExercises}){
  const [voiceMode,setVoiceMode]=useState('quick')
  const [voiceStatus,setVoiceStatus]=useState('ready')
  const [voiceConfidence,setVoiceConfidence]=useState(0)
+ const [voiceAttackDir,setVoiceAttackDir]=useState('right')
+ const [voiceUndo,setVoiceUndo]=useState(null)
  const [voiceRecent,setVoiceRecent]=useState(()=>{try{return JSON.parse(localStorage.getItem('gw_voice_recent')||'[]')}catch{return[]}})
  const rememberVoice=txt=>{const v=(txt||'').trim();if(!v)return;const next=[v,...voiceRecent.filter(x=>x!==v)].slice(0,5);setVoiceRecent(next);localStorage.setItem('gw_voice_recent',JSON.stringify(next))}
  const voiceExamples=[
@@ -618,32 +623,36 @@ function Board({tr,exercises,setExercises}){
    .replace(/\bnumero\b/g,'').replace(/\bnº\b/g,'').replace(/\s+/g,' ').trim()
  const ownPlayer=n=>players.find(p=>p.team==='a'&&String(p.label)===String(n))
  const goalTarget=(side='center')=>{
-   // A nossa equipa ataca a baliza da direita no quadro.
-   if(side==='far')return{x:91,y:62}
-   if(side==='near')return{x:91,y:38}
-   if(side==='right')return{x:88,y:35}
-   if(side==='left')return{x:88,y:65}
-   if(side==='cutback')return{x:79,y:50}
-   if(side==='deepRight')return{x:90,y:22}
-   if(side==='deepLeft')return{x:90,y:78}
-   return{x:92,y:50}
+   const mirror=x=>voiceAttackDir==='right'?x:100-x
+   if(side==='far')return{x:mirror(91),y:62}
+   if(side==='near')return{x:mirror(91),y:38}
+   if(side==='right')return{x:mirror(88),y:35}
+   if(side==='left')return{x:mirror(88),y:65}
+   if(side==='cutback')return{x:mirror(79),y:50}
+   if(side==='deepRight')return{x:mirror(90),y:22}
+   if(side==='deepLeft')return{x:mirror(90),y:78}
+   return{x:mirror(92),y:50}
  }
  const playerTarget=(p,clause)=>{
    const c=normVoice(clause),base={x:p.x,y:p.y}
-   if(/segundo poste|2 poste|poste contrario/.test(c))return goalTarget('far')
-   if(/primeiro poste|1 poste/.test(c))return goalTarget('near')
-   if(/afundar|afunda|vai ao fundo|linha de fundo|fundo do campo|ganha fundo/.test(c))return base.y<=50?goalTarget('deepRight'):goalTarget('deepLeft')
-   if(/entra no meio|ataca o meio|zona central/.test(c))return{x:80,y:50}
-   if(/lado direito da baliza|direita da baliza|diagonal direita/.test(c))return{x:84,y:34}
-   if(/lado esquerdo da baliza|esquerda da baliza|diagonal esquerda/.test(c))return{x:84,y:66}
-   if(/paralela/.test(c))return{x:Math.min(90,base.x+22),y:base.y}
-   if(/diagonal/.test(c)){
+   const forward=(d=16)=>voiceAttackDir==='right'?Math.min(94,base.x+d):Math.max(6,base.x-d)
+   const advanced=(x)=>voiceAttackDir==='right'?x:100-x
+   if(/segundo poste|2 poste|segundo pau|poste contrario|pau contrario/.test(c))return goalTarget('far')
+   if(/primeiro poste|1 poste|primeiro pau/.test(c))return goalTarget('near')
+   if(/afundar|afunda|vai ao fundo|linha de fundo|fundo do campo|ganha fundo|ataca fundo/.test(c))return base.y<=50?goalTarget('deepRight'):goalTarget('deepLeft')
+   if(/entra no meio|ataca o meio|zona central|corta dentro|vem dentro/.test(c))return{x:advanced(80),y:50}
+   if(/abre|dar largura|largura/.test(c))return{x:forward(10),y:base.y<=50?14:86}
+   if(/entre linhas|entrelinhas|rompe linha|quebra linha/.test(c))return{x:advanced(68),y:50}
+   if(/lado direito da baliza|direita da baliza|diagonal direita/.test(c))return{x:advanced(84),y:34}
+   if(/lado esquerdo da baliza|esquerda da baliza|diagonal esquerda/.test(c))return{x:advanced(84),y:66}
+   if(/paralela/.test(c))return{x:forward(22),y:base.y}
+   if(/diagonal|nas costas/.test(c)){
      const towardTop=/direita|cima/.test(c),ny=towardTop?Math.max(18,base.y-22):Math.min(82,base.y+22)
-     return{x:Math.min(86,base.x+24),y:ny}
+     return{x:forward(24),y:ny}
    }
-   if(/pivo|pivot/.test(c))return{x:72,y:50}
-   if(/apoio|aproxima/.test(c))return{x:Math.min(68,base.x+12),y:50}
-   return{x:Math.min(88,base.x+16),y:base.y}
+   if(/pivo|pivot|fixa|fixar/.test(c))return{x:advanced(72),y:50}
+   if(/apoio|aproxima|vem apoiar|da apoio/.test(c))return{x:advanced(62),y:50}
+   return{x:forward(16),y:base.y}
  }
  const parseVoiceCommand=text=>{
    const raw=(text||'').trim()
@@ -670,7 +679,7 @@ function Board({tr,exercises,setExercises}){
      const aerial=/bola aerea|passe aereo|pelo ar|bola pelo ar|cruzamento aereo|levanta a bola/.test(c)
      const deep=/afundar|afunda|vai ao fundo|linha de fundo|fundo do campo|ganha fundo|ataca fundo/.test(c)
      const cutback=/bola no meio|mete no meio|da no meio|dar no meio|passe atras|passe para tras|cruza atras|bola atras/.test(c)
-     const simultaneous=/ao mesmo tempo|simultaneamente|juntos/.test(c)
+     const simultaneous=/ao mesmo tempo|simultaneamente|juntos|em simultaneo|os dois/.test(c)
 
      if(deep){
        add({kind:'move',player:num,target:playerTarget(p,c),semantic:'deep',simultaneous,label:`Jogador ${num}: afundar até à linha de fundo.`},96)
@@ -700,6 +709,13 @@ function Board({tr,exercises,setExercises}){
        add({kind:'shot',player:num,target,aerial,simultaneous,label:`Jogador ${num}: remate${/cruzad/.test(c)?' cruzado':''}${target==='far'?' para o 2.º poste':target==='near'?' para o 1.º poste':''}.`},93)
        continue
      }
+     if(/tabela|devolve|devolucao/.test(c)){
+       const refs=[...c.matchAll(/(?:jogador|atleta)\s*(\d+)/g)].map(m=>m[1])
+       const bare=[...c.matchAll(/\b(\d+)\b/g)].map(m=>m[1])
+       const to=(refs.find(x=>x!==num)||bare.find(x=>x!==num)||null)
+       add({kind:'pass',player:num,to,oneTwo:true,simultaneous,label:`Jogador ${num}: ${/tabela/.test(c)?'tabela':'devolução rápida'}${to?` com o jogador ${to}`:''}.`},92)
+       continue
+     }
      if(/passa|passe|toca|cruza|mete a bola|da a bola/.test(c)){
        const refs=[...c.matchAll(/(?:jogador|atleta)\s*(\d+)/g)].map(m=>m[1])
        const bare=[...c.matchAll(/\b(\d+)\b/g)].map(m=>m[1])
@@ -707,7 +723,11 @@ function Board({tr,exercises,setExercises}){
        add({kind:'pass',player:num,to,target:/segundo poste/.test(c)?'far':/primeiro poste/.test(c)?'near':null,aerial,simultaneous,label:`Jogador ${num}: passe${aerial?' aéreo':''}${to?` para o jogador ${to}`:/segundo poste/.test(c)?' para o 2.º poste':''}.`},91)
        continue
      }
-     if(/diagonal|paralela|segundo poste|primeiro poste|lado direito|lado esquerdo|pivo|pivot|apoio|aproxima|desmarca|movimenta|entra no meio|ataca o meio|nas costas/.test(c)){
+     if(/bloqueia|bloqueio|faz bloco|faz cortina|cortina/.test(c)){
+       add({kind:'move',player:num,target:{x:voiceAttackDir==='right'?76:24,y:50},semantic:'block',simultaneous,label:`Jogador ${num}: bloqueio/cortina na zona interior.`},88)
+       continue
+     }
+     if(/diagonal|paralela|segundo poste|segundo pau|primeiro poste|primeiro pau|lado direito|lado esquerdo|pivo|pivot|apoio|aproxima|desmarca|movimenta|entra no meio|ataca o meio|nas costas|corta dentro|abre|dar largura|fixa|fixar|entre linhas|entrelinhas|rompe linha|quebra linha/.test(c)){
        const target=playerTarget(p,c)
        add({kind:'move',player:num,target,simultaneous,label:`Jogador ${num}: ${/diagonal/.test(c)?'diagonal':/paralela/.test(c)?'paralela':/segundo poste/.test(c)?'ataque ao 2.º poste':/primeiro poste/.test(c)?'ataque ao 1.º poste':/entra no meio|ataca o meio/.test(c)?'entrada no meio':'movimento'}${/direita/.test(c)?' para a direita':/esquerda/.test(c)?' para a esquerda':''}.`},90)
        continue
@@ -729,48 +749,83 @@ function Board({tr,exercises,setExercises}){
  const applyVoicePlan=()=>{
    const valid=voicePlan.filter(a=>!['warning','note'].includes(a.kind))
    if(!valid.length)return alert('Não existem ações confirmáveis.')
-   let baseSteps=commitSteps()
+
+   const before={steps:commitSteps(),step,players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p}))}
+   setVoiceUndo(before)
+
+   let baseSteps=before.steps
    let cur={...baseSteps[step],players:players.map(p=>({...p})),ball:{...ball},paths:paths.map(p=>({...p})),duration:1.0}
    const generated=[]
-   for(let i=0;i<valid.length;i++){
-     const a=valid[i],next={id:Date.now()+i+Math.random(),name:`Voz ${i+1}`,players:cur.players.map(p=>({...p})),ball:{...cur.ball},paths:[],duration:1.05}
+
+   // Ações consecutivas marcadas "simultâneas" são executadas no mesmo passo.
+   const groups=[]
+   for(const action of valid){
+     if(action.simultaneous&&groups.length){groups[groups.length-1].push(action)}
+     else groups.push([action])
+   }
+
+   const applyAction=(next,curState,a,i)=>{
      const p=next.players.find(x=>x.team==='a'&&String(x.label)===String(a.player))
-     const prev=cur.players.find(x=>x.team==='a'&&String(x.label)===String(a.player))
-     if(!p||!prev)continue
+     const prev=curState.players.find(x=>x.team==='a'&&String(x.label)===String(a.player))
+     if(!p||!prev)return
+
      if(a.kind==='move'){
        p.x=a.target.x;p.y=a.target.y
-       next.paths.push({id:'vm'+Date.now()+i,type:'move',x1:prev.x,y1:prev.y,x2:p.x,y2:p.y})
+       next.paths.push({id:'vm'+Date.now()+i+Math.random(),type:'move',x1:prev.x,y1:prev.y,x2:p.x,y2:p.y})
      }else if(a.kind==='pass'){
        let dest=null
        if(a.to){const q=next.players.find(x=>x.team==='a'&&String(x.label)===String(a.to));if(q)dest={x:q.x,y:q.y}}
        if(!dest&&a.target)dest=goalTarget(a.target)
-       if(!dest)dest={x:Math.min(90,p.x+18),y:p.y}
+       if(!dest)dest={x:voiceAttackDir==='right'?Math.min(90,p.x+18):Math.max(10,p.x-18),y:p.y}
        next.ball={...dest}
-       next.paths.push({id:'vp'+Date.now()+i,type:'pass',aerial:!!a.aerial,x1:cur.ball.x,y1:cur.ball.y,x2:dest.x,y2:dest.y})
+       next.paths.push({id:'vp'+Date.now()+i+Math.random(),type:'pass',aerial:!!a.aerial,oneTwo:!!a.oneTwo,x1:curState.ball.x,y1:curState.ball.y,x2:dest.x,y2:dest.y})
      }else if(a.kind==='cutback'){
        const dest=goalTarget('cutback')
        next.ball={...dest}
-       next.paths.push({id:'vc'+Date.now()+i,type:'pass',aerial:!!a.aerial,cutback:true,x1:p.x,y1:p.y,x2:dest.x,y2:dest.y})
+       next.paths.push({id:'vc'+Date.now()+i+Math.random(),type:'pass',aerial:!!a.aerial,cutback:true,x1:p.x,y1:p.y,x2:dest.x,y2:dest.y})
      }else if(a.kind==='shot'){
        const dest=goalTarget(a.target)
        next.ball={...dest}
-       next.paths.push({id:'vs'+Date.now()+i,type:'pass',x1:p.x,y1:p.y,x2:dest.x,y2:dest.y})
+       next.paths.push({id:'vs'+Date.now()+i+Math.random(),type:'pass',shot:true,x1:p.x,y1:p.y,x2:dest.x,y2:dest.y})
      }else if(a.kind==='finish'){
        const dest=goalTarget('far')
-       p.x=dest.x-3;p.y=dest.y
-       next.ball={x:94,y:50}
-       next.paths.push({id:'vf1'+Date.now()+i,type:'move',x1:prev.x,y1:prev.y,x2:p.x,y2:p.y})
-       next.paths.push({id:'vf2'+Date.now()+i,type:'pass',x1:cur.ball.x,y1:cur.ball.y,x2:94,y2:50})
+       p.x=voiceAttackDir==='right'?dest.x-3:dest.x+3;p.y=dest.y
+       next.ball={x:voiceAttackDir==='right'?94:6,y:50}
+       next.paths.push({id:'vf1'+Date.now()+i+Math.random(),type:'move',x1:prev.x,y1:prev.y,x2:p.x,y2:p.y})
+       next.paths.push({id:'vf2'+Date.now()+i+Math.random(),type:'pass',shot:true,x1:curState.ball.x,y1:curState.ball.y,x2:next.ball.x,y2:50})
      }
-     generated.push(next);cur=next
    }
+
+   groups.forEach((group,gi)=>{
+     const next={id:Date.now()+gi+Math.random(),name:`Voz ${gi+1}`,players:cur.players.map(p=>({...p})),ball:{...cur.ball},paths:[],duration:1.05}
+     group.forEach((a,ai)=>applyAction(next,cur,a,gi*10+ai))
+     generated.push(next)
+     cur=next
+   })
+
    const prefix=baseSteps.slice(0,step+1)
    const merged=[...prefix,...generated]
    setSteps(merged)
    const last=merged[merged.length-1]
    setPlayers(last.players.map(p=>({...p})));setBall({...last.ball});setPaths((last.paths||[]).map(p=>({...p})));setStep(merged.length-1)
    setVoiceOpen(false);setVoicePlan([])
-   alert(`${generated.length} ações de voz adicionadas à animação. Revê e carrega em PLAY.`)
+   alert(`${generated.length} passos criados a partir de ${valid.length} ações. Revê em PLAY.`)
+ }
+ const undoVoicePlan=()=>{
+   if(!voiceUndo)return
+   setSteps(voiceUndo.steps)
+   setStep(voiceUndo.step)
+   setPlayers(voiceUndo.players.map(p=>({...p})))
+   setBall({...voiceUndo.ball})
+   setPaths(voiceUndo.paths.map(p=>({...p})))
+   setVoiceUndo(null)
+ }
+ const removeVoiceAction=i=>setVoicePlan(v=>v.filter((_,k)=>k!==i))
+ const moveVoiceAction=(i,d)=>{
+   setVoicePlan(v=>{
+     const j=i+d;if(j<0||j>=v.length)return v
+     const n=[...v],[x]=n.splice(i,1);n.splice(j,0,x);return n
+   })
  }
  const startVoice=async()=>{
    setVoiceOpen(true)
@@ -911,6 +966,9 @@ function Board({tr,exercises,setExercises}){
    const esc=e=>{if(e.key==='Escape')setFullscreen(false)}
    window.addEventListener('keydown',esc);return()=>window.removeEventListener('keydown',esc)
  },[])
+ useEffect(()=>{
+   if(fullscreen){setFsToolsOpen(true);setFsCompact(false)}
+ },[fullscreen])
  const setDuration=v=>setSteps(xs=>xs.map((x,i)=>i===step?{...x,duration:Number(v)}:x))
  const saveExercise=()=>{
    const finalSteps=commitSteps(),existing=(exercises||[]).find(x=>x.id===editId)
@@ -919,29 +977,78 @@ function Board({tr,exercises,setExercises}){
  }
  const saveVariant=()=>{const finalSteps=commitSteps(),item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')}
  return <div className="simpleBoard">
-  <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
-  <div className={`voiceQuickBar ${listening?'isListening':''}`}><button className="voiceBigMic" onClick={startVoice}><span className="voiceMicIcon">{listening?'◉':'🎙️'}</span><span><b>{listening?'A ouvir…':'Dizer jogada'}</b><small>{listening?'Fala normalmente — podes usar só os números':'1 toque · fala · confirma · anima'}</small></span></button><button className="voiceKeyboardBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('text')}}>⌨️ Escrever</button><button className="voiceHelpBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('examples')}}>?</button></div>
+  <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal · 40×20</option><option value="football11">Futebol 11 · campo completo</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
+  <div className={`voiceQuickBar ${listening?'isListening':''}`}>
+   <button className="voiceBigMic" onClick={startVoice}><span className="voiceMicIcon">{listening?'◉':'🎙️'}</span><span><b>{listening?'A ouvir…':'Dizer jogada'}</b><small>{listening?'Fala normalmente — podes usar só os números':'1 toque · fala · confirma · anima'}</small></span></button>
+   <div className="voiceDirection"><small>ATACAMOS</small><button className={voiceAttackDir==='right'?'active':''} onClick={()=>setVoiceAttackDir('right')}>→</button><button className={voiceAttackDir==='left'?'active':''} onClick={()=>setVoiceAttackDir('left')}>←</button></div>
+   <button className="voiceKeyboardBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('text')}}>⌨️ Escrever</button>
+   {voiceUndo&&<button className="voiceUndoBtn" onClick={undoVoicePlan}>↶ Voz</button>}
+   <button className="voiceHelpBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('examples')}}>?</button>
+  </div>
   <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a','field')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('a','gk')}>🧤 GR nossa equipa</button><button onClick={()=>addPlayer('d','field')}>＋ Adversário</button><button onClick={()=>addPlayer('d','gk')}>🧤 GR adversário</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
   {voiceOpen&&<div className="voiceOverlay"><div className="card voiceTacticPanel voiceTacticPanelV2">
    <div className="voicePanelTop"><div><small>COMANDOS TÁTICOS</small><h3>🎙️ Criar animação por voz</h3><p>Fala como no treino. A app interpreta primeiro e só cria movimentos depois da tua confirmação.</p></div><button className="voiceClose" onClick={()=>setVoiceOpen(false)}>✕</button></div>
    <div className="voiceTabs"><button className={voiceMode==='quick'?'active':''} onClick={()=>setVoiceMode('quick')}>🎙️ Voz</button><button className={voiceMode==='text'?'active':''} onClick={()=>setVoiceMode('text')}>⌨️ Texto</button><button className={voiceMode==='examples'?'active':''} onClick={()=>setVoiceMode('examples')}>💡 Exemplos</button></div>
    <div className="voicePhraseChips">
-    {['Diagonal','Paralela','2.º poste','Bola aérea','Afundar','Linha de fundo','Bola no meio','Pivô','Apoio','Remate cruzado'].map(x=><button key={x} onClick={()=>{setVoiceMode('text');setVoiceText(v=>(v?`${v} `:'')+x.toLowerCase())}}>{x}</button>)}
+    {['Diagonal','Paralela','2.º poste','Bola aérea','Afundar','Linha de fundo','Bola no meio','Pivô','Apoio','Remate cruzado','Bloqueio','Tabela','Entrelinhas','Dar largura'].map(x=><button key={x} onClick={()=>{setVoiceMode('text');setVoiceText(v=>(v?`${v} `:'')+x.toLowerCase())}}>{x}</button>)}
    </div>
    {!!voiceRecent.length&&voiceMode==='examples'&&<div className="voiceRecent"><b>Últimos comandos</b>{voiceRecent.map((x,i)=><button key={i} onClick={()=>{setVoiceText(x);setVoiceMode('text');setTimeout(()=>interpretVoice(x),0)}}>{x}</button>)}</div>}
    {voiceMode==='quick'&&<div className="voiceListenArea"><button className={`voicePulseButton ${listening?'listening':''}`} onClick={startVoice}><span>{listening?'◉':'🎙️'}</span><b>{listening?'Estou a ouvir':'Tocar para falar'}</b><small>{listening?'Diz a instrução completa':'Português · PT-PT'}</small></button><div className="voiceStatusText">{voiceStatus==='permission'?'⚠ Autoriza o microfone nas permissões da app':voiceStatus==='unavailable'?'⚠ Voz indisponível — usa o comando escrito':voiceStatus==='heard'?'✓ Comando recebido. Revê abaixo.':listening?'Fala agora…':'Ex.: “2 afunda, bola no meio, 3 entra e finaliza.”'}</div></div>}
    {voiceMode==='examples'&&<div className="voiceExampleGrid">{voiceExamples.map((x,i)=><button key={i} onClick={()=>{setVoiceText(x);setVoiceMode('text')}}><span>{i+1}</span>{x}</button>)}</div>}
    {(voiceMode==='text'||voiceText)&&<div className="voiceTextArea"><label>Instrução reconhecida / escrita</label><textarea rows="4" value={voiceText} onChange={e=>setVoiceText(e.target.value)} placeholder="Ex.: Jogador 2 afunda até à linha de fundo e dá a bola no meio. Entra o jogador 3 para finalizar."/><div className="voiceTacticActions"><button onClick={startVoice}>{listening?'🎙️ A ouvir…':'🎙️ Ditar novamente'}</button><button className="primary" disabled={!voiceText.trim()} onClick={interpretVoice}>Interpretar jogada →</button><button onClick={()=>{setVoiceText('');setVoicePlan([]);setVoiceStatus('ready')}}>Limpar</button></div></div>}
-   {!!voicePlan.length&&<div className="voiceInterpretation voiceInterpretationV2"><div className="voiceInterpretTitle"><div><b>Interpretei assim</b><span className={`voiceConfidence ${voiceConfidence>=85?'high':voiceConfidence>=65?'mid':'low'}`}>{voiceConfidence}% confiança</span></div><small>Confirma antes de criar a animação. Se algo estiver errado, corrige a frase.</small></div>{voicePlan.map((a,i)=><div key={i} className={a.kind==='warning'?'voiceWarn':'voiceLine'}><span>{i+1}</span><div><b>{a.kind==='move'?'MOVIMENTO':a.kind==='pass'?'PASSE':a.kind==='shot'?'REMATE':a.kind==='finish'?'FINALIZAÇÃO':a.kind==='cutback'?'BOLA NO MEIO':'AÇÃO'}</b><small>{a.label}</small></div></div>)}<div className="voiceConfirm"><button className="primary voiceConfirmMain" onClick={applyVoicePlan}>✓ Criar animação</button><button onClick={()=>{setVoiceMode('text');setVoicePlan([])}}>✏️ Corrigir frase</button><button onClick={startVoice}>🎙️ Dizer novamente</button></div></div>}
-   <div className="voiceLexiconMini"><b>A app já entende:</b><span>Diagonal</span><span>Paralela</span><span>2.º poste</span><span>Bola aérea</span><span>Afundar</span><span>Linha de fundo</span><span>Bola no meio</span><span>Pivô</span><span>Apoio</span><span>Remate cruzado</span></div>
+   {!!voicePlan.length&&<div className="voiceInterpretation voiceInterpretationV2"><div className="voiceInterpretTitle"><div><b>Interpretei assim</b><span className={`voiceConfidence ${voiceConfidence>=85?'high':voiceConfidence>=65?'mid':'low'}`}>{voiceConfidence}% confiança</span></div><small>Confirma antes de criar a animação. Se algo estiver errado, corrige a frase.</small></div>{voicePlan.map((a,i)=><div key={i} className={a.kind==='warning'?'voiceWarn':'voiceLine'}><span>{i+1}</span><div className="voiceActionBody"><b>{a.kind==='move'?'MOVIMENTO':a.kind==='pass'?'PASSE':a.kind==='shot'?'REMATE':a.kind==='finish'?'FINALIZAÇÃO':a.kind==='cutback'?'BOLA NO MEIO':'AÇÃO'}</b><small>{a.label}</small>{a.simultaneous&&<em>↔ simultâneo</em>}</div><div className="voiceActionTools"><button onClick={()=>moveVoiceAction(i,-1)} disabled={i===0}>↑</button><button onClick={()=>moveVoiceAction(i,1)} disabled={i===voicePlan.length-1}>↓</button><button onClick={()=>removeVoiceAction(i)}>✕</button></div></div>)}<div className="voiceConfirm"><button className="primary voiceConfirmMain" onClick={applyVoicePlan}>✓ Criar animação</button><button onClick={()=>{setVoiceMode('text');setVoicePlan([])}}>✏️ Corrigir frase</button><button onClick={startVoice}>🎙️ Dizer novamente</button></div></div>}
+   <div className="voiceLexiconMini"><b>A app já entende:</b><span>Diagonal</span><span>Paralela</span><span>2.º poste</span><span>Bola aérea</span><span>Afundar</span><span>Linha de fundo</span><span>Bola no meio</span><span>Pivô</span><span>Apoio</span><span>Remate cruzado</span><span>Bloqueio</span><span>Tabela</span><span>Entrelinhas</span><span>Dar largura</span></div>
   </div></div>}\n  <div className={fullscreen?'pitchFullscreen':'card pitchCard'}>
    <div className="pitchViewportBar">
     <button className="viewportBtn" onClick={()=>setFullscreen(v=>!v)}>{fullscreen?'✕ Fechar':'⛶ Ecrã inteiro'}</button>
-    <span>{fullscreen?title:'O campo adapta-se automaticamente ao ecrã'}</span>
+    <span>{fullscreen?`${title} · ${sport==='futsal'?'FUTSAL':sport==='football11'?'FUTEBOL 11':sport==='football7'?'FUTEBOL 7':'FUTEBOL 6'} · PASSO ${step+1}/${steps.length} · ${tool==='select'?'Mover':tool==='move'?'Movimento':'Passe'} · Atacamos ${voiceAttackDir==='right'?'→':'←'}`:'O campo adapta-se automaticamente ao ecrã'}</span>
+    {fullscreen&&<button className="viewportTools" onClick={()=>setFsToolsOpen(v=>!v)}>{fsToolsOpen?'▾ Ferramentas':'▴ Ferramentas'}</button>}
     {fullscreen&&(playing?<button className="viewportPlay" onClick={stop}>■ STOP</button>:<button className="viewportPlay" onClick={play}>▶ PLAY</button>)}
    </div>
+   {fullscreen&&fsToolsOpen&&<div className={`fsEditorBar ${fsCompact?'compact':''}`}>
+    <div className="fsEditorGroup">
+     <button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝<span>Mover</span></button>
+     <button onClick={()=>addPlayer('a','field')}>＋<span>Nossa equipa</span></button>
+     <button onClick={()=>addPlayer('a','gk')}>🧤<span>GR nossa</span></button>
+     <button onClick={()=>addPlayer('d','field')}>＋<span>Adversário</span></button>
+     <button onClick={()=>addPlayer('d','gk')}>🧤<span>GR adversário</span></button>
+    </div>
+    <div className="fsEditorGroup">
+     <button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜<span>Movimento</span></button>
+     <button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽<span>Passe</span></button>
+     <button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶<span>Apagar ação</span></button>
+    </div>
+    <div className="fsEditorGroup">
+     <button onClick={nextStep}>＋<span>Passo</span></button>
+     <button onClick={duplicate}>⧉<span>Duplicar</span></button>
+     <button onClick={startVoice}>🎙️<span>Voz</span></button>
+     {voiceUndo&&<button onClick={undoVoicePlan}>↶<span>Voz</span></button>}
+    </div>
+    <div className="fsEditorGroup">
+     <button onClick={saveExercise}>💾<span>Guardar</span></button>
+     {editEx&&<button onClick={saveVariant}>＋<span>Variante</span></button>}
+     <button onClick={()=>setFsCompact(v=>!v)}>{fsCompact?'▤':'◫'}<span>{fsCompact?'Expandir':'Compactar'}</span></button>
+    </div>
+   </div>}
+
+   {fullscreen&&<div className="fsStepStrip">
+    <button className="fsStepArrow" onClick={()=>{saveStep();loadStep(Math.max(0,step-1))}} disabled={step===0}>‹</button>
+    <div className="fsStepButtons">{steps.map((x,i)=><button key={x.id} className={i===step?'active':''} onClick={()=>{saveStep();loadStep(i)}}>{i+1}</button>)}</div>
+    <button className="fsStepArrow" onClick={()=>{saveStep();loadStep(Math.min(steps.length-1,step+1))}} disabled={step===steps.length-1}>›</button>
+    <button className="fsStepAdd" onClick={nextStep}>＋ Passo</button>
+   </div>}
    <div className="pitchFit"><div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
-   <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/><div className="pitchArea left"/><div className="pitchArea right"/><div className="pitchGoal left"/><div className="pitchGoal right"/>
+   <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/>
+   {isFootball?<>
+    <div className="footballPenaltyArea left"/><div className="footballPenaltyArea right"/>
+    <div className="footballGoalArea left"/><div className="footballGoalArea right"/>
+    <div className="footballPenaltySpot left"/><div className="footballPenaltySpot right"/>
+    <div className="footballPenaltyArc left"/><div className="footballPenaltyArc right"/>
+    <div className="footballCorner tl"/><div className="footballCorner tr"/><div className="footballCorner bl"/><div className="footballCorner br"/>
+   </>:<>
+    <div className="pitchArea left"/><div className="pitchArea right"/>
+   </>}
+   <div className="pitchGoal left"/><div className="pitchGoal right"/>
    {!playing&&<svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={`${p.type}${p.aerial?' aerial':''}${p.cutback?' cutback':''}`} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>}
    {players.map(p=><div key={p.id} className={`coachPiece ${p.team} ${String(p.label).toUpperCase()==='GR'?'gk':''}`} style={{left:`${p.x}%`,top:`${p.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
    <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>
