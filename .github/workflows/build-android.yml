@@ -55,6 +55,7 @@ jobs:
           ./node_modules/.bin/cap add android
           ./node_modules/.bin/cap sync android
           test -f android/gradlew
+          test -d node_modules/@capacitor-community/speech-recognition
 
       - name: Apply Cavadas Manager icons
         shell: bash
@@ -79,5 +80,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Cavadas-Manager-V22.3-APK
+          name: Cavadas-Manager-V22.4.1-APK
           path: android/app/build/outputs/apk/debug/*.apk
