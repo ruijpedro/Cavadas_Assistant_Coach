@@ -1,6 +1,6 @@
 {
   "name": "cavadas-manager-gruefwiss",
-  "version": "22.4.0",
+  "version": "22.4.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -21,7 +21,8 @@
     "@capacitor/cli": "^7.2.0",
     "@capacitor/android": "^7.2.0",
     "pdfjs-dist": "^5.4.149",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "@capacitor-community/speech-recognition": "7.0.1"
   },
   "devDependencies": {
     "vite": "6.4.3",

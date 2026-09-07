@@ -1,0 +1,4 @@
+Cavadas Manager V22.4
+Preflight: PASSED
+Native speech: @capacitor-community/speech-recognition 7.0.1
+GitHub Android build: to be executed in Actions.
