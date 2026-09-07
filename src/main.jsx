@@ -602,6 +602,9 @@ function Board({tr,exercises,setExercises}){
  const speechRef=useRef(null)
  const [voiceMode,setVoiceMode]=useState('quick')
  const [voiceStatus,setVoiceStatus]=useState('ready')
+ const [voiceConfidence,setVoiceConfidence]=useState(0)
+ const [voiceRecent,setVoiceRecent]=useState(()=>{try{return JSON.parse(localStorage.getItem('gw_voice_recent')||'[]')}catch{return[]}})
+ const rememberVoice=txt=>{const v=(txt||'').trim();if(!v)return;const next=[v,...voiceRecent.filter(x=>x!==v)].slice(0,5);setVoiceRecent(next);localStorage.setItem('gw_voice_recent',JSON.stringify(next))}
  const voiceExamples=[
   'Jogador 2 faz diagonal para a direita.',
   'Jogador 3 faz paralela e jogador 4 ataca o segundo poste.',
@@ -645,67 +648,83 @@ function Board({tr,exercises,setExercises}){
  const parseVoiceCommand=text=>{
    const raw=(text||'').trim()
    if(!raw)return[]
-   // Divide por pontuação e por conectores apenas quando inicia nova referência de jogador.
-   const chunks=raw
-     .replace(/\s+e\s+(?=(?:o\s+)?(?:jogador|atleta)\s*(?:numero\s*)?\d+)/gi,'|')
-     .split(/[|.;]+/).map(x=>x.trim()).filter(Boolean)
+   // Aceita linguagem natural e abreviações: "2 diagonal, 3 segundo poste".
+   const prepared=raw
+     .replace(/\s+(?:depois|a seguir|seguidamente)\s+/gi,'|')
+     .replace(/\s+e\s+(?=(?:(?:o\s+)?(?:jogador|atleta)\s*)?\d+)/gi,'|')
+     .replace(/,\s*(?=(?:(?:o\s+)?(?:jogador|atleta)\s*)?\d+\b)/g,'|')
+   const chunks=prepared.split(/[|.;]+/).map(x=>x.trim()).filter(Boolean)
    const actions=[]
    let lastPlayer=null
+   const add=(a,c=88)=>actions.push({...a,confidence:c})
    for(const original of chunks){
      const c=normVoice(original)
-     const pm=c.match(/(?:jogador|atleta)\s*(\d+)/)
+     // referência explícita (jogador 2) ou número no início (2 diagonal...)
+     const pm=c.match(/(?:jogador|atleta)\s*(\d+)/)||c.match(/^\s*(\d+)\b/)
      if(pm)lastPlayer=pm[1]
      const num=pm?.[1]||lastPlayer
      if(!num)continue
      const p=ownPlayer(num)
-     if(!p){actions.push({kind:'warning',player:num,label:`Jogador ${num} não está no campo.`});continue}
-     const aerial=/bola aerea|passe aereo|pelo ar|bola pelo ar|cruzamento aereo/.test(c)
-     const deep=/afundar|afunda|vai ao fundo|linha de fundo|fundo do campo|ganha fundo/.test(c)
+     if(!p){add({kind:'warning',player:num,label:`Jogador ${num} não está no campo.`},100);continue}
+
+     const aerial=/bola aerea|passe aereo|pelo ar|bola pelo ar|cruzamento aereo|levanta a bola/.test(c)
+     const deep=/afundar|afunda|vai ao fundo|linha de fundo|fundo do campo|ganha fundo|ataca fundo/.test(c)
      const cutback=/bola no meio|mete no meio|da no meio|dar no meio|passe atras|passe para tras|cruza atras|bola atras/.test(c)
+     const simultaneous=/ao mesmo tempo|simultaneamente|juntos/.test(c)
+
      if(deep){
-       const target=playerTarget(p,c)
-       actions.push({kind:'move',player:num,target,semantic:'deep',label:`Jogador ${num}: afundar até à linha de fundo.`})
+       add({kind:'move',player:num,target:playerTarget(p,c),semantic:'deep',simultaneous,label:`Jogador ${num}: afundar até à linha de fundo.`},96)
      }
      if(cutback){
-       actions.push({kind:'cutback',player:num,aerial,label:`Jogador ${num}: bola ${aerial?'aérea ':''}para o meio após ganhar o fundo.`})
+       add({kind:'cutback',player:num,aerial,simultaneous,label:`Jogador ${num}: bola ${aerial?'aérea ':''}para o meio após ganhar o fundo.`},94)
      }
-     const finRef=c.match(/(?:entra|aparece|chega)(?:\s+o)?\s+(?:jogador|atleta)\s*(\d+).*?(?:finaliza|finalizar|golo)/)
+
+     // "entra o 3 para finalizar" / "entra jogador 3".
+     const finRef=c.match(/(?:entra|aparece|chega)(?:\s+o)?\s*(?:(?:jogador|atleta)\s*)?(\d+).*?(?:finaliza|finalizar|golo)/)
      if(finRef){
        const fn=finRef[1],fp=ownPlayer(fn)
        if(fp){
-         actions.push({kind:'move',player:fn,target:{x:82,y:50},semantic:'centralRun',label:`Jogador ${fn}: entrada na zona central para finalizar.`})
-         actions.push({kind:'finish',player:fn,label:`Jogador ${fn}: finalização para golo.`})
-       }else actions.push({kind:'warning',player:fn,label:`Jogador ${fn} não está no campo.`})
+         add({kind:'move',player:fn,target:{x:82,y:50},semantic:'centralRun',simultaneous,label:`Jogador ${fn}: entrada na zona central para finalizar.`},95)
+         add({kind:'finish',player:fn,simultaneous,label:`Jogador ${fn}: finalização para golo.`},96)
+       }else add({kind:'warning',player:fn,label:`Jogador ${fn} não está no campo.`},100)
        continue
      }
      if(deep||cutback)continue
-     if(/finaliza|finalizar|finalizacao|faz golo|para golo|pra golo/.test(c)){
-       actions.push({kind:'finish',player:num,label:`Jogador ${num}: atacar a zona de finalização e finalizar.`})
+
+     if(/finaliza|finalizar|finalizacao|faz golo|para golo|pra golo|encosta/.test(c)){
+       add({kind:'finish',player:num,simultaneous,label:`Jogador ${num}: atacar a zona de finalização e finalizar.`},94)
        continue
      }
-     if(/remata|remate|chuta|finaliza cruzado/.test(c)){
+     if(/remata|remate|chuta|bate cruzado|remate cruzado/.test(c)){
        const target=/segundo poste|poste contrario/.test(c)?'far':(/primeiro poste/.test(c)?'near':'center')
-       actions.push({kind:'shot',player:num,target,label:`Jogador ${num}: remate${/cruzad/.test(c)?' cruzado':''}${target==='far'?' para o 2.º poste':target==='near'?' para o 1.º poste':''}.`})
+       add({kind:'shot',player:num,target,aerial,simultaneous,label:`Jogador ${num}: remate${/cruzad/.test(c)?' cruzado':''}${target==='far'?' para o 2.º poste':target==='near'?' para o 1.º poste':''}.`},93)
        continue
      }
-     if(/passa|passe|toca|cruza/.test(c)){
-       const tm=c.match(/(?:jogador|atleta)\s*(\d+)\s*$/)
-       actions.push({kind:'pass',player:num,to:tm?.[1]||null,target:/segundo poste/.test(c)?'far':/primeiro poste/.test(c)?'near':null,aerial,label:`Jogador ${num}: passe${aerial?' aéreo':''}${tm?.[1]?` para o jogador ${tm[1]}`:/segundo poste/.test(c)?' para o 2.º poste':''}.`})
+     if(/passa|passe|toca|cruza|mete a bola|da a bola/.test(c)){
+       const refs=[...c.matchAll(/(?:jogador|atleta)\s*(\d+)/g)].map(m=>m[1])
+       const bare=[...c.matchAll(/\b(\d+)\b/g)].map(m=>m[1])
+       const to=(refs.find(x=>x!==num)||bare.find(x=>x!==num)||null)
+       add({kind:'pass',player:num,to,target:/segundo poste/.test(c)?'far':/primeiro poste/.test(c)?'near':null,aerial,simultaneous,label:`Jogador ${num}: passe${aerial?' aéreo':''}${to?` para o jogador ${to}`:/segundo poste/.test(c)?' para o 2.º poste':''}.`},91)
        continue
      }
-     if(/diagonal|paralela|segundo poste|primeiro poste|lado direito|lado esquerdo|pivo|pivot|apoio|aproxima|desmarca|movimenta/.test(c)){
+     if(/diagonal|paralela|segundo poste|primeiro poste|lado direito|lado esquerdo|pivo|pivot|apoio|aproxima|desmarca|movimenta|entra no meio|ataca o meio|nas costas/.test(c)){
        const target=playerTarget(p,c)
-       actions.push({kind:'move',player:num,target,label:`Jogador ${num}: ${/diagonal/.test(c)?'diagonal':/paralela/.test(c)?'paralela':/segundo poste/.test(c)?'ataque ao 2.º poste':/primeiro poste/.test(c)?'ataque ao 1.º poste':'movimento'}${/direita/.test(c)?' para a direita':/esquerda/.test(c)?' para a esquerda':''}.`})
+       add({kind:'move',player:num,target,simultaneous,label:`Jogador ${num}: ${/diagonal/.test(c)?'diagonal':/paralela/.test(c)?'paralela':/segundo poste/.test(c)?'ataque ao 2.º poste':/primeiro poste/.test(c)?'ataque ao 1.º poste':/entra no meio|ataca o meio/.test(c)?'entrada no meio':'movimento'}${/direita/.test(c)?' para a direita':/esquerda/.test(c)?' para a esquerda':''}.`},90)
        continue
      }
-     actions.push({kind:'note',player:num,label:`Jogador ${num}: comando reconhecido, movimento por confirmar.`})
+     add({kind:'note',player:num,label:`Jogador ${num}: comando reconhecido, mas a ação precisa de confirmação.`},55)
    }
    return actions
  }
- const interpretVoice=()=>{
-   const plan=parseVoiceCommand(voiceText)
+ const interpretVoice=(textOverride=null)=>{
+   const txt=(textOverride??voiceText).trim()
+   const plan=parseVoiceCommand(txt)
    setVoicePlan(plan)
-   if(!plan.length)alert('Não consegui identificar comandos táticos. Experimenta: "Jogador 2 faz diagonal para a direita..."')
+   const scored=plan.filter(a=>a.kind!=='warning')
+   setVoiceConfidence(scored.length?Math.round(scored.reduce((n,a)=>n+(a.confidence||70),0)/scored.length):0)
+   if(txt)rememberVoice(txt)
+   if(!plan.length)alert('Não consegui identificar comandos táticos. Experimenta: "2 diagonal direita, 3 segundo poste".')
+   return plan
  }
  const applyVoicePlan=()=>{
    const valid=voicePlan.filter(a=>!['warning','note'].includes(a.kind))
@@ -788,7 +807,7 @@ function Board({tr,exercises,setExercises}){
        try{await stateListener.remove()}catch{}
        try{await SpeechRecognition.removeAllListeners()}catch{}
        setListening(false);setVoiceStatus(txt?'heard':'ready')
-       if(txt){setVoiceText(txt);setVoicePlan([])}
+       if(txt){setVoiceText(txt);setVoiceMode('text');setTimeout(()=>interpretVoice(txt),0)}
        else alert('Não foi reconhecida nenhuma instrução. Experimenta novamente.')
        return
      }
@@ -810,7 +829,7 @@ function Board({tr,exercises,setExercises}){
      rec.onerror=e=>{setListening(false);console.warn('Speech recognition',e)}
      rec.onresult=e=>{
        const txt=[...e.results].map(r=>r[0]?.transcript||'').join(' ')
-       setVoiceText(txt);setVoicePlan([])
+       setVoiceText(txt);setVoiceMode('text');setTimeout(()=>interpretVoice(txt),0)
      }
      rec.start()
    }catch(e){
@@ -901,15 +920,19 @@ function Board({tr,exercises,setExercises}){
  const saveVariant=()=>{const finalSteps=commitSteps(),item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')}
  return <div className="simpleBoard">
   <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol 11</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
-  <div className={`voiceQuickBar ${listening?'isListening':''}`}><button className="voiceBigMic" onClick={startVoice}><span className="voiceMicIcon">{listening?'◉':'🎙️'}</span><span><b>{listening?'A ouvir…':'Dizer jogada'}</b><small>{listening?'Fala normalmente':'Toca e fala como no treino'}</small></span></button><button className="voiceKeyboardBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('text')}}>⌨️ Escrever</button><button className="voiceHelpBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('examples')}}>?</button></div>
+  <div className={`voiceQuickBar ${listening?'isListening':''}`}><button className="voiceBigMic" onClick={startVoice}><span className="voiceMicIcon">{listening?'◉':'🎙️'}</span><span><b>{listening?'A ouvir…':'Dizer jogada'}</b><small>{listening?'Fala normalmente — podes usar só os números':'1 toque · fala · confirma · anima'}</small></span></button><button className="voiceKeyboardBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('text')}}>⌨️ Escrever</button><button className="voiceHelpBtn" onClick={()=>{setVoiceOpen(true);setVoiceMode('examples')}}>?</button></div>
   <div className="card coachTools"><button className={tool==='select'?'active':''} onClick={()=>setTool('select')}>☝ Mover peças</button><button onClick={()=>addPlayer('a','field')}>＋ Nossa equipa</button><button onClick={()=>addPlayer('a','gk')}>🧤 GR nossa equipa</button><button onClick={()=>addPlayer('d','field')}>＋ Adversário</button><button onClick={()=>addPlayer('d','gk')}>🧤 GR adversário</button><button className={tool==='move'?'active':''} onClick={()=>setTool('move')}>➜ Movimento</button><button className={tool==='pass'?'active':''} onClick={()=>setTool('pass')}>⚽ Passe</button><button onClick={()=>setPaths(v=>v.slice(0,-1))}>↶ Apagar seta</button></div>
   {voiceOpen&&<div className="voiceOverlay"><div className="card voiceTacticPanel voiceTacticPanelV2">
    <div className="voicePanelTop"><div><small>COMANDOS TÁTICOS</small><h3>🎙️ Criar animação por voz</h3><p>Fala como no treino. A app interpreta primeiro e só cria movimentos depois da tua confirmação.</p></div><button className="voiceClose" onClick={()=>setVoiceOpen(false)}>✕</button></div>
    <div className="voiceTabs"><button className={voiceMode==='quick'?'active':''} onClick={()=>setVoiceMode('quick')}>🎙️ Voz</button><button className={voiceMode==='text'?'active':''} onClick={()=>setVoiceMode('text')}>⌨️ Texto</button><button className={voiceMode==='examples'?'active':''} onClick={()=>setVoiceMode('examples')}>💡 Exemplos</button></div>
+   <div className="voicePhraseChips">
+    {['Diagonal','Paralela','2.º poste','Bola aérea','Afundar','Linha de fundo','Bola no meio','Pivô','Apoio','Remate cruzado'].map(x=><button key={x} onClick={()=>{setVoiceMode('text');setVoiceText(v=>(v?`${v} `:'')+x.toLowerCase())}}>{x}</button>)}
+   </div>
+   {!!voiceRecent.length&&voiceMode==='examples'&&<div className="voiceRecent"><b>Últimos comandos</b>{voiceRecent.map((x,i)=><button key={i} onClick={()=>{setVoiceText(x);setVoiceMode('text');setTimeout(()=>interpretVoice(x),0)}}>{x}</button>)}</div>}
    {voiceMode==='quick'&&<div className="voiceListenArea"><button className={`voicePulseButton ${listening?'listening':''}`} onClick={startVoice}><span>{listening?'◉':'🎙️'}</span><b>{listening?'Estou a ouvir':'Tocar para falar'}</b><small>{listening?'Diz a instrução completa':'Português · PT-PT'}</small></button><div className="voiceStatusText">{voiceStatus==='permission'?'⚠ Autoriza o microfone nas permissões da app':voiceStatus==='unavailable'?'⚠ Voz indisponível — usa o comando escrito':voiceStatus==='heard'?'✓ Comando recebido. Revê abaixo.':listening?'Fala agora…':'Ex.: “2 afunda, bola no meio, 3 entra e finaliza.”'}</div></div>}
    {voiceMode==='examples'&&<div className="voiceExampleGrid">{voiceExamples.map((x,i)=><button key={i} onClick={()=>{setVoiceText(x);setVoiceMode('text')}}><span>{i+1}</span>{x}</button>)}</div>}
    {(voiceMode==='text'||voiceText)&&<div className="voiceTextArea"><label>Instrução reconhecida / escrita</label><textarea rows="4" value={voiceText} onChange={e=>setVoiceText(e.target.value)} placeholder="Ex.: Jogador 2 afunda até à linha de fundo e dá a bola no meio. Entra o jogador 3 para finalizar."/><div className="voiceTacticActions"><button onClick={startVoice}>{listening?'🎙️ A ouvir…':'🎙️ Ditar novamente'}</button><button className="primary" disabled={!voiceText.trim()} onClick={interpretVoice}>Interpretar jogada →</button><button onClick={()=>{setVoiceText('');setVoicePlan([]);setVoiceStatus('ready')}}>Limpar</button></div></div>}
-   {!!voicePlan.length&&<div className="voiceInterpretation voiceInterpretationV2"><div className="voiceInterpretTitle"><b>Interpretei assim</b><small>Confirma antes de criar a animação.</small></div>{voicePlan.map((a,i)=><div key={i} className={a.kind==='warning'?'voiceWarn':'voiceLine'}><span>{i+1}</span><div><b>{a.kind==='move'?'MOVIMENTO':a.kind==='pass'?'PASSE':a.kind==='shot'?'REMATE':a.kind==='finish'?'FINALIZAÇÃO':a.kind==='cutback'?'BOLA NO MEIO':'AÇÃO'}</b><small>{a.label}</small></div></div>)}<div className="voiceConfirm"><button className="primary voiceConfirmMain" onClick={applyVoicePlan}>✓ Criar animação</button><button onClick={()=>{setVoiceMode('text');setVoicePlan([])}}>✏️ Corrigir frase</button><button onClick={startVoice}>🎙️ Dizer novamente</button></div></div>}
+   {!!voicePlan.length&&<div className="voiceInterpretation voiceInterpretationV2"><div className="voiceInterpretTitle"><div><b>Interpretei assim</b><span className={`voiceConfidence ${voiceConfidence>=85?'high':voiceConfidence>=65?'mid':'low'}`}>{voiceConfidence}% confiança</span></div><small>Confirma antes de criar a animação. Se algo estiver errado, corrige a frase.</small></div>{voicePlan.map((a,i)=><div key={i} className={a.kind==='warning'?'voiceWarn':'voiceLine'}><span>{i+1}</span><div><b>{a.kind==='move'?'MOVIMENTO':a.kind==='pass'?'PASSE':a.kind==='shot'?'REMATE':a.kind==='finish'?'FINALIZAÇÃO':a.kind==='cutback'?'BOLA NO MEIO':'AÇÃO'}</b><small>{a.label}</small></div></div>)}<div className="voiceConfirm"><button className="primary voiceConfirmMain" onClick={applyVoicePlan}>✓ Criar animação</button><button onClick={()=>{setVoiceMode('text');setVoicePlan([])}}>✏️ Corrigir frase</button><button onClick={startVoice}>🎙️ Dizer novamente</button></div></div>}
    <div className="voiceLexiconMini"><b>A app já entende:</b><span>Diagonal</span><span>Paralela</span><span>2.º poste</span><span>Bola aérea</span><span>Afundar</span><span>Linha de fundo</span><span>Bola no meio</span><span>Pivô</span><span>Apoio</span><span>Remate cruzado</span></div>
   </div></div>}\n  <div className={fullscreen?'pitchFullscreen':'card pitchCard'}>
    <div className="pitchViewportBar">

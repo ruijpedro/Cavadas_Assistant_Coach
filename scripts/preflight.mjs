@@ -121,4 +121,8 @@ for(const token of ["@capacitor-community/speech-recognition","Capacitor.isNativ
 }
 
 for(const token of ['Dizer jogada','voiceQuickBar','voicePulseButton','Interpretei assim','Criar animação','voiceExamples']){if(!s.includes(token)){console.error('PRECHECK FAIL V22.4.1 VOICE UI:',token);process.exit(1);}}
-console.log('Preflight V22.4.1 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
+
+for(const token of ['voiceConfidence','voiceRecent','voicePhraseChips','2 diagonal, 3 segundo poste','rememberVoice']){
+ if(!s.includes(token)){console.error('PRECHECK FAIL V22.5 VOICE COACH:',token);process.exit(1);}
+}
+console.log('Preflight V22.5 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
