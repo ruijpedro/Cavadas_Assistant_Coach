@@ -389,3 +389,23 @@ main{max-width:1920px;padding:14px 16px}
 .footballPitchSvg{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;user-select:none}
 .coachPitch.football11:before,.coachPitch.football7:before,.coachPitch.football6:before{display:none!important}
 .coachPitch.football11 .coachLines,.coachPitch.football7 .coachLines,.coachPitch.football6 .coachLines{z-index:2}
+
+/* V22.9 — Campo FUTSAL vetorial corrigido */
+.coachPitch.futsal{
+  aspect-ratio:2/1;
+  background:#075ea8;
+}
+.futsalPitchSvg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  z-index:0;
+  pointer-events:none;
+  user-select:none;
+}
+.coachPitch.futsal:before{display:none!important}
+.coachPitch.futsal .coachLines,
+.coachPitch.futsal .coachPiece,
+.coachPitch.futsal .coachBall{z-index:2}

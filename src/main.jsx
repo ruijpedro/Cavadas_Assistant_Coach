@@ -6,6 +6,7 @@ import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import './style.css'
 import footballPitchSvg from './assets/football-pitch.svg'
+import futsalPitchSvg from './assets/futsal-pitch.svg'
 import {analyseDocumentV2, supportedImportKind} from './importEngineV2.js'
 
 const T={
@@ -978,7 +979,7 @@ function Board({tr,exercises,setExercises}){
  }
  const saveVariant=()=>{const finalSteps=commitSteps(),item={...(editEx||{}),id:'variant'+Date.now(),title:(title||'Jogada')+' · Variante',author:'Cavadas Manager',libraryBase:false,field:sport,playersCount:players.length,board:{players,ball,steps:finalSteps},createdAt:new Date().toISOString()};setExercises([...(exercises||[]),item]);localStorage.setItem('gw_board_edit_exercise',item.id);setTitle(item.title);alert('Variante guardada.')}
  return <div className="simpleBoard">
-  <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal · 40×20</option><option value="football11">Futebol 11 · campo completo</option><option value="football7">Futebol 7</option><option value="football6">Futebol 6</option></select></div>
+  <div className="card simpleHead"><div><small>{editEx?.libraryBase?'BIBLIOTECA BASE · ANIMAÇÃO V17.1':'QUADRO TÁTICO'}</small><input className="boardTitleInput" value={title} onChange={e=>setTitle(e.target.value)}/><div className="boardSub">Movimentos naturais · bola mais rápida · ações simultâneas · velocidade ajustável</div></div><select value={sport} onChange={e=>setSport(e.target.value)}><option value="futsal">Futsal</option><option value="football11">Futebol</option></select></div>
   <div className={`voiceQuickBar ${listening?'isListening':''}`}>
    <button className="voiceBigMic" onClick={startVoice}><span className="voiceMicIcon">{listening?'◉':'🎙️'}</span><span><b>{listening?'A ouvir…':'Dizer jogada'}</b><small>{listening?'Fala normalmente — podes usar só os números':'1 toque · fala · confirma · anima'}</small></span></button>
    <div className="voiceDirection"><small>ATACAMOS</small><button className={voiceAttackDir==='right'?'active':''} onClick={()=>setVoiceAttackDir('right')}>→</button><button className={voiceAttackDir==='left'?'active':''} onClick={()=>setVoiceAttackDir('left')}>←</button></div>
@@ -1002,7 +1003,7 @@ function Board({tr,exercises,setExercises}){
   </div></div>}\n  <div className={fullscreen?'pitchFullscreen':'card pitchCard'}>
    <div className="pitchViewportBar">
     <button className="viewportBtn" onClick={()=>setFullscreen(v=>!v)}>{fullscreen?'✕ Fechar':'⛶ Ecrã inteiro'}</button>
-    <span>{fullscreen?`${title} · ${sport==='futsal'?'FUTSAL':sport==='football11'?'FUTEBOL 11':sport==='football7'?'FUTEBOL 7':'FUTEBOL 6'} · PASSO ${step+1}/${steps.length} · ${tool==='select'?'Mover':tool==='move'?'Movimento':'Passe'} · Atacamos ${voiceAttackDir==='right'?'→':'←'}`:'O campo adapta-se automaticamente ao ecrã'}</span>
+    <span>{fullscreen?`${title} · ${sport==='futsal'?'FUTSAL':'FUTEBOL'} · PASSO ${step+1}/${steps.length} · ${tool==='select'?'Mover':tool==='move'?'Movimento':'Passe'} · Atacamos ${voiceAttackDir==='right'?'→':'←'}`:'O campo adapta-se automaticamente ao ecrã'}</span>
     {fullscreen&&<button className="viewportTools" onClick={()=>setFsToolsOpen(v=>!v)}>{fsToolsOpen?'▾ Ferramentas':'▴ Ferramentas'}</button>}
     {fullscreen&&(playing?<button className="viewportPlay" onClick={stop}>■ STOP</button>:<button className="viewportPlay" onClick={play}>▶ PLAY</button>)}
    </div>
@@ -1039,10 +1040,10 @@ function Board({tr,exercises,setExercises}){
     <button className="fsStepAdd" onClick={nextStep}>＋ Passo</button>
    </div>}
    <div className="pitchFit"><div className={`coachPitch ${sport}`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={()=>{setDrag(null);setPathStart(null)}}>
-   {isFootball?<img className="footballPitchSvg" src={footballPitchSvg} alt="" draggable="false"/>:<>
-    <div className="pitchHalf"/><div className="pitchCircle"/><div className="pitchSpot"/>
-    <div className="pitchArea left"/><div className="pitchArea right"/><div className="pitchGoal left"/><div className="pitchGoal right"/>
-   </>}
+   {isFootball
+    ? <img className="footballPitchSvg" src={footballPitchSvg} alt="" draggable="false"/>
+    : <img className="futsalPitchSvg" src={futsalPitchSvg} alt="" draggable="false"/>
+   }
    {!playing&&<svg className="coachLines" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><marker id="arrowMove" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker><marker id="arrowPass" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 z"/></marker></defs>{paths.map(p=><line key={p.id} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} className={`${p.type}${p.aerial?' aerial':''}${p.cutback?' cutback':''}`} markerEnd={`url(#${p.type==='pass'?'arrowPass':'arrowMove'})`}/>)}</svg>}
    {players.map(p=><div key={p.id} className={`coachPiece ${p.team} ${String(p.label).toUpperCase()==='GR'?'gk':''}`} style={{left:`${p.x}%`,top:`${p.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'player',id:p.id})}}>{p.label}</div>)}
    <div className="coachBall" style={{left:`${ball.x}%`,top:`${ball.y}%`}} onPointerDown={e=>{e.stopPropagation();if(tool==='select')setDrag({kind:'ball'})}}>⚽</div>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" preserveAspectRatio="none">
+<defs>
+ <linearGradient id="floor" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#075ea8"/><stop offset="1" stop-color="#0876c9"/>
+ </linearGradient>
+</defs>
+<rect width="800" height="400" fill="url(#floor)"/>
+<g fill="none" stroke="#fff" stroke-width="3" vector-effect="non-scaling-stroke">
+ <!-- perímetro -->
+ <rect x="18" y="18" width="764" height="364"/>
+ <!-- meio-campo -->
+ <line x1="400" y1="18" x2="400" y2="382"/>
+ <circle cx="400" cy="200" r="60"/>
+ <!-- áreas de baliza: arcos de 6 m unidos por segmento frontal -->
+ <path d="M18 80 A120 120 0 0 1 138 200 L138 200 A120 120 0 0 1 18 320"/>
+ <path d="M782 80 A120 120 0 0 0 662 200 L662 200 A120 120 0 0 0 782 320"/>
+ <!-- balizas -->
+ <rect x="6" y="170" width="12" height="60"/>
+ <rect x="782" y="170" width="12" height="60"/>
+ <!-- arcos de canto -->
+ <path d="M18 28 A10 10 0 0 0 28 18"/>
+ <path d="M772 18 A10 10 0 0 0 782 28"/>
+ <path d="M18 372 A10 10 0 0 1 28 382"/>
+ <path d="M772 382 A10 10 0 0 1 782 372"/>
+ <!-- marcas laterais discretas -->
+ <path d="M18 110 h-9 M18 200 h-9 M18 290 h-9"/>
+ <path d="M782 110 h9 M782 200 h9 M782 290 h9"/>
+ <path d="M260 18 v-9 M340 18 v-9 M460 18 v-9 M540 18 v-9"/>
+ <path d="M260 382 v9 M340 382 v9 M460 382 v9 M540 382 v9"/>
+</g>
+<g fill="#fff">
+ <circle cx="400" cy="200" r="4"/>
+ <circle cx="118" cy="200" r="4"/>
+ <circle cx="682" cy="200" r="4"/>
+ <circle cx="158" cy="200" r="3"/>
+ <circle cx="642" cy="200" r="3"/>
+</g>
+</svg>
