@@ -30,5 +30,10 @@
 </g>
 <g fill="#fff">
  <circle cx="400" cy="200" r="4"/>
-</g>
-</svg>
+ <!-- penálti sobre a linha da área -->
+ <circle cx="138" cy="200" r="4"/>
+ <circle cx="662" cy="200" r="4"/>
+ <!-- segundo ponto exterior -->
+ <circle cx="198" cy="200" r="4"/>
+ <circle cx="602" cy="200" r="4"/>
+</g></svg>
