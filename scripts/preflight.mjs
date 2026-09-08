@@ -142,4 +142,6 @@ for(const token of ['futsalPitchSvg','futsal-pitch.svg','<option value="futsal">
  if(!s.includes(token)){console.error('PRECHECK FAIL V22.9 FUTSAL SVG:',token);process.exit(1);}
 }
 if(s.includes('Futebol 11 · campo completo')){console.error('PRECHECK FAIL V22.9: referência antiga Futebol 11');process.exit(1);}
+
+if(!s.includes('futsalPitchSvg')){console.error('PRECHECK FAIL V22.9.1 FUTSAL SVG');process.exit(1);}
 console.log('Preflight V22.8 OK — biblioteca animada, GR, navegação, importador e módulos principais validados.');
